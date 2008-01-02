@@ -1,16 +1,6 @@
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/src/libs )
-
-#LINK_LIBRARIES( matheval )
-#ADD_EXECUTABLE( test_matheval test_matheval.cpp )
-
-#LINK_LIBRARIES( xode )
-#ADD_EXECUTABLE( test_build_scene test_build_scene.cpp )
-
-#LINK_LIBRARIES( xode )
-#ADD_EXECUTABLE( test_ogre_scene test_ogre_scene.cpp )
-
-LINK_LIBRARIES( xode )
-ADD_EXECUTABLE( test_collision test_collision.cpp )
-
-LINK_LIBRARIES( xode )
-ADD_EXECUTABLE( test_meshes test_meshes.cpp )
+set(DEMO_PROGS rtest demo bench demo_2dof_pd pa10test)
+foreach( demo_prog ${DEMO_PROGS} )
+	add_executable(${demo_prog} ${demo_prog}.cpp)
+	target_link_libraries(${demo_prog} roboop newmat)
+	install_targets( /bin ${demo_prog} )
+endforeach(demo_prog)
