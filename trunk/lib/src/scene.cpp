@@ -10,22 +10,6 @@ namespace xode {
 
 void collisionCallback(void* data, dGeomID o1, dGeomID o2);
 
-/*NameValue::NameValue(const std::string& str, const float& x) : 
-	name_(str)
-{
-	value_[0] = x;
-	value_[1] = 0.0;
-	value_[2] = 0.0;	
-}
-
-NameValue::NameValue(const std::string& str, const float& x, const float& y, const float& z) : 
-	name_(str)
-{
-	value_[0] = x;
-	value_[1] = y;
-	value_[2] = z;
-}*/
-
 //! Basic constructor.
 Scene::Scene() :
 	bCollisionState_(true)
@@ -57,13 +41,6 @@ Scene::~Scene()
 	}
 	geomData_.clear();
 		
-	/*for (TransformList_t::iterator it = transformData_.begin(); it != transformData_.end(); ++it)
-	{
-		delete *it;
-		*it = NULL;
-	}
-	transformData_.clear();*/
-	
 	dWorldDestroy(worldID_);
 	dCloseODE();
 }

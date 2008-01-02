@@ -1,87 +1,112 @@
-set(TARGET_NAME "xode")
-option( BUILD_${TARGET_NAME} "Try to build the ${TARGET_NAME} library" ON )
-option( BUILD_${TARGET_NAME}_MEX "Try to build mex interface to ${TARGET_NAME}" ON)
+cmake_minimum_required( VERSION 2.4 FATAL_ERROR )
+# Older versions have a different signature, check it manually just to make sure
+if ( ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4 )
+	message( FATAL_ERROR	"SceneML requires at least CMake v2.4. You are running v${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}. Please upgrade." )
+endif ( ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4 )
 
-if ( BUILD_${TARGET_NAME} )
-	message( STATUS "_${TARGET_NAME}_" )
-	set(DEPENDENCY_CHECK_XODE 1)
+# ---------------------------------------------------------------------------------------------------------------------------
+# Project information - name, version, and the project's cmake directory
+# ---------------------------------------------------------------------------------------------------------------------------
+project( sceneml )
+set( PROJECT_VERSION	1.0.0	CACHE STRING "Version of 'SceneML' distribution" )
+set(TARGET_NAME "sceneml")
+
+# ---------------------------------------------------------------------------------------------------------------------------
+# Project options
+# ---------------------------------------------------------------------------------------------------------------------------
+option( BUILD_TESTS "Try to build the tests library" ON )
+option( BUILD_SHARED "Build the SceneML library shared." ON )
+option( BUILD_TEST "Build the SceneML test programs." OFF )
+option( BUILD_DEBUG "Build a debug version of the library." OFF )
+option( BUILD_MATLAB "Build the mex interface to the SceneML library." ON )
+
+# ------------------------------------------------------------------------------
+# Project directories
+# ------------------------------------------------------------------------------
+set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin )
+set( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib )
+
+# Use environmental variable if it is set
+set( PROJECT_INSTALL_DIR $ENV{${PROJECT_INSTALL_ENV_VAR}} )
+# If environment variable SCENEML_INSTALL is NOT set, use defaults
+if( NOT PROJECT_INSTALL_DIR )
+	if ( NOT WIN32 )
+		# Linux and friends: if environment variable ORCA2_INSTALL is not set, e.g. /opt/orca-1.2.3
+		set( PROJECT_INSTALL_DIR /opt/${PROJECT_NAME}-${PROJECT_VERSION} )
+	else ( NOT WIN32 )
+		# Windows: e.g. C:\orca-1.2.3
+		set( PROJECT_INSTALL_DIR C:/${PROJECT_NAME}-${PROJECT_VERSION} )
+	endif ( NOT WIN32 )
+endif( NOT PROJECT_INSTALL_DIR )
+set( CMAKE_INSTALL_PREFIX ${PROJECT_INSTALL_DIR} CACHE PATH "Installation directory" FORCE )
+message( STATUS "Setting installation directory to ${CMAKE_INSTALL_PREFIX}" )
+
+# ------------------------------------------------------------------------------
+# Set build type and other build options
+# ------------------------------------------------------------------------------
+# Build type
+if( BUILD_DEBUG )
+	message(STATUS "Building debug version of SceneML")
+	set(CMAKE_BUILD_TYPE Debug)
+else( BUILD_DEBUG )
+	message(STATUS "Building release version of SceneML")
+	set(CMAKE_BUILD_TYPE Release)
+endif( BUILD_DEBUG )
+
+# Build options based on processor
+if( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
+	if( MSVC )
+		add_definitions(arch:SSE)
+	endif( MSVC )
 	
-	# Dependency checks - Boost, ODE, matheval, OIS, Ogre, xerces
-	include ( ${PROJECT_CMAKE_DIR}/FindODE.cmake )
-	if (NOT ODE_FOUND)
-		message( WARNING " ODE is missing.")
-		set(DEPENDENCY_CHECK_XODE 0)
-	endif (NOT ODE_FOUND)
+	if ( CMAKE_COMPILER_IS_GNUCXX )
+		add_definitions(-march=pentium4)
+	endif ( CMAKE_COMPILER_IS_GNUCXX )
+endif
+
+# Build options based on OS
+if (WIN32)
+	add_definitions(-D_STANDARD_)
+endif (WIN32)
+if (APPLE)
+	# Nothing for now
+endif (APPLE)
+if ( (UNIX) AND (NOT APPLE) )
+	# Nothing for now
+endif ( (UNIX) AND (NOT APPLE) )
+
+# ------------------------------------------------------------------------------
+# Require packages
+# ------------------------------------------------------------------------------
+set( DEPENDENCY_CHECK 0 )
+include ( ${PROJECT_CMAKE_DIR}/FindODE.cmake )
+if (NOT ODE_FOUND)
+	message( WARNING " ODE is missing.")
+	set(DEPENDENCY_CHECK_XODE 0)
+endif (NOT ODE_FOUND)
 	
-	find_package(Boost REQUIRED)
-	if (NOT Boost_FOUND)
-		message( WARNING " Boost is missing." )
-		set(DEPENDENCY_CHECK_XODE 0)
-	endif (NOT Boost_FOUND)
+# ------------------------------------------------------------------------------
+# Library types
+# ------------------------------------------------------------------------------
+if( BUILD_SHARED )
+	set( LIBRARY_TYPE	SHARED )
+else( BUILD_SHARED )
+	set( LIBRARY_TYPE	STATIC )
+endif( BUILD_SHARED )
+
+# ------------------------------------------------------------------------------
+# Installation preferences
+# ------------------------------------------------------------------------------
+set( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib )
+
+# Finally, recurse in the sub directories
+if (NOT DEPENDENCY_CHECK_XODE)
+	message( ERROR " ${TARGET_NAME} is missing a required dependency. Skipping it." )
+else (NOT DEPENDENCY_CHECK_XODE)
+	# We have all of our dependencies... so build it!
+	subdirs( src )
 	
-	include( ${PROJECT_CMAKE_DIR}/FindXerces.cmake )
-	if (NOT XERCES_FOUND)
-		message( WARNING " Xerces is missing.")
-		set(DEPENDENCY_CHECK_XODE 0)
-	endif (NOT XERCES_FOUND)
-	
-	#include( ${PROJECT_CMAKE_DIR}/FindMathEval.cmake )
-	#if (NOT MATHEVAL_FOUND)
-	#	message( WARNING " MATHEVAL is missing.")
-	#	set(DEPENDENCY_CHECK_XODE 0)
-	#endif (NOT MATHEVAL_FOUND)
-	
-	include ( ${PROJECT_CMAKE_DIR}/FindNewmat.cmake )
-	if (NOT NEWMAT_FOUND)
-		message( WARNING " Newmat is missing.")
-		set(DEPENDENCY_CHECK_XODE 0)
-	endif (NOT NEWMAT_FOUND)
-	
-	# Finally check the OS.. we can't build this library in Windows yet
-	if( OS_WIN )
-		message( WARNING " XODE is currently only available for Linux")
-		set(DEPENDENCY_CHECK_XODE 0)
-	endif ( OS_WIN )
-	
-	if (NOT DEPENDENCY_CHECK_XODE)
-		message( ERROR " ${TARGET_NAME} is missing a required dependency. Skipping it." )
-	else (NOT DEPENDENCY_CHECK_XODE)
-		# We have all of our dependencies... so build it!
-		include_directories( ${PROJECT_SOURCE_DIR}/src/libs 
-						 ${Boost_INCLUDE_DIRS}
-						 ${ODE_HOME}/include
-						 ${NEWMAT_HOME}/newmat
-		)
-		
-		link_directories( ${ODE_HOME}/lib
-					   ${NEWMAT_HOME}/lib
-					   /usr/lib 
-					   /usr/local/lib
-		)
-		
-		set( SRCS	matrix.cpp
-			transform.cpp
-			sceneobjects.cpp 
-			scene.cpp
-			xml_attributes.cpp 
-			xml_scene_builder.cpp
-			Primitive.cpp
-			OBJImport.cpp
-			STLImport.cpp
-		)
-	
-		global_add_library( ${TARGET_NAME} SHARED ${SRCS} )
-		target_link_libraries( ${TARGET_NAME} newmat odegim xerces-c methods muparser)
-				
-		install_files( /include/${TARGET_NAME} .*\\.h$ )
-	
-		if ( BUILD_TESTS )
-			add_subdirectory ( tests )
-		endif ( BUILD_TESTS )
-		
-		#if (BUILD_${TARGET_NAME}_MEX)
-		#	add_subdirectory ( mex )
-		#endif (BUILD_${TARGET_NAME}_MEX)
-		
-	endif (NOT DEPENDENCY_CHECK_XODE)
-endif ( BUILD_${TARGET_NAME} )
+	if (BUILD_TEST)
+		subdirs( tests )
+	endif (BUILD_TEST)
+endif (NOT DEPENDENCY_CHECK_XODE)
