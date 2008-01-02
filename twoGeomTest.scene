@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scene>
+	<space name="userspace" type="simple">
+		<body name="b0" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="usertrans"/>
+			</transform>
+			<geometry type="sphere" name="user">
+				<parameter type="radius" value="30"/>
+			</geometry>
+		</body>
+	</space>
+	
+	<space name="spherespace" type="simple">
+		<body name="b1" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp1"/>
+			</transform>
+			<geometry type="sphere" name="s1">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b2" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp2"/>
+			</transform>
+			<geometry type="sphere" name="s2">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b3" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp3"/>
+			</transform>
+			<geometry type="sphere" name="s3">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b4" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp4"/>
+			</transform>
+			<geometry type="sphere" name="s4">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b5" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp5"/>
+			</transform>
+			<geometry type="sphere" name="s5">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b6" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp6"/>
+			</transform>
+			<geometry type="sphere" name="s6">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b7" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp7"/>
+			</transform>
+			<geometry type="sphere" name="s7">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b8" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp8"/>
+			</transform>
+			<geometry type="sphere" name="s8">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b9" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp9"/>
+			</transform>
+			<geometry type="sphere" name="s9">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b10" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp10"/>
+			</transform>
+			<geometry type="sphere" name="s10">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b11" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp11"/>
+			</transform>
+			<geometry type="sphere" name="s11">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b12" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp12"/>
+			</transform>
+			<geometry type="sphere" name="s12">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b13" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp13"/>
+			</transform>
+			<geometry type="sphere" name="s13">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b14" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp14"/>
+			</transform>
+			<geometry type="sphere" name="s14">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+		<body name="b15" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="sp15"/>
+			</transform>
+			<geometry type="sphere" name="s15">
+				<parameter type="radius" value="60"/>
+			</geometry>
+		</body>
+	</space>
+	
+	<collisionpairs>
+		<pair space1="userspace" space2="spherespace"/>
+	</collisionpairs>
+</scene>
