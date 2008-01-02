@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene>
+	<space name="environment" type="quadtree">
+		<parameter type="minlevel" value="-1"/>
+		<parameter type="maxlevel" value="8" />
+		<body name="src_stand" parent="world">
+			<transform>
+				<translation value="1000 0 584.2/2"/>
+			</transform>
+			<geometry type="box" name="box01">
+				<parameter type="length" value="457.2"/>
+				<parameter type="width" value="609.6"/>
+				<parameter type="height" value="584.2"/>
+				<transform>
+					<translation value="1 0 0"/>
+					<rotation type="x" value="-pi/2"/>
+				</transform>
+			</geometry>
+		</body>
+	</space>
+</scene>
