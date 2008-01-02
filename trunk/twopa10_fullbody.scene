@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Standard DH notation 
+A	= [0,		450,		0,		0,		0,		0	];	% link length
+alpha	= [-pi/2,	0,		pi/2,		-pi/2,	pi/2,		0	];	% link twist angle
+D	= [317,	0,		0,		480,		0,		70	];	% link offset distance
+theta	= [0,		0,		0,		0,		0,		0	];	% link rotation angle
+offset= [0,		-pi/2,	pi/2,		0,		0,		0	];	% offset for theta (for zero-pose)
+rx	= [0,		-321,		0,		0,		0,		0	];	% CG
+ry	= [117,	-30,		0,		112.2,	0,		0	];
+rz	= [0,		0,		48.5,		0,		-42,		-48	];
+
+Modified DH notation
+A	= [0,		450,		0,		0,	 	0,		0	];	% link length
+alpha	= [0, 		-pi/2,	0,		pi/2,		-pi/2,	pi/2	];	% link twist angle
+D	= [317,	0,		0,		480,		0,		70	];	% link offset distance
+theta	= [0,		0,		0,		0,		0,		0	];	% link rotation angle
+offset= [0,		-pi/2,	pi/2,		0,		0, 		0	];	% offset for theta (for zero-pose)
+rx	= [0,		129,		0,		0,		0,		0	];	% CG
+ry	= [0,		-30,		-48.5,	0,		42,		0	];
+rz	= [-178.5,	0,		0,		-112.2,	0,		-48	];
+
+REMEMBER
+T_ij = f(a_ij,  alpha_ij, S_j, theta_j)
+-->
+
+<scene lunits="mm" runits="rad">
+
+	<space name="environment" type="quadtree">
+		<parameter type="minlevel" value="-1"/>
+		<parameter type="maxlevel" value="8" />
+		<body name="src_stand" parent="world">
+			<transform>
+				<translation value="1000 0 584.2/2"/>
+			</transform>
+			<geometry type="box" name="src_stand01">
+				<parameter type="length" value="457.2"/>
+				<parameter type="width" value="609.6"/>
+				<parameter type="height" value="584.2"/>
+			</geometry>
+		</body>
+		
+		<body name="sen_stand" parent="world">
+			<transform>
+				<translation value="-1000 0 584.2/2"/>
+			</transform>
+			<geometry type="box" name="sen_stand01">
+				<parameter type="length" value="457.2"/>
+				<parameter type="width" value="609.6"/>
+				<parameter type="height" value="584.2"/>
+			</geometry>
+		</body>
+
+		<body name="floor" parent="world">
+			<geometry type="plane" name="floor01">
+				<parameter type="normal_x" value="0" />
+				<parameter type="normal_y" value="0" />
+				<parameter type="normal_z" value="1" />
+				<parameter type="d" value="0" />
+			</geometry>
+		</body>
+	</space>
+	
+	<space name="source" type="quadtree">
+		<parameter type="minlevel" value="-1"/>
+		<parameter type="maxlevel" value="8" />
+		<body name="src1" parent="world">
+			<transform>
+				<translation value="1000 0 584.3"/>
+				<rotation type="z" value="pi"/>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="0"/>
+				<translation value="0 0 317"/>
+				<rotation type="z" value="0" mutable="1" name="src1"/>
+				<rotation type="z" value="0"/>
+			</transform>
+			<geometry type="ccylinder" name="src101">
+				<parameter type="length" value="388.5-2*130"/>
+				<parameter type="radius" value="130"/>
+				<transform>
+					<translation value="0 0 -122.75"/>
+				</transform>
+			</geometry>
+		</body>
+
+		<body name="src2" parent="src1">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="-pi/2"/>
+				<translation value="0 0 0"/>
+				<rotation type="z" value="0" mutable="1" name="src2"/>
+				<rotation type="z" value="-pi/2"/>
+			</transform>
+			<geometry type="ccylinder" name="src201">
+				<parameter type="length" value="580.5-2*109.7"/>
+				<parameter type="radius" value="109.7"/>
+				<transform>
+					<translation value="219.75 -39.2 0"/>
+					<rotation type="y" value="pi/2"/>
+				</transform>
+			</geometry>
+		</body>
+
+		<body name="src3" parent="src2">
+			<transform>
+				<translation value="450 0 0"/>
+				<rotation type="x" value="0"/>
+				<translation value="0 0 0"/>
+				<rotation type="z" value="0" mutable="1" name="src3"/>
+				<rotation type="z" value="pi/2"/>
+			</transform>
+			<geometry type="ccylinder" name="src301">
+				<parameter type="length" value="339.5-2*67.73"/>
+				<parameter type="radius" value="67.73"/>
+				<transform>
+					<translation value="0 -116.75 0"/>
+					<rotation type="x" value="pi/2"/>
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="src4" parent="src3">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="pi/2"/>
+				<translation value="0 0 480"/>
+				<rotation type="z" value="0" mutable="1" name="src4"/>
+				<rotation type="z" value="0"/>
+			</transform>
+			<geometry type="box" name="src401">
+				<parameter type="length" value="87.74"/>
+				<parameter type="width" value="162"/>
+				<parameter type="height" value="237.5"/>
+				<transform>
+					<translation value="0 0 -74.75"/>
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="src5" parent="src4">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="-pi/2"/>
+				<translation value="0 0 0"/>
+				<rotation type="z" value="0" mutable="1" name="src5"/>
+				<rotation type="z" value="0"/>
+			</transform>
+			<geometry type="ccylinder" name="src501">
+				<parameter type="length" value="185.5-2*50.7"/>
+				<parameter type="radius" value="50.7"/>
+				<transform>
+					<translation value="0 22.75 0"/>
+					<rotation type="x" value="pi/2"/>
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="src6" parent="src5">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="pi/2"/>
+				<translation value="0 0 70"/>
+				<rotation type="z" value="0" mutable="1" name="src6"/>
+				<rotation type="z" value="0"/>
+			</transform>
+		</body>
+		
+		<body name="emitter" parent="src6">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="pi"/>
+				<translation value="0 0 0"/>
+				<rotation type="z" value="0"/>
+				<rotation type="z" value="0"/>
+			</transform>
+			<geometry type="ccylinder" name="emitter01">
+				<parameter type="length" value="185.5-2*40"/>
+				<parameter type="radius" value="40"/>
+				<transform>
+					<translation value="0 0 -185.5/2+40"/>
+				</transform>
+			</geometry>
+		</body>
+		
+	</space>
+
+	
+	<space name="sensor" type="quadtree">
+		<parameter type="minlevel" value="-1"/>
+		<parameter type="maxlevel" value="8" />
+		<body name="sen1" parent="world">
+			<transform>
+				<translation value="-1000 0 584.3"/>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="0"/>
+				<translation value="0 0 317"/>
+				<rotation type="z" value="0" mutable="1" name="sen1"/>
+				<rotation type="z" value="0"/>
+			</transform>
+			<geometry type="ccylinder" name="sen101">
+				<parameter type="length" value="388.5-2*130"/>
+				<parameter type="radius" value="130"/>
+				<transform>
+					<translation value="0 0 -122.75"/>
+				</transform>
+			</geometry>
+		</body>
+
+		<body name="sen2" parent="sen1">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="-pi/2"/>
+				<translation value="0 0 0"/>
+				<rotation type="z" value="0" mutable="1" name="sen2"/>
+				<rotation type="z" value="-pi/2"/>
+			</transform>
+			<geometry type="ccylinder" name="sen201">
+				<parameter type="length" value="580.5-2*109.7"/>
+				<parameter type="radius" value="109.7"/>
+				<transform>
+					<translation value="219.75 -39.2 0"/>
+					<rotation type="y" value="pi/2"/>
+				</transform>
+			</geometry>
+		</body>
+
+		<body name="sen3" parent="sen2">
+			<transform>
+				<translation value="450 0 0"/>
+				<rotation type="x" value="0"/>
+				<translation value="0 0 0"/>
+				<rotation type="z" value="0" mutable="1" name="sen3"/>
+				<rotation type="z" value="pi/2"/>
+			</transform>
+			<geometry type="ccylinder" name="sen301">
+				<parameter type="length" value="339.5-2*67.73"/>
+				<parameter type="radius" value="67.73"/>
+				<transform>
+					<translation value="0 -116.75 0"/>
+					<rotation type="x" value="pi/2"/>
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="sen4" parent="sen3">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="pi/2"/>
+				<translation value="0 0 480"/>
+				<rotation type="z" value="0" mutable="1" name="sen4"/>
+				<rotation type="z" value="0"/>
+			</transform>
+			<geometry type="box" name="sen401">
+				<parameter type="length" value="87.74"/>
+				<parameter type="width" value="162"/>
+				<parameter type="height" value="237.5"/>
+				<transform>
+					<translation value="0 0 -74.75"/>
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="sen5" parent="sen4">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="-pi/2"/>
+				<translation value="0 0 0"/>
+				<rotation type="z" value="0" mutable="1" name="sen5"/>
+				<rotation type="z" value="0"/>
+			</transform>
+			<geometry type="ccylinder" name="sen501">
+				<parameter type="length" value="185.5-2*50.7"/>
+				<parameter type="radius" value="50.7"/>
+				<transform>
+					<translation value="0 22.75 0"/>
+					<rotation type="x" value="pi/2"/>
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="sen6" parent="sen5">
+			<transform>
+				<translation value="0 0 0"/>
+				<rotation type="x" value="pi/2"/>
+				<translation value="0 0 70"/>
+				<rotation type="z" value="0" mutable="1" name="sen6"/>
+				<rotation type="z" value="0"/>
+			</transform>
+		</body>
+		
+		<body name="detector" parent="sen6">
+			<geometry type="box" name="detector01" >
+				<parameter type="length" value="264.2"/>
+				<parameter type="width" value="306.2"/>
+				<parameter type="height" value="61.1"/>
+				<transform>
+					<translation value="0 0 61.1/2"  />
+				</transform>
+			</geometry>
+		</body>
+	</space>
+	
+	<space name="human" type="quadtree">
+		<parameter type="minlevel" value="-1"/>
+		<parameter type="maxlevel" value="8" />
+		<body name="pelvis" parent="world">
+			<transform>
+				<rotation type="z" value="pi/2" />
+				<translation value="0 0 0" mutable="1" name="pelvis_trans" />
+				<rotation type="e123" value="0 0 0" mutable="1" name="pelvis_rot" />
+			</transform>
+		</body>
+
+		<body name="rthigh" parent="pelvis">
+			<transform>
+				<translation value="90 0 0" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="rhip" />
+			</transform>
+			<geometry type="ccylinder" name="rthigh01" >
+				<parameter type="length" value="440.8-2*83.5"/>
+				<parameter type="radius" value="83.5"/>
+				<transform>
+					<translation value="0 0 -432/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="rleg" parent="rthigh">
+			<transform>
+				<translation value="0 0 -440.8" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="rknee"  />
+			</transform>
+			<geometry type="ccylinder" name="rleg01" >
+				<parameter type="length" value="442.6-2*62.7"/>
+				<parameter type="radius" value="62.7"/>
+				<transform>
+					<translation value="0 0 -434/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="rfoot" parent="rleg">
+			<transform>
+				<translation value="0 0 -442.6" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="rankle"  />
+			</transform>
+			<geometry type="box" name="rfoot01" >
+				<parameter type="length" value="99"/>
+				<parameter type="width" value="68.8"/>
+				<parameter type="height" value="273"/>
+				<transform>
+					<translation value="0 -68.8/2 -273/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="lthigh" parent="pelvis">
+			<transform>
+				<translation value="-90 0 0" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="lhip"  />
+			</transform>
+			<geometry type="ccylinder" name="lthigh01" >
+				<parameter type="length" value="440.8-2*83.5"/>
+				<parameter type="radius" value="83.5"/>
+				<transform>
+					<translation value="0 0 -432/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="lleg" parent="lthigh">
+			<transform>
+				<translation value="0 0 -440.8" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="lknee"  />
+			</transform>
+			<geometry type="ccylinder" name="lleg01" >
+				<parameter type="length" value="442.6-2*62.7"/>
+				<parameter type="radius" value="62.7"/>
+				<transform>
+					<translation value="0 0 -434/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="target" parent="lleg">
+			<transform>
+				<rotation type="y" value="pi/2"/>
+			</transform>
+		</body>
+		
+		<body name="lfoot" parent="lleg">
+			<transform>
+				<translation value="0 0 -442.6" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="lankle"  />
+			</transform>
+			<geometry type="box" name="lfoot01" >
+				<parameter type="length" value="99"/>
+				<parameter type="width" value="68.8"/>
+				<parameter type="height" value="273"/>
+				<transform>
+					<translation value="0 -68.8/2 -273/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="torso" parent="pelvis">
+			<transform>
+				<translation value="0 0 518.1" />
+			</transform>
+			<geometry type="box" name="torso01"  >
+				<parameter type="length" value="313"/>
+				<parameter type="width" value="250"/>
+				<parameter type="height" value="518.1"/>
+				<transform>
+					<translation value="0 0 -476/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="head" parent="torso">
+			<transform>
+				<translation value="0 0 118.7" />
+			</transform>
+			<geometry type="sphere" name="head01" >
+				<parameter type="radius" value="116.9"/>
+				<transform>
+					<translation value="0 0 116.9/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="ruarm" parent="torso">
+			<transform>
+				<translation value="233 0 0" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="rshoulder" />
+			</transform>
+			<geometry type="ccylinder" name="ruarm01" >
+				<parameter type="length" value="334.6-2*49.7"/>
+				<parameter type="radius" value="49.7"/>
+				<transform>
+					<translation value="0 0 -334.6/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="rlarm" parent="ruarm">
+			<transform>
+				<translation value="0 0 -334.6" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="relbow"  />
+			</transform>
+			<geometry type="ccylinder" name="rlarm01" >
+				<parameter type="length" value="262.7-2*48.9"/>
+				<parameter type="radius" value="48.9"/>
+				<transform>
+					<translation value="0 0 -262.7/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="rhand" parent="rlarm">
+			<transform>
+				<translation value="0 0 -262.7" />
+			</transform>
+			<geometry type="box" name="rhand01" >
+				<parameter type="length" value="55.88"/>
+				<parameter type="width" value="89"/>
+				<parameter type="height" value="193"/>
+				<transform>
+					<translation value="0 0 -193/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="luarm" parent="torso">
+			<transform>
+				<translation value="-233 0 0" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="lshoulder"  />
+			</transform>
+			<geometry type="ccylinder" name="luarm01" >
+				<parameter type="length" value="334.6-2*49.7"/>
+				<parameter type="radius" value="49.7"/>
+				<transform>
+					<translation value="0 0 -334.6/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="llarm" parent="luarm">
+			<transform>
+				<translation value="0 0 -334.6" />
+				<rotation type="e123t" value="0 0 0" mutable="1" name="lelbow"  />
+			</transform>
+			<geometry type="ccylinder" name="llarm01" >
+				<parameter type="length" value="262.7-2*48.9"/>
+				<parameter type="radius" value="48.9"/>
+				<transform>
+					<translation value="0 0 -262.7/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+		<body name="lhand" parent="llarm">
+			<transform>
+				<translation value="0 0 -262.7" />
+			</transform>
+			<geometry type="box" name="lhand01" >
+				<parameter type="length" value="55.88"/>
+				<parameter type="width" value="89"/>
+				<parameter type="height" value="193"/>
+				<transform>
+					<translation value="0 0 -193/2" />
+				</transform>
+			</geometry>
+		</body>
+		
+	</space>
+</scene>
