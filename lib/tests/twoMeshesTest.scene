@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scene>
+	<space name="boxspace" type="simple">
+		<body name="b1" parent="world">
+			<transform>
+				<translation value="0 0 0" mutable="1" name="boxtrans"/>
+			</transform>
+			<geometry type="mesh" name="box">
+				<parameter type="filename" value="hmr_right_fem.stl"/>
+				<transform>
+					<rotation type="z" value="pi/6" />
+				</transform>
+			</geometry>
+		</body>
+	</space>
+	
+	<space name="spherespace" type="simple">
+		<body name="b2" parent="world">
+			<transform>
+				<translation value="100 0 0"/>
+			</transform>
+			<geometry type="mesh" name="sphere">
+				<parameter type="filename" value="156111.stl"/>
+				<transform>
+					<rotation type="z" value="pi/3" />
+				</transform>
+			</geometry>
+		</body>
+	</space>
+	
+	<collisionpairs>
+		<pair space1="boxspace" space2="spherespace"/>
+	</collisionpairs>
+</scene>
