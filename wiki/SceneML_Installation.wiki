@@ -1,0 +1,16 @@
+#summary How-to install SceneML.
+
+= Prerequisites =
+
+Like all good open source projects, SceneML stands on the shoulders of giants. It depends on a few other open-source libraries so before installing SceneML go install the following. Installation of these will obviously depend on your platform but all are available for Windows, Mac, and Linux.
+
+  * [http://muparser.sourceforge.net/ muParser]
+  * [http://xerces.apache.org/xerces-c/ Xerces-c]
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
