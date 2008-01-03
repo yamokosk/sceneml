@@ -4,8 +4,9 @@
 
 Like all good open source projects, SceneML stands on the shoulders of giants. It depends on a few other open-source libraries so before installing SceneML go install the following. Installation of these will obviously depend on your platform but all are available for Windows, Mac, and Linux.
 
+  * [http://www.ode.org/ ODE] - Physics engine
   * [http://muparser.sourceforge.net/ muParser] - Mathematical expression library
-  * [http://xerces.apache.org/xerces-c/ Xerces-c] - XML parsing library
+  * [http://xerces.apache.org/xerces-c/ Xerces-C] - XML parsing library
   * [http://www.cmake.org/HTML/Index.html CMake] - Cross-platform build utility
 
 
@@ -16,5 +17,9 @@ While some binaries of SceneML, compiling from source is always a good choice if
 == Windows ==
 
 1. First make sure to install the prerequisites listed above.
-2. Point CMake to the lib directory. Hit Configure then OK.
-3. 
+2. Set the following environmental variables:
+  * ODE_HOME - Point to root directory of your ODE installation
+  * MUPARSER_HOME - Point to root directory of your muParser installation
+  * XERCES_HOME - Points to the root directory of your Xerces-C installation
+3. Point CMake to the lib directory. Hit Configure then OK.
+4. 
