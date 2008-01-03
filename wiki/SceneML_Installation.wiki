@@ -17,9 +17,11 @@ While some binaries of SceneML, compiling from source is always a good choice if
 == Windows ==
 
 1. First make sure to install the prerequisites listed above.
+
 2. Set the following environmental variables:
   * ODE_HOME - Point to root directory of your ODE installation
   * MUPARSER_HOME - Point to root directory of your muParser installation
   * XERCES_HOME - Points to the root directory of your Xerces-C installation
+
 3. Point CMake to the lib directory. Hit Configure then OK.
 4. 
