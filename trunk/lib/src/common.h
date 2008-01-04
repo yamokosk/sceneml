@@ -19,7 +19,7 @@
 #ifndef _SCENEML_COMMON_H_FILE_
 #define _SCENEML_COMMON_H_FILE_
 
-#include <config.h>
+#include "config.h"
 
 // Standard C++ headers
 #include <string>

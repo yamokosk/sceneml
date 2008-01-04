@@ -27,17 +27,26 @@
 #include <sstream>
 #include <stdexcept>
 
-//#include <common.h>
+#include "config.h"
 #include "transform.h"
 #include "Primitive.h"
 
+#include <boost/shared_ptr.hpp>
 
 namespace sceneml {
 
 class SCENEML_API Geom;
 class SCENEML_API Body;
+
+typedef boost::shared_ptr<Geom> GeomPtr;
+typedef boost::shared_ptr<Body> BodyPtr;
+
 typedef std::list< Body* > BodyList_t;
 typedef std::list< Geom* > GeomList_t;
+
+typedef std::list< BodyPtr > BodyPtrList_t;
+typedef std::list< GeomPtr > GeomPtrList_t;
+
 typedef std::map<std::string, Body*> StringBodyMap_t;
 typedef std::map<std::string, Geom*> StringGeomMap_t;
 
@@ -52,7 +61,7 @@ public:
 	//! Basic destructor
 	/** This class nor any of its derivatives should ever own any pointers its handed.
 	  * Therefore clean up should not be an issue for this class. */
-	virtual ~SceneObjectBase() {delete transform_;};
+	virtual ~SceneObjectBase() {};
 	//! Returns the objects position in world coordinates
 	virtual void getGlobalPosition(dVector3 pos) const = 0;
 	//! Returns the objects rotation matrix in world coordinates
@@ -76,7 +85,7 @@ public:
 	//! Adds a transform object.
 	/** Notice that order which objects are added is extremely important. */
 	//void addTransform(Transform *t) {transformList_.push_back(t);};
-	void setCompositeTransform(CompositeTransform *t) {transform_ = t;};
+	void setCompositeTransform(CompositeTransformPtr t) {transform_ = t;};
 	//! Get a pointer to the proximal object
 	const SceneObjectBase* getProxObj() {return proxObj_;}
 	//! Set the proximal object
@@ -91,7 +100,7 @@ protected:
 
 	//! List of transform objects from the proximal object
 	//TransformList_t transformList_;
-	CompositeTransform *transform_;
+	CompositeTransformPtr transform_;
 	//! Objects name
 	std::string name_;
 	//! Hint to whether this object's world pose is valid
@@ -132,8 +141,8 @@ public:
 	/** Returns the transform ODE geom object associated with this object.
 	  * Note that it is possible for this pointer to be NULL. */
 	dGeomID tid() const {return transID_;}
-	void setMesh(POLYHEDRON *p) {mesh_ = p;}
-	const POLYHEDRON* getMesh() const {return mesh_;}
+	void setMesh(PolyhedronPtr p) {mesh_ = p;}
+	const POLYHEDRON* getMesh() const {return mesh_.get();}
 	void setColor(dReal r, dReal g, dReal b) {rgb_[0] = r; rgb_[0] = g; rgb_[0] = b;}
 	void setColor(dVector3 rgb) { for(int n=0; n<3; ++n) rgb_[n] = rgb[n]; }
 	const dReal* getColor() const {return rgb_;}
@@ -147,7 +156,7 @@ protected:
 	//! ODE object pointer
 	dGeomID transID_;
 	//! Geom mesh data
-	POLYHEDRON *mesh_; // Owner of this pointer
+	PolyhedronPtr mesh_; // Owner of this pointer
 	//! Geom color
 	dVector3 rgb_;
 };

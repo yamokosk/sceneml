@@ -3,6 +3,8 @@
 
 #include <ode/ode.h>
 
+#include "config.h"
+
 namespace sceneml {
 
 class PoseEstimatorBase

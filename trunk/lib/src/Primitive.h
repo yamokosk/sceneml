@@ -19,10 +19,13 @@
 #ifndef PRIMITIVE_H
 #define PRIMITIVE_H
 
+#include "config.h"
 #include "common.h"
 
-typedef float* VERTEX3D;
-typedef unsigned int* INDEX;
+#include <boost/shared_ptr.hpp>
+
+typedef boost::shared_ptr<float> VERTEX3D;
+typedef boost::shared_ptr<unsigned int> INDEX;
  
 struct POLYHEDRON {
 	long vertex_count, index_count;
@@ -34,5 +37,7 @@ struct POLYHEDRON {
 	POLYHEDRON();
 	~POLYHEDRON();
 };
+
+typedef boost::shared_ptr<POLYHEDRON> PolyhedronPtr;
 
 #endif

@@ -24,20 +24,20 @@ using namespace sceneml;
 
 SimpleTransform::~SimpleTransform()
 {
-	delete [] data_;
+	//delete [] data_;
 }
 
 const dReal* SimpleTransform::compute()
 {
 	// Compute transform
 	if ( !type_.compare("translation") ) {
-		dTFromTrans(tmatrix_, data_[0], data_[1], data_[2]);
+		dTFromTrans(tmatrix_, (data_.get())[0], (data_.get())[1], (data_.get())[2]);
 	} else if ( !type_.compare("rotation") ) {
-		if ( !subtype_.compare("x") ) 		dTFromAxisAndAngle(tmatrix_, REAL(1.0), REAL(0.0), REAL(0.0), data_[0]); 
-		else if ( !subtype_.compare("y") ) 	dTFromAxisAndAngle(tmatrix_, REAL(0.0), REAL(1.0), REAL(0.0), data_[0]); 
-		else if ( !subtype_.compare("z") ) 	dTFromAxisAndAngle(tmatrix_, REAL(0.0), REAL(0.0), REAL(1.0), data_[0]);
-		else if ( !subtype_.compare("e123") )	dTFromEuler123(tmatrix_, data_[0], data_[1], data_[2]);
-		else if ( !subtype_.compare("t123") )	dTFromEuler123(tmatrix_, -data_[0], -data_[1], -data_[2]);
+		if ( !subtype_.compare("x") ) 		dTFromAxisAndAngle(tmatrix_, REAL(1.0), REAL(0.0), REAL(0.0), (data_.get())[0]); 
+		else if ( !subtype_.compare("y") ) 	dTFromAxisAndAngle(tmatrix_, REAL(0.0), REAL(1.0), REAL(0.0), (data_.get())[0]); 
+		else if ( !subtype_.compare("z") ) 	dTFromAxisAndAngle(tmatrix_, REAL(0.0), REAL(0.0), REAL(1.0), (data_.get())[0]);
+		else if ( !subtype_.compare("e123") )	dTFromEuler123(tmatrix_, (data_.get())[0], (data_.get())[1], (data_.get())[2]);
+		else if ( !subtype_.compare("t123") )	dTFromEuler123(tmatrix_, -(data_.get())[0], -(data_.get())[1], -(data_.get())[2]);
 		else throw std::runtime_error("");
 	} else  {
 		throw std::runtime_error("");
@@ -49,11 +49,11 @@ const dReal* SimpleTransform::compute()
 
 MarkerTransform::~MarkerTransform()
 {
-	for (unsigned int n=0; n < localCoords_.size(); ++n)
+	/*for (unsigned int n=0; n < localCoords_.size(); ++n)
 	{
 		delete [] localCoords_[n];
 		delete [] globalCoords_[n];
-	}
+	}*/
 }
 
 const dReal* MarkerTransform::compute()
@@ -63,25 +63,21 @@ const dReal* MarkerTransform::compute()
 	int nNumCoords = localCoords_.size();
 	
 	// Allocate temp storage for markers and fill up with data
-	dReal *lCoords = new dReal[3 * nNumCoords];
-	dReal *gCoords = new dReal[3 * nNumCoords];
+	dRealPtr lCoords( new dReal[3 * nNumCoords] );
+	dRealPtr gCoords( new dReal[3 * nNumCoords] );
 
 	for (int n=0; n < nNumCoords; ++n)
 	{
 		//dReal* lCoord = localCoords_[n], gCoord = globalCoords[n];
 		
-		memcpy( (lCoords+n*3), localCoords_[n], 3*sizeof(dReal) );
-		memcpy( (gCoords+n*3), globalCoords_[n], 3*sizeof(dReal) );
+		memcpy( (lCoords.get()+n*3), localCoords_[n].get(), 3*sizeof(dReal) );
+		memcpy( (gCoords.get()+n*3), globalCoords_[n].get(), 3*sizeof(dReal) );
 	}
 	
 	// Do estimation and get answer
 	SVDEstimator estimator;
-	estimator.estimate(gCoords, lCoords, nNumCoords);
+	estimator.estimate(gCoords.get(), lCoords.get(), nNumCoords);
 	estimator.getPose(tmatrix_);
-	
-	// Clean up
-	delete [] lCoords;
-	delete [] gCoords;
 	
 	return tmatrix_;
 }
@@ -89,8 +85,8 @@ const dReal* MarkerTransform::compute()
 
 CompositeTransform::~CompositeTransform()
 {
-	CoordinateTransformList_t::iterator it = childTransforms_.begin();
-	for (; it != childTransforms_.end(); ++it) delete (*it);
+	//CoordinateTransformList_t::iterator it = childTransforms_.begin();
+	//for (; it != childTransforms_.end(); ++it) delete (*it);
 }
 
 

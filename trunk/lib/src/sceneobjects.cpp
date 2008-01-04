@@ -26,7 +26,6 @@ using namespace sceneml;
 // --------------------------------------------------------------
 /** Basic constructor */
 SceneObjectBase::SceneObjectBase() :
-	transform_(NULL),
 	name_("_NODATA_"),
 	validWorldPose_(false),
 	proxObj_(NULL)
@@ -75,8 +74,7 @@ void SceneObjectBase::invalidate()
 Geom::Geom(dGeomID g, dGeomID t) :
 	SceneObjectBase(),
 	geomID_(g),
-	transID_(t),
-	mesh_(NULL)
+	transID_(t)
 {
 	for (int n=0; n<3; ++n) rgb_[n] = 1.0;
 }
@@ -86,8 +84,8 @@ Geom::~Geom()
 {
 	//if (mesh_ != NULL) delete mesh_;
 	
-	dGeomDestroy(id());
-	if (tid()) dGeomDestroy(tid());
+	//dGeomDestroy(id());
+	//if (tid()) dGeomDestroy(tid());
 }
 
 //! Returns the objects position in world coordinates (accordind to ODE)
@@ -242,7 +240,7 @@ Body::Body(dBodyID b) :
 /** Basic destructor */
 Body::~Body()
 {
-	if (id() != NULL) dBodyDestroy(id());
+	//if (id() != NULL) dBodyDestroy(id());
 }
 
 //! Returns the objects position in world coordinates

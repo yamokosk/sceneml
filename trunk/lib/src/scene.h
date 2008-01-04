@@ -27,8 +27,11 @@
 
 #include <ode/ode.h>
 
+#include "config.h"
 #include "sceneobjects.h"
 #include "transform.h"
+
+#include <boost/shared_ptr.hpp>
 
 #define NUM_CONTACT_POINTS 1
 
@@ -38,11 +41,14 @@ typedef std::map<std::string, dSpaceID> 	StringSpaceMap_t;
 typedef std::pair<dSpaceID, dSpaceID> SpacePair_t;
 typedef std::vector< SpacePair_t > SpacePairs_t;
 typedef std::vector< dContactGeom > ContactGeoms_t;
-typedef std::map<std::string, dReal*> StringVariableMap_t;
+typedef std::map<std::string, dRealPtr> StringVariableMap_t;
+
+typedef std::auto_ptr<Scene> ScenePtr;
+
 /**
  *  The scene class. A more elaborate scene description.
  */
-class Scene
+class SCENEML_API Scene
 {	
 public:
 	Scene();
@@ -51,26 +57,23 @@ public:
 	//! Add an ODE space
 	void addSpace( const std::string& name, dSpaceID id ) {spaceMap_[name] = id;}
 	dSpaceID getSpace( const std::string& name );
+	
 	Body* createBody(const std::string& name, dBodyID id);
 	Body* getBody(const std::string& name);
 	
 	Geom* createGeom(const std::string& name, dGeomID id, dGeomID t=NULL);
 	Geom* getGeom(const std::string& name);
-	std::string getGeomByID(const dGeomID id);
-	GeomList_t getAllGeoms() const {return geomData_;};
 	
-	//Transform* createTransform();
-	//Transform* getTransform(const std::string& varname);
-	//CoordinateTransform* createTransform();
-	//CoordinateTransform* getTransform(const std::string& varname);
-
+	std::string getGeomByID(const dGeomID id);
+	std::list< boost::shared_ptr<Geom> > getAllGeoms() const {return geomData_;};
+	
 	void addCollisionPair(const std::string& space1, const std::string& space2);
 	ContactGeoms_t getContactData() const { return contactData_; };
 	bool inCollision() const { return ((contactData_.size() > 0) ? true : false);}
 		
 	// Scene modification functions
 	//void addVariable(const std::string& varname, const std::string& bodyname, Transform* transform);
-	void addMutableValue(const std::string &name, dReal* v, Body* b);
+	void addMutableValue(const std::string &name, dRealPtr v, Body* b);
 	void setMutableValue(const std::string &name, dReal x, dReal y=0.0, dReal z=0.0);
 	void update();
 	
@@ -85,9 +88,10 @@ private:
 	void collisionQuery();
 	
 	//! List of bodies
-	BodyList_t		bodyData_;
+	BodyPtrList_t bodyData_;
+	
 	//! List of geoms
-	GeomList_t		geomData_;
+	GeomPtrList_t geomData_;
 	
 	//! Space name to dSpaceID map
 	StringSpaceMap_t		spaceMap_;

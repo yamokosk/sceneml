@@ -54,9 +54,11 @@ int sceneml::importOBJ(POLYHEDRON* mesh)
 	file.seekg(0, std::ios::beg);   // move to the start of the file
 	
 	// Fill feature arrays
-	mesh->vertices = (float*)malloc( sizeof(float)*(mesh->vertex_count * 3) );
-	mesh->indices = (unsigned int*)malloc( sizeof(unsigned int)*(mesh->index_count * 3) );
-	
+	//mesh->vertices = (float*)malloc( sizeof(float)*(mesh->vertex_count * 3) );
+	//mesh->indices = (unsigned int*)malloc( sizeof(unsigned int)*(mesh->index_count * 3) );
+	mesh->vertices.reset( new float[mesh->vertex_count * 3] );
+	mesh->indices.reset( new unsigned int[mesh->index_count * 3] );
+
 	if ( (mesh->vertices == NULL) || (mesh->indices == NULL) ) {
 		throw std::runtime_error("Ran out of system memory while trying to allocate space for mesh.");
 	}
@@ -73,7 +75,7 @@ int sceneml::importOBJ(POLYHEDRON* mesh)
 				if(buf[1] == ' '){  
 					sscanf( (buf+2), "%lf %lf %lf", v, v+1, v+2);
 					for (int n=0; n < 3; ++n) {
-						mesh->vertices[vp] = (float)v[n];
+						mesh->vertices.get()[vp] = (float)v[n];
 						vp++;
 					}
 					if (vp > (mesh->vertex_count*3)) throw std::runtime_error("Encountered more vertices than I counted!");
@@ -91,11 +93,11 @@ int sceneml::importOBJ(POLYHEDRON* mesh)
 							// A slash was found. Just need to extract the first digit
 							memset(index, '\0', sizeof(index));
 							memcpy(index, tok, (tmp - tok)*sizeof(char));
-							mesh->indices[ip] = atoi(index)-1;
+							mesh->indices.get()[ip] = atoi(index)-1;
 							ip++; nverts++;
 						} else {
 							// No slash was found. Just process as if it is a number
-							mesh->indices[ip] = atoi(index)-1;
+							mesh->indices.get()[ip] = atoi(index)-1;
 							ip++; nverts++;
 						}
 						if ( nverts > 3 ) {

@@ -14,9 +14,8 @@ set(TARGET_NAME "sceneml")
 # ---------------------------------------------------------------------------------------------------------------------------
 # Project options
 # ---------------------------------------------------------------------------------------------------------------------------
-option( BUILD_TESTS "Try to build the tests library" OFF )
+option( BUILD_TESTS "Try to build the tests of the library." OFF )
 option( BUILD_SHARED "Build the SceneML library shared." ON )
-option( BUILD_TEST "Build the SceneML test programs." OFF )
 option( BUILD_DEBUG "Build a debug version of the library." OFF )
 option( BUILD_MATLAB "Build the mex interface to the SceneML library." ON )
 
