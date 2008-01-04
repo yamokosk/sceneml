@@ -1,11 +1,11 @@
-#include <xode/xode.h>
+#include <sceneml.h>
 
 #include <string>
 #include <memory>
 #include <iostream>
 
 
-using namespace xode;
+using namespace sceneml;
 
 int main(int argc, char* argv[])
 {	

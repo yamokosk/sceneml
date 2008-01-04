@@ -19,7 +19,7 @@
 #ifndef MESHIMPORT_H
 #define MESHIMPORT_H
 
-#include <common.h>
+#include "config.h"
 #include <Primitive.h>
 
 namespace sceneml {

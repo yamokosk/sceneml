@@ -19,6 +19,7 @@
 #ifndef _SCENEML_XML_SCENE_BUILDER_H_FILE_
 #define _SCENEML_XML_SCENE_BUILDER_H_FILE_
 
+#include "config.h"
 #include "sceneobjects.h"
 #include "transform.h"
 #include "Primitive.h"
@@ -51,8 +52,8 @@ private:
 	// XML specific functions and data members
 	void readXMLDescription( );
 	void parseTransform(DOMNode *node, CompositeTransform *pTransform, Body *b=NULL);
-	CoordinateTransform* parseSimpleTransform(DOMNode *node, Body *b=NULL);
-	CoordinateTransform* parseMarkerTransform(DOMNode *node, Body *b=NULL);
+	CoordinateTransformPtr parseSimpleTransform(DOMNode *node, Body *b=NULL);
+	CoordinateTransformPtr parseMarkerTransform(DOMNode *node, Body *b=NULL);
 	void isFileValid();
 	
 	DOMImplementation* impl_;

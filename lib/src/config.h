@@ -19,13 +19,13 @@
 #ifndef _SCENEML_CONFIG_H_FILE_
 #define _SCENEML_CONFIG_H_FILE_
 
-//#if defined(SCENEML_DLL) && defined(WIN32) && defined(_MSC_VER)
-//#define SCENEML_API __declspec( dllexport )
-//#elif !defined(SCENEML_DLL) && defined(WIN32) && defined(MSC_VER)
-//#define SCENEML_API __declspec( dllimport )
-//#else
+#if defined(SCENEML_DLL) && defined(WIN32) && defined(_MSC_VER)
+#define SCENEML_API __declspec( dllexport )
+#elif !defined(SCENEML_DLL) && defined(WIN32) && defined(MSC_VER)
+#define SCENEML_API __declspec( dllimport )
+#else
 #define SCENEML_API
-//#endif
+#endif
 
 #ifndef WIN32
 #include <stdlib> 

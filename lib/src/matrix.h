@@ -21,6 +21,8 @@
 
 #include <ode/ode.h>
 
+#include "config.h"
+
 namespace sceneml {
 
 #define dMULTIPLYOPV_333(A,op,B,C) \

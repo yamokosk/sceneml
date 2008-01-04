@@ -50,17 +50,17 @@ void Attributes::update(const std::string& name, const std::string &val)
 	};
 }
 
-void Attributes::update(const char *name, const char *val)
+/*void Attributes::update(const char *name, const char *val)
 {
-	std::string sname(name);
-	std::string sval(val);
+	std::string sname = name;
+	std::string sval = val;
 	properties_t::iterator it = properties_.find(sname);
 	if (it != properties_.end()) {
 		properties_[name] = sval;
 	} else {
 		throw std::runtime_error("Attributes::update() - Parameter " + sname + " not found in attributes.");
 	};
-}
+}*/
 
 void Attributes::get(const std::string& name, std::string& str)
 {
@@ -137,21 +137,33 @@ void AttributesBuilder::getAttributes()
 	
 		for (int n=0; n < numAttributes; ++n) {
 			DOMNode* attrib = theAttributes->item(n);
-			char* pname = XMLString::transcode(attrib->getNodeName());
-			char* pval = XMLString::transcode(attrib->getNodeValue());
+
+			// This is the way!
+			const XMLCh* xmlch_OptionA = currentElement->getAttribute(ATTR_OptionA);
+            m_OptionA = XMLString::transcode(xmlch_OptionA);
+
+			// Then release with
+			XMLString::release( &TAG_root );
+
+			DOMString attrName( attrib->getNodeName() );
+			DOMString attrVal( attrib->getNodeValue() );
+
+			std::auto_ptr<char> attrNamePtr = attrName.transcode();
+			std::auto_ptr<char> attrValPtr = attrVal.transcode();
+			
+			//std::auto_ptr<char> pname( XMLString::transcode(attrib->getNodeName()) );
+			//std::auto_ptr<char> pval( XMLString::transcode(attrib->getNodeValue()) );
 			
 			try {
-				attrib_.update(pname, pval);
+				//attrib_->update(pname.get(), pval.get());
+				attrib_->update(*attrNamePtr, *attrValPtr);
 			} catch (std::runtime_error &ex) {
 				std::cerr << ex.what() << std::endl
 						<< builderType_ << "::getAttributes() - "
-						<< "In space \"" << attrib_("name")
-						<< "\", unrecognized attribute \"" << pname << "=" << pval
+						<< "In space \"" << (*attrib_)("name")
+						<< "\", unrecognized attribute \"" << *attrNamePtr << "=" << *attrValPtr
 						<< "\". Ignoring it." << std::endl;
 			};
-			
-			delete [] pname;
-			delete [] pval;			
 		}
 		
 	}
@@ -163,9 +175,9 @@ void AttributesBuilder::getAttributes()
 SpaceAttributesBuilder::SpaceAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "SpaceAttributesBuilder") 
 {
-	attrib_.add("name", "_NODATA_");
-	attrib_.add("parent", "_NOPARENT_");
-	attrib_.add("type", "simple");
+	attrib_->add("name", "_NODATA_");
+	attrib_->add("parent", "_NOPARENT_");
+	attrib_->add("type", "simple");
 }
 
 void SpaceAttributesBuilder::getAttributes()
@@ -183,16 +195,16 @@ void SpaceAttributesBuilder::getParameters()
 	//			depth,	int
 	//	quatree:	minlevel,	int
 	//			maxlevel,	int
-	std::string type = attrib_("type");
+	std::string type = (*attrib_)("type");
 	
 	if (!type.compare("simple")) return; // No parameters for simple space
 	else if (!type.compare("hash")) {
-		attrib_.add("center", "0 0 0");
-		attrib_.add("extents", "0 0 0");
-		attrib_.add("depth", "4");
+		attrib_->add("center", "0 0 0");
+		attrib_->add("extents", "0 0 0");
+		attrib_->add("depth", "4");
 	} else if (!type.compare("quadtree")) {
-		attrib_.add("minlevel", "-1");
-		attrib_.add("maxlevel", "8");
+		attrib_->add("minlevel", "-1");
+		attrib_->add("maxlevel", "8");
 	} else {
 		return;
 	}
@@ -217,23 +229,20 @@ void SpaceAttributesBuilder::getParameters()
 						DOMNode* nodeName = theAttributes->item(0);
 						DOMNode* nodeValue = theAttributes->item(1);
 
-						const char* pName = XMLString::transcode(nodeName->getNodeValue());
-						const char* pVal = XMLString::transcode(nodeValue->getNodeValue());
+						std::auto_ptr<char> pName( XMLString::transcode(nodeName->getNodeValue()) );
+						std::auto_ptr<char> pVal( XMLString::transcode(nodeValue->getNodeValue()) );
 						
 						try {
-							attrib_.update(pName, pVal);
+							attrib_->update(pName.get(), pVal.get());
 						} catch (std::runtime_error &ex) {
 							std::cerr << ex.what() << std::endl
 									<< builderType_ << "::getParameters() - "
-									<< "In space \"" << attrib_("name")
-									<< "\", parameter \"" << pName << "=" << pVal
+									<< "In space \"" << (*attrib_)("name")
+									<< "\", parameter \"" << *pName << "=" << *pVal
 									<< "\" is illegal for this space type ("
-									<< attrib_("type")
+									<< (*attrib_)("type")
 									<< "). Ignoring it." << std::endl;
-						};
-						
-						delete [] pName;
-						delete [] pVal;		
+						};	
 					}
 				}
 			}
@@ -246,7 +255,7 @@ void SpaceAttributesBuilder::getParameters()
 void SpaceAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string name = attrib_("name");
+	std::string name = (*attrib_)("name");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - A space has no name!");
 }
@@ -257,8 +266,8 @@ void SpaceAttributesBuilder::verify()
 BodyAttributesBuilder::BodyAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "BodyAttributesBuilder") 
 {
-	attrib_.add("name", "_NODATA_");
-	attrib_.add("parent", "_NODATA_");
+	attrib_->add("name", "_NODATA_");
+	attrib_->add("parent", "_NODATA_");
 }
 
 void BodyAttributesBuilder::getAttributes()
@@ -275,7 +284,7 @@ void BodyAttributesBuilder::getParameters()
 void BodyAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string name = attrib_("name");
+	std::string name = (*attrib_)("name");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - A body has no name!");
 }
@@ -287,10 +296,10 @@ void BodyAttributesBuilder::verify()
 GeomAttributesBuilder::GeomAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "GeomAttributesBuilder") 
 {
-	attrib_.add("name", "_NODATA_");
-	attrib_.add("parent", "_NODATA_");
-	attrib_.add("type", "_NODATA_");
-	attrib_.add("color", "1.0 1.0 1.0");
+	attrib_->add("name", "_NODATA_");
+	attrib_->add("parent", "_NODATA_");
+	attrib_->add("type", "_NODATA_");
+	attrib_->add("color", "1.0 1.0 1.0");
 }
 
 void GeomAttributesBuilder::getAttributes()
@@ -307,27 +316,27 @@ void GeomAttributesBuilder::getParameters()
 	//	sphere:		radius (all doubles)
 	//	plane:		normal_x, normal_y, normal_z, d (all doubles)
 	//	mesh:		filname (std::string)	
-	std::string type = attrib_("type");
+	std::string type = (*attrib_)("type");
 	
 	if (!type.compare("box")) {
-		attrib_.add("length", "1");
-		attrib_.add("width", "1");
-		attrib_.add("height", "1");
+		attrib_->add("length", "1");
+		attrib_->add("width", "1");
+		attrib_->add("height", "1");
 	} else if (!type.compare("ccylinder")) {
-		attrib_.add("radius", "1");
-		attrib_.add("length", "3");
+		attrib_->add("radius", "1");
+		attrib_->add("length", "3");
 	} else if (!type.compare("cylinder")) {
-		attrib_.add("radius", "1");
-		attrib_.add("length", "3");
+		attrib_->add("radius", "1");
+		attrib_->add("length", "3");
 	} else if (!type.compare("sphere")) {
-		attrib_.add("radius", "1");
+		attrib_->add("radius", "1");
 	} else if (!type.compare("plane")) {
-		attrib_.add("normal_x", "0");
-		attrib_.add("normal_y", "0");
-		attrib_.add("normal_z", "1");
-		attrib_.add("d", "0");
+		attrib_->add("normal_x", "0");
+		attrib_->add("normal_y", "0");
+		attrib_->add("normal_z", "1");
+		attrib_->add("d", "0");
 	} else if (!type.compare("mesh")) {
-		attrib_.add("filename", "_NODATA_");
+		attrib_->add("filename", "_NODATA_");
 	} else {
 		return;
 	}
@@ -356,14 +365,14 @@ void GeomAttributesBuilder::getParameters()
 						const char* pVal = XMLString::transcode(nodeValue->getNodeValue());
 						
 						try {
-							attrib_.update(pName, pVal);
+							attrib_->update(pName, pVal);
 						} catch (std::runtime_error &ex) {
 							std::cerr << ex.what() << std::endl
 									<< builderType_ << "::getParameters() - "
-									<< "In geom \"" << attrib_("name")
+									<< "In geom \"" << (*attrib_)("name")
 									<< "\", parameter \"" << pName << "=" << pVal
 									<< "\" is illegal for this geom type ("
-									<< attrib_("type")
+									<< (*attrib_)("type")
 									<< "). Ignoring it." << std::endl;
 						};
 						
@@ -381,16 +390,16 @@ void GeomAttributesBuilder::getParameters()
 void GeomAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string name = attrib_("name");
+	std::string name = (*attrib_)("name");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - A geom has not been named!");
 		
-	std::string type = attrib_("type");
+	std::string type = (*attrib_)("type");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - Geom (" + name + ") has no type!");
 		
 	if (!type.compare("mesh")) {
-		std::string filename = attrib_("filename");
+		std::string filename = (*attrib_)("filename");
 		
 		if (!filename.compare("_NODATA_")) {
 			throw std::runtime_error(builderType_ + "::verify() - Geom (" + name + ") is a mesh but no mesh filename was given."); 
@@ -405,10 +414,10 @@ TranslationAttributesBuilder::TranslationAttributesBuilder(const DOMNode* node) 
 	AttributesBuilder(node, "TranslationAttributesBuilder") 
 {
 	// type="z" value="0" mutable="true" name
-	attrib_.add("type", "_NODATA_"); // Type is not defined for translations.. but its here for consistency
-	attrib_.add("value", "0 0 0");
-	attrib_.add("mutable", "0");
-	attrib_.add("name", "_NODATA_");
+	attrib_->add("type", "_NODATA_"); // Type is not defined for translations.. but its here for consistency
+	attrib_->add("value", "0 0 0");
+	attrib_->add("mutable", "0");
+	attrib_->add("name", "_NODATA_");
 }
 
 void TranslationAttributesBuilder::getAttributes()
@@ -425,10 +434,10 @@ void TranslationAttributesBuilder::getParameters()
 void TranslationAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string isMutable = attrib_("mutable");
+	std::string isMutable = (*attrib_)("mutable");
 	
 	if (!isMutable.compare("true")) {
-		std::string name = attrib_("name");
+		std::string name = (*attrib_)("name");
 		
 		if (!name.compare("_NODATA_"))
 			throw std::runtime_error(builderType_ + "::verify() - A translation is marked mutable but has no name!");
@@ -441,10 +450,10 @@ void TranslationAttributesBuilder::verify()
 RotationAttributesBuilder::RotationAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "RotationAttributesBuilder") 
 {
-	attrib_.add("type", "_NODATA_");
-	attrib_.add("value", "0");
-	attrib_.add("mutable", "0");
-	attrib_.add("name", "_NODATA_");
+	attrib_->add("type", "_NODATA_");
+	attrib_->add("value", "0");
+	attrib_->add("mutable", "0");
+	attrib_->add("name", "_NODATA_");
 }
 
 void RotationAttributesBuilder::getAttributes()
@@ -461,16 +470,16 @@ void RotationAttributesBuilder::getParameters()
 void RotationAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string isMutable = attrib_("mutable");
+	std::string isMutable = (*attrib_)("mutable");
 	
 	if (!isMutable.compare("true")) {
-		std::string name = attrib_("name");
+		std::string name = (*attrib_)("name");
 		
 		if (!name.compare("_NODATA_"))
 			throw std::runtime_error(builderType_ + "::verify() - A rotation is marked mutable but has no name!");
 	}
 	
-	std::string type = attrib_("type");
+	std::string type = (*attrib_)("type");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A rotation did not specify a type!");
 	}
@@ -482,8 +491,8 @@ void RotationAttributesBuilder::verify()
 PairAttributesBuilder::PairAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "PairAttributesBuilder") 
 {
-	attrib_.add("space1", "_NODATA_");
-	attrib_.add("space2", "_NODATA_");
+	attrib_->add("space1", "_NODATA_");
+	attrib_->add("space2", "_NODATA_");
 }
 
 void PairAttributesBuilder::getAttributes()
@@ -500,12 +509,12 @@ void PairAttributesBuilder::getParameters()
 void PairAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string type = attrib_("space1");
+	std::string type = (*attrib_)("space1");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A pair did not specify space1!");
 	}
 	
-	type = attrib_("space2");
+	type = (*attrib_)("space2");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A pair did not specify space2!");
 	}
@@ -518,10 +527,10 @@ void PairAttributesBuilder::verify()
 MarkerAttributesBuilder::MarkerAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "MarkerAttributesBuilder") 
 {
-	attrib_.add("type", "_NODATA_");
-	attrib_.add("value", "0 0 0");
-	attrib_.add("mutable", "0");
-	attrib_.add("name", "_NODATA_");
+	attrib_->add("type", "_NODATA_");
+	attrib_->add("value", "0 0 0");
+	attrib_->add("mutable", "0");
+	attrib_->add("name", "_NODATA_");
 }
 
 void MarkerAttributesBuilder::getAttributes()
@@ -538,16 +547,16 @@ void MarkerAttributesBuilder::getParameters()
 void MarkerAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string isMutable = attrib_("mutable");
+	std::string isMutable = (*attrib_)("mutable");
 	
 	if (!isMutable.compare("true")) {
-		std::string name = attrib_("name");
+		std::string name = (*attrib_)("name");
 		
 		if (!name.compare("_NODATA_"))
 			throw std::runtime_error(builderType_ + "::verify() - A marker is marked mutable but has no name!");
 	}
 	
-	std::string type = attrib_("type");
+	std::string type = (*attrib_)("type");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A marker did not specify a type!");
 	}
@@ -560,7 +569,7 @@ void MarkerAttributesBuilder::verify()
 TransformAttributesBuilder::TransformAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "TransformAttributesBuilder") 
 {
-	attrib_.add("type", "simple");
+	attrib_->add("type", "simple");
 }
 
 void TransformAttributesBuilder::getAttributes()
@@ -576,7 +585,7 @@ void TransformAttributesBuilder::getParameters()
 
 void TransformAttributesBuilder::verify()
 {
-	std::string type = attrib_("type");
+	std::string type = (*attrib_)("type");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A transform did not specify a type!");
 	}

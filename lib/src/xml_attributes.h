@@ -19,6 +19,8 @@
 #ifndef _SCENEML_ATTRIBUTES_H_FILE_
 #define _SCENEML_ATTRIBUTES_H_FILE_
 
+#include "config.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -54,7 +56,7 @@ public:
 	
 	void add(const std::string& name, const std::string &val);
 	void update(const std::string& name, const std::string &val);
-	void update(const char* name, const char* val);
+	//void update(const char* name, const char* val);
 	
 	void get(const std::string& name, std::string& str);
 	void get(const std::string& name, float* val);
@@ -71,19 +73,21 @@ private:
 	properties_t properties_;
 };
 
+typedef std::auto_ptr<Attributes> AttributesPtr;
+
 // Abstract Builder
 class AttributesBuilder
 {
 protected:
-	Attributes attrib_;
+	AttributesPtr attrib_;
 	std::string builderType_;
 	
 public:	
-	AttributesBuilder(const DOMNode* node, const std::string& type) : node_(node), builderType_(type) {}
+	AttributesBuilder(const DOMNode* node, const std::string& type) : node_(node), builderType_(type), attrib_(new Attributes) {};
 	virtual ~AttributesBuilder() {}
-	Attributes GetAttributes() { return attrib_; }
+	AttributesPtr GetAttributes() { return attrib_; }
  
-	void createNewAttributes() { /*attrib_.erase();*/ }
+	void createNewAttributes() { attrib_.reset(new Attributes); }
  
 	// General build methods
 	void getAttributes();
@@ -102,7 +106,7 @@ public:
 	~AttributesDirector() {}
  
 	void SetAttributesBuilder(AttributesBuilder* b) { attribBuilder = b; }
-	Attributes GetAttributes() {return attribBuilder->GetAttributes();}
+	AttributesPtr GetAttributes() {return attribBuilder->GetAttributes();}
 	void ConstructAttributes()
 	{
 		attribBuilder->createNewAttributes();

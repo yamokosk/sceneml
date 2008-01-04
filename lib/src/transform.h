@@ -19,14 +19,32 @@
 #ifndef _SCENEML_TRANSFORM_H_FILE_
 #define _SCENEML_TRANSFORM_H_FILE_
 
+#include "config.h"
+
 #include <ode/ode.h>
 #include <vector>
 #include <string>
 #include <list>
 
+#include <boost/shared_ptr.hpp>
+
 namespace sceneml {
 
+// Forward declarations
+class CoordinateTransform;
+class SimpleTransform;
+class MarkerTransform;
+class CompositeTransform;
 
+// Typedefs
+typedef boost::shared_ptr<CoordinateTransform> CoordinateTransformPtr;
+typedef boost::shared_ptr<CompositeTransform> CompositeTransformPtr;
+typedef boost::shared_ptr<SimpleTransform> SimpleTransformPtr;
+typedef std::list< CoordinateTransformPtr > CoordinateTransformList_t;
+typedef boost::shared_ptr<dReal> dRealPtr;
+typedef std::vector< dRealPtr > dRealVector_t;
+
+// Class definitions
 class CoordinateTransform
 {
 public:
@@ -35,23 +53,21 @@ protected:
 	dMatrix4 tmatrix_;
 };
 
-
 class SimpleTransform : public CoordinateTransform
 {
 public:
 	SimpleTransform(const std::string& type, const std::string& subtype) : 
 		CoordinateTransform(), 
 		type_(type), 
-		subtype_(subtype), 
-		data_(NULL) {}
+		subtype_(subtype) {}
 	virtual ~SimpleTransform();
-	void setData(dReal* data) {data_ = data;};
+	void setData(dRealPtr data) {data_ = data;};
 	virtual const dReal* compute();
 private:
 	SimpleTransform() {}; // Private default constructor - type and subtype must be set!
 	std::string type_;
 	std::string subtype_;
-	dReal* data_;
+	dRealPtr data_;
 };
 
 
@@ -59,16 +75,19 @@ class MarkerTransform : public CoordinateTransform
 {
 public:
 	virtual ~MarkerTransform();
-	void addLocalCoord(dReal* lc) {localCoords_.push_back(lc);}
-	void addGlobalCoord(dReal* gc) {globalCoords_.push_back(gc);}
+	void addLocalCoord(dRealPtr lc) 
+	{
+		localCoords_.push_back(lc);
+	}
+	void addGlobalCoord(dRealPtr gc) 
+	{
+		globalCoords_.push_back(gc);
+	}
 	virtual const dReal* compute();
 private:
-	std::vector< dReal* > globalCoords_;
-	std::vector< dReal* > localCoords_;
+	dRealVector_t globalCoords_;
+	dRealVector_t localCoords_;
 };
-
-
-typedef std::list<CoordinateTransform*> CoordinateTransformList_t;
 
 
 class CompositeTransform : public CoordinateTransform
@@ -76,7 +95,10 @@ class CompositeTransform : public CoordinateTransform
 public:
 	virtual ~CompositeTransform();
 	//! Adds the transform to the composition.
-	void add(CoordinateTransform *t) {childTransforms_.push_back(t);};
+	void add(CoordinateTransformPtr t) 
+	{
+		childTransforms_.push_back(t);
+	};
 	//! Computes the composite transform
 	virtual const dReal* compute();
 	//! Get the current transformation matrix - do not compute it

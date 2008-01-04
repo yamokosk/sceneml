@@ -26,7 +26,4 @@ POLYHEDRON::POLYHEDRON(){
 	filename = "_NODATA_";
 }
 
-POLYHEDRON::~POLYHEDRON(){
-	delete [] vertices;
-	delete [] indices;
-}
+POLYHEDRON::~POLYHEDRON() { }

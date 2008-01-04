@@ -1,11 +1,11 @@
-#include <xode/xode.h>
+#include <sceneml.h>
 
 #include <string>
 #include <memory>
 #include <iostream>
 
 
-using namespace xode;
+using namespace sceneml;
 
 int main(int argc, char* argv[])
 {	
@@ -23,9 +23,7 @@ int main(int argc, char* argv[])
 		
 		float values[7] = {0, 100, 200, 300, 400, 500, 600};
 		for (int n = 0; n < 7; ++n) {
-			xode::ValueList_t vars;
-			vars.push_back( NameValue("boxtrans", values[n], 0, 0) );
-			scene.get()->setMutableVars(vars);
+			scene.get()->setMutableValue("name", values[n]);
 			scene.get()->update();
 			if (scene.get()->inCollision()) {
 				std::cout << "In collision at " << values[n] << std::endl;

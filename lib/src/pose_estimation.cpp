@@ -59,7 +59,9 @@ void SVDEstimator::estimate(const dReal *X1, const dReal *X2, int nMarkers)
 	dMatrix3 C; memset(C, 0, sizeof(dMatrix3));
 	for (int n=0; n < nMarkers; ++n) dMULTIPLYOPV_333(C, +=, (Y2 + n*3), (Y1 + n*3));
 	for (int n=0; n < 12; ++n) C[n] *= (REAL(1.0) / (float)nMarkers);
-	
+	delete [] Y1;
+	delete [] Y2;
+
 	// Singular value decomposition of the correlation matrix
 	//	(U,D,V) = svd(C);
 	dMatrix3 U, V; dVector3 d;

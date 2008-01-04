@@ -1,11 +1,15 @@
-#include <xode/xode.h>
+#ifdef _MSC_VER
+#include "vld.h"
+#endif
+
+#include <sceneml.h>
 
 #include <string>
 #include <memory>
 #include <iostream>
 
 
-using namespace xode;
+using namespace sceneml;
 
 int main(int argc, char* argv[])
 {	
@@ -21,7 +25,7 @@ int main(int argc, char* argv[])
 	sceneDirector.SetSceneBuilder( xmlSceneBuilder );
 	sceneDirector.ConstructScene();
 		
-	std::auto_ptr<Scene> scene = sceneDirector.GetScene();
+	ScenePtr scene = sceneDirector.GetScene();
 	scene.get()->update();	
 	
 	scene.get()->setMutableValue("q_src_1", M_PI/5);

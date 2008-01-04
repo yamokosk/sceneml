@@ -67,10 +67,12 @@ int importBinarySTL(POLYHEDRON* mesh)
 		long nVertCoords = (mesh->vertex_count)*3;
 		long nIndexCoords = numFacets*3;
 		
-		mesh->vertices = (float*)malloc( sizeof(float)*nVertCoords );
-		mesh->indices = (unsigned int*)malloc( sizeof(unsigned int)*nIndexCoords );
+		//mesh->vertices = (float*)malloc( sizeof(float)*nVertCoords );
+		//mesh->indices = (unsigned int*)malloc( sizeof(unsigned int)*nIndexCoords );
+		mesh->vertices.reset( new float[nVertCoords] );
+		mesh->indices.reset( new unsigned int[nIndexCoords] );
 		
-		if ( (mesh->vertices == NULL) || (mesh->indices == NULL) ) {
+		if ( (mesh->vertices.get() == NULL) || (mesh->indices.get() == NULL) ) {
 			throw std::runtime_error("Ran out of system memory while trying to allocate space for mesh.");
 		}
 		
@@ -85,10 +87,10 @@ int importBinarySTL(POLYHEDRON* mesh)
 			file.read((char *)&normal[2], sizeof(float));
 
 			for (long n=0; n < 9; ++n)
-				file.read((char *)&mesh->vertices[i*9 + n], sizeof(float));
+				file.read((char *)&mesh->vertices.get()[i*9 + n], sizeof(float));
 			
 			for (int n=0; n < 3; ++n)
-				mesh->indices[i*3 + n] = i*3 + n;
+				mesh->indices.get()[i*3 + n] = i*3 + n;
 			
 			file.read(attributeByteCount, sizeof(attributeByteCount));
 		} // END FOR LOOP
@@ -129,10 +131,12 @@ int importAsciiSTL(POLYHEDRON* mesh)
 		file.seekg(0, std::ios::beg);	// move to the start of the file
 		
 		// Fill feature arrays
-		mesh->vertices = (float*)malloc( sizeof(float)*(mesh->vertex_count * 3) );
-		mesh->indices = (unsigned int*)malloc( sizeof(unsigned int)*(mesh->index_count * 3) );
+		//mesh->vertices = (float*)malloc( sizeof(float)*(mesh->vertex_count * 3) );
+		//mesh->indices = (unsigned int*)malloc( sizeof(unsigned int)*(mesh->index_count * 3) );
+		mesh->vertices.reset( new float[mesh->vertex_count * 3] );
+		mesh->indices.reset( new unsigned int[mesh->index_count * 3] );
 		
-		if ( (mesh->vertices == NULL) || (mesh->indices == NULL) ) {
+		if ( (mesh->vertices.get() == NULL) || (mesh->indices.get() == NULL) ) {
 			throw std::runtime_error("Ran out of system memory while trying to allocate space for mesh.");
 		}
 		
@@ -154,7 +158,7 @@ int importAsciiSTL(POLYHEDRON* mesh)
 					memcpy(tmp, buf+len+7, sizeof(tmp));
 					sscanf( tmp, "%lf %lf %lf", v, v+1, v+2);
 					for (int n=0; n < 3; ++n) {
-						mesh->vertices[vp] = (float)v[n];
+						mesh->vertices.get()[vp] = (float)v[n];
 						vp++;
 					}
 					if (vp > (mesh->vertex_count*3)) throw std::runtime_error("Encountered more vertices than I counted!");
@@ -162,7 +166,7 @@ int importAsciiSTL(POLYHEDRON* mesh)
 			
 				if (strcmp(tok, "facet") == 0) {
 					for (int n=0; n < 3; ++n) {
-						mesh->indices[ip] = ip;
+						mesh->indices.get()[ip] = ip;
 						ip++;
 					}
 				}

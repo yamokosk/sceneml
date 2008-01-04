@@ -32,7 +32,7 @@ Scene::Scene() :
 	
 	// Create a world body
 	Body* world = createBody("world", NULL);
-	CompositeTransform *pTransform = new CompositeTransform();
+	CompositeTransformPtr pTransform(new CompositeTransform());
 	world->setCompositeTransform(pTransform);
 	world->validate();
 }
@@ -40,19 +40,38 @@ Scene::Scene() :
 //! Basic destructor
 Scene::~Scene()
 {
-	for (BodyList_t::iterator it = bodyData_.begin(); it != bodyData_.end(); ++it)
+	// Must carefully delete ODE objects
+	//	1. First step through each body and delete it. This should take out any geoms associated with the body as well.
+	for (BodyPtrList_t::iterator it = bodyData_.begin(); it != bodyData_.end(); ++it)
 	{
-		delete *it;
-		*it = NULL;
+		if ( (*it)->id() != NULL) dBodyDestroy( (*it)->id() );
 	}
 	bodyData_.clear();
 	
-	for (GeomList_t::iterator it = geomData_.begin(); it != geomData_.end(); ++it)
+	//  2. Next step through all remaining geoms that weren't wiped out by destroying the bodies
+	for (GeomPtrList_t::iterator it = geomData_.begin(); it != geomData_.end(); ++it)
 	{
-		delete *it;
-		*it = NULL;
+		// Destroy the transform geom if it exists
+		if ( (*it)->tid() != NULL) dGeomDestroy( (*it)->tid() );
+
+		// Then destroy the geom object, including its trimesh object
+		if ( (*it)->id() != NULL ) 
+		{
+			if ( (*it)->getType() == dTriMeshClass ) {
+				dTriMeshDataID tmd = dGeomTriMeshGetData( (*it)->id() );
+				dGeomTriMeshDataDestroy(tmd);
+			}
+			dGeomDestroy( (*it)->id() );
+		}
 	}
 	geomData_.clear();
+
+	//  3. Finally delete all spaces
+	for (StringSpaceMap_t::iterator it = spaceMap_.begin(); it != spaceMap_.end(); ++it)
+	{
+		dSpaceDestroy( it->second );
+	}
+	spaceMap_.clear();
 		
 	dWorldDestroy(worldID_);
 	dCloseODE();
@@ -77,11 +96,12 @@ Body* Scene::createBody(const std::string& name, dBodyID id)
 	StringBodyMap_t::iterator it = bodyMap_.find(name);
 	
 	if (it == bodyMap_.end()) {
-		Body* body = new Body(id);
+		//Body* body = new Body(id);
+		BodyPtr body(new Body(id));
 		body->name_ = name;
-		bodyMap_[name] = body;
+		bodyMap_[name] = body.get();
 		bodyData_.push_back(body);
-		return body;
+		return body.get();
 	} else {
 		std::ostringstream msg;
 		msg << __FUNCTION__ << "(): Body " + name + " already exists in the scene.";
@@ -95,7 +115,7 @@ Body* Scene::getBody(const std::string& name)
 	StringBodyMap_t::iterator it = bodyMap_.find(name);
 	
 	if (it != bodyMap_.end()) {
-		return it->second;
+		return (it->second);
 	} else {
 		std::ostringstream msg;
 		msg << __FUNCTION__ << "(): Body " + name + " does not exist in the scene.";
@@ -109,11 +129,12 @@ Geom* Scene::createGeom(const std::string& name, dGeomID id, dGeomID t)
 	StringGeomMap_t::iterator it = geomMap_.find(name);
 	
 	if (it == geomMap_.end()) {
-		Geom* geom = new Geom(id, t);
+		//Geom* geom = new Geom(id, t);
+		GeomPtr geom( new Geom(id, t) );
 		geom->name_ = name;
-		geomMap_[name] = geom;
+		geomMap_[name] = geom.get();
 		geomData_.push_back(geom);
-		return geom;
+		return geom.get();
 	} else {
 		std::ostringstream msg;
 		msg << __FUNCTION__ << "(): Geom " + name + " already exists in the scene.";
@@ -148,29 +169,7 @@ std::string Scene::getGeomByID(const dGeomID id)
 	return std::string("NO_DATA");
 }
 	
-//! Create a transform object
-//Transform* Scene::createTransform()
-/*CoordinateTransform* Scene::createTransform()
-{
-	Transform *transform = new Transform;
-	
-	transformData_.push_back(transform);
-	
-	return transform;
-}*/
-
-//Transform* Scene::getTransform(const std::string& varname)
-/*CoordinateTransform* Scene::getTransform(const std::string& varname)
-{
-	StringTransformMap_t::iterator it = variableMap_.find(varname);
-	
-	if ( it != variableMap_.end() )
-		return it->second;
-	else 
-		return NULL;
-}*/
-
-void Scene::addMutableValue(const std::string &name, dReal* v, Body* b)
+void Scene::addMutableValue(const std::string &name, dRealPtr v, Body* b)
 {
 	StringVariableMap_t::iterator it = variableMap_.find(name);
 	if (it == variableMap_.end())
@@ -195,9 +194,9 @@ void Scene::setMutableValue(const std::string &name, dReal x, dReal y, dReal z)
 {
 	StringVariableMap_t::iterator it = variableMap_.find(name);
 	if (it != variableMap_.end()) {
-		(it->second)[0] = x;
-		(it->second)[1] = y;
-		(it->second)[2] = z;
+		(it->second).get()[0] = x;
+		(it->second).get()[1] = y;
+		(it->second).get()[2] = z;
 	} else {
 		std::cerr << __FUNCTION__ << "(): Mutable value " << name << " does not exist! Skipping it." << std::endl;
 		return;
@@ -219,87 +218,22 @@ void Scene::setMutableValue(const std::string &name, dReal x, dReal y, dReal z)
 	}
 }
 
-/*void Scene::addVariable(Transform* t, Body* b)
-{
-	StringTransformMap_t::iterator it = variableMap_.find(t->getName());
-	if (it == variableMap_.end())
-		variableMap_[t->getName()] = t;
-	else {
-		std::ostringstream msg;
-		msg << __FUNCTION__ << "(): Variable " << t->getName() << " already exists in the scene.";
-		throw std::runtime_error(msg.str());
-	}
-	
-	try {
-		varBodyMap_[t->getName()] = b;
-	} catch (std::runtime_error& e) {
-		std::ostringstream msg;
-		msg << __FUNCTION__ << "(): An error occured while attempting to associate variable " 
-						<< t->getName() << " with body " << b->getName() << ":" << std::endl << e.what();
-		throw std::runtime_error(msg.str());
-	} catch (...) {
-		std::ostringstream msg;
-		msg << __FUNCTION__ << "(): An unknown error occured while attempting to associate variable " 
-						<< t->getName() << " with body " << b->getName() << ".";
-		throw std::runtime_error(msg.str());
-	}
-}*/
-
 void Scene::update()
 {
 	//std::cout << "In update()" << std::endl;
-	for (BodyList_t::iterator it = bodyData_.begin(); it != bodyData_.end(); ++it)
+	for (BodyPtrList_t::iterator it = bodyData_.begin(); it != bodyData_.end(); ++it)
 	{
 		(*it)->validate();
 	}
 		
-	for (GeomList_t::iterator it = geomData_.begin(); it != geomData_.end(); ++it)
+	for (GeomPtrList_t::iterator it = geomData_.begin(); it != geomData_.end(); ++it)
 	{
 		(*it)->validate();
-		dGeomTriMeshClearTCCache((*it)->id()); // Is this necessary?
+		//dGeomTriMeshClearTCCache((*it)->id()); // Is this necessary?
 	}
 	//std::cout << "Finished update(), going into collision query" << std::endl;
 	this->collisionQuery();
 }
-
-/*void Scene::setMutableVars(ValueList_t& varlist)
-{	
-	BodyList_t distBodyToVisit, newset;
-	BodyList_t::iterator distBodyIterator;
-
-	ValueList_t::iterator it;
-	for (it = varlist.begin(); it != varlist.end(); it++) 
-	{		
-		// Get the associated transform so we can update its value
-		Transform* transform = getTransform((*it).name_);
-		
-		if (transform != NULL) {
-			//for (int n=0; n < 3; ++n) transform->value_[n] = (*it).value_[n];						 
-			memcpy(transform->value_, (*it).value_, sizeof(float)*3);
-		} else {
-			std::cerr << "Transform with variable " << (*it).name_ << " does not exist! Skipping it." << std::endl;
-			continue;
-		}
-	
-		// Get the associated body so we can invalidate its world pose
-		StringBodyMap_t::iterator vb = varBodyMap_.find((*it).name_);
-		Body *body = NULL;
-		if (vb != varBodyMap_.end()) {		
-			body = vb->second;
-			if (body != NULL) {
-				body->invalidate();
-			} else {
-				std::cerr << "Scene::setMutableVars() - Could not find a body associated with variable " 
-						<< (*it).name_ << std::endl;
-				continue;
-			}
-		} else {
-			std::cerr << "Scene::setMutableVars() - Could not find a body associated with variable " 
-						<< (*it).name_ << std::endl;
-			continue;
-		}
-	}
-}*/
 
 void Scene::addCollisionPair(const std::string& space1, const std::string& space2)
 {

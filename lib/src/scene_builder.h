@@ -20,19 +20,21 @@
 #define _SCENEML_SCENE_BUILDER_H_FILE_
 
 #include <memory>
+
+#include "config.h"
 #include "scene.h"
 
 namespace sceneml {
 
 // Abstract Builder
-class SceneBuilder
+class SCENEML_API SceneBuilder
 {
 protected:
-	std::auto_ptr<Scene> scene_;
+	ScenePtr scene_;
 public:
 	SceneBuilder() {}
 	virtual ~SceneBuilder() {}
-	std::auto_ptr<Scene> GetScene() { return scene_; }
+	ScenePtr GetScene() { return scene_; }
  
 	void createNewScene() { scene_.reset(new Scene); }
  
@@ -51,7 +53,7 @@ public:
 	~SceneDirector() {}
  
 	void SetSceneBuilder(SceneBuilder* b) { sceneBuilder = b; }
-	std::auto_ptr<Scene> GetScene() {return sceneBuilder->GetScene();}
+	ScenePtr GetScene() {return sceneBuilder->GetScene();}
 	void ConstructScene()
 	{
 		sceneBuilder->createNewScene();
