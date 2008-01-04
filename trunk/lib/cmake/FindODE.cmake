@@ -11,6 +11,9 @@ FIND_PATH( ODE_HOME_INCLUDE_ODE ode.h
   $ENV{ODE_HOME}/include/ode
   # Test standard installation points
   /usr/local/include/ode
+  # Windows
+  c:/ode-0.9/include/ode
+  c:/ode-0.8/include/ode 
  )
 
 # NOTE: if ORCA2_HOME_INCLUDE_ORCA is set to *-NOTFOUND it will evaluate to FALSE

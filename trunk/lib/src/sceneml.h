@@ -16,15 +16,25 @@
  *
  *************************************************************************/
 
-#ifndef MESHIMPORT_H
-#define MESHIMPORT_H
+#ifndef _SCENEML_H_FILE_
+#define _SCENEML_H_FILE_
 
-#include <common.h>
+#include <config.h>
+
+// Required ODE header
+#include <ode/ode.h>
+
+#include <scene.h>
+#include <matrix.h>
+#include <sceneobjects.h>
+#include <transform.h>
+#include <xml_scene_builder.h>
+#include <xml_attributes.h>
+#include <MeshImport.h>
+#include <pose_estimation.h>
 #include <Primitive.h>
 
-namespace sceneml {
-	int importOBJ(POLYHEDRON* mesh);
-	int importSTL(POLYHEDRON* mesh);
-};
+
+
 
 #endif

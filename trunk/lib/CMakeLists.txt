@@ -14,7 +14,7 @@ set(TARGET_NAME "sceneml")
 # ---------------------------------------------------------------------------------------------------------------------------
 # Project options
 # ---------------------------------------------------------------------------------------------------------------------------
-option( BUILD_TESTS "Try to build the tests library" ON )
+option( BUILD_TESTS "Try to build the tests library" OFF )
 option( BUILD_SHARED "Build the SceneML library shared." ON )
 option( BUILD_TEST "Build the SceneML test programs." OFF )
 option( BUILD_DEBUG "Build a debug version of the library." OFF )
@@ -62,28 +62,44 @@ if( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
 	if ( CMAKE_COMPILER_IS_GNUCXX )
 		add_definitions(-march=pentium4)
 	endif ( CMAKE_COMPILER_IS_GNUCXX )
-endif
+endif( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
 
 # Build options based on OS
 if (WIN32)
 	add_definitions(-D_STANDARD_)
+	if ( BUILD_SHARED )
+		add_definitions(-DSCENEML_DLL)
+	endif ( BUILD_SHARED )
 endif (WIN32)
 if (APPLE)
 	# Nothing for now
 endif (APPLE)
-if ( (UNIX) AND (NOT APPLE) )
+if ( UNIX AND NOT APPLE )
 	# Nothing for now
-endif ( (UNIX) AND (NOT APPLE) )
+endif ( UNIX AND NOT APPLE )
 
 # ------------------------------------------------------------------------------
 # Require packages
 # ------------------------------------------------------------------------------
-set( DEPENDENCY_CHECK 0 )
-include ( ${PROJECT_CMAKE_DIR}/FindODE.cmake )
+set( DEPENDENCY_CHECK 1 )
+include ( ${PROJECT_SOURCE_DIR}/cmake/FindODE.cmake )
 if (NOT ODE_FOUND)
 	message( WARNING " ODE is missing.")
-	set(DEPENDENCY_CHECK_XODE 0)
+	set(DEPENDENCY_CHECK 0)
 endif (NOT ODE_FOUND)
+
+include ( ${PROJECT_SOURCE_DIR}/cmake/FindMuParser.cmake )
+if (NOT MUPARSER_FOUND)
+	message( WARNING " MuParser is missing.")
+	set(DEPENDENCY_CHECK 0)
+endif (NOT MUPARSER_FOUND)
+
+include ( ${PROJECT_SOURCE_DIR}/cmake/FindXerces.cmake )
+if (NOT XERCES_FOUND)
+	message( WARNING " Xerces-C is missing.")
+	set(DEPENDENCY_CHECK 0)
+endif (NOT XERCES_FOUND)
+
 	
 # ------------------------------------------------------------------------------
 # Library types
@@ -100,13 +116,13 @@ endif( BUILD_SHARED )
 set( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib )
 
 # Finally, recurse in the sub directories
-if (NOT DEPENDENCY_CHECK_XODE)
+if (NOT DEPENDENCY_CHECK)
 	message( ERROR " ${TARGET_NAME} is missing a required dependency. Skipping it." )
-else (NOT DEPENDENCY_CHECK_XODE)
+else (NOT DEPENDENCY_CHECK)
 	# We have all of our dependencies... so build it!
 	subdirs( src )
 	
-	if (BUILD_TEST)
+	if (BUILD_TESTS)
 		subdirs( tests )
-	endif (BUILD_TEST)
-endif (NOT DEPENDENCY_CHECK_XODE)
+	endif (BUILD_TESTS)
+endif (NOT DEPENDENCY_CHECK)

@@ -16,15 +16,33 @@
  *
  *************************************************************************/
 
-#ifndef MESHIMPORT_H
-#define MESHIMPORT_H
+#ifndef _SCENEML_COMMON_H_FILE_
+#define _SCENEML_COMMON_H_FILE_
 
-#include <common.h>
-#include <Primitive.h>
+#include <config.h>
 
-namespace sceneml {
-	int importOBJ(POLYHEDRON* mesh);
-	int importSTL(POLYHEDRON* mesh);
-};
+// Standard C++ headers
+#include <string>
+#include <map>
+#include <vector>
+#include <list>
+#include <sstream>
+#include <stdexcept>
+#include <cassert>
+#include <iostream>
+#include <fstream>
+#include <memory>
+#include <algorithm>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+#ifndef M_PI // Make sure M_PI is defined
+#define M_PI 3.14159265358979323846
+#endif
+
+// Useful macros
+#define mBitsOn(x,by) ((x)|=(by))
+#define mBitsOff(x,bn) ((x)&= ~(bn))
 
 #endif
