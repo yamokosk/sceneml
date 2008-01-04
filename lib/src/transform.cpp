@@ -1,9 +1,26 @@
-#include <xode/transform.h>
-#include <xode/matrix.h>
+/*************************************************************************
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * All rights reserved.
+ * Email: yamokosk at gmail dot com
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of the License, 
+ * or (at your option) any later version. The text of the GNU Lesser General 
+ * Public License is included with this library in the file LICENSE.TXT.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+ * more details.
+ *
+ *************************************************************************/
 
-#include <methods/pose_estimation.h>
+#include "transform.h"
+#include "pose_estimation.h"
+#include "matrix.h"
 
-using namespace xode;
+using namespace sceneml;
 
 SimpleTransform::~SimpleTransform()
 {
@@ -32,7 +49,7 @@ const dReal* SimpleTransform::compute()
 
 MarkerTransform::~MarkerTransform()
 {
-	for (int n=0; n < localCoords_.size(); ++n)
+	for (unsigned int n=0; n < localCoords_.size(); ++n)
 	{
 		delete [] localCoords_[n];
 		delete [] globalCoords_[n];
@@ -59,7 +76,7 @@ const dReal* MarkerTransform::compute()
 	
 	// Do estimation and get answer
 	SVDEstimator estimator;
-	estimator.estimate(lCoords, gCoords, nNumCoords);
+	estimator.estimate(gCoords, lCoords, nNumCoords);
 	estimator.getPose(tmatrix_);
 	
 	// Clean up

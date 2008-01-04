@@ -1,20 +1,41 @@
+/*************************************************************************
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * All rights reserved.
+ * Email: yamokosk at gmail dot com
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of the License, 
+ * or (at your option) any later version. The text of the GNU Lesser General 
+ * Public License is included with this library in the file LICENSE.TXT.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+ * more details.
+ *
+ *************************************************************************/
+
 #ifndef _SCENE_OBJ_H_FILE_
 #define _SCENE_OBJ_H_FILE_
 
-#include <xode/transform.h>
+#include <ode/ode.h>
 
 #include <map>
+#include <vector>
 #include <list>
-#include <string>
+#include <sstream>
+#include <stdexcept>
 
-#include <ode/ode.h> // ODE
+//#include <common.h>
+#include "transform.h"
+#include "Primitive.h"
 
-#include <xode/OBJImport.h>
 
-namespace xode {
+namespace sceneml {
 
-class Geom;
-class Body;
+class SCENEML_API Geom;
+class SCENEML_API Body;
 typedef std::list< Body* > BodyList_t;
 typedef std::list< Geom* > GeomList_t;
 typedef std::map<std::string, Body*> StringBodyMap_t;
@@ -24,7 +45,7 @@ typedef std::map<std::string, Geom*> StringGeomMap_t;
 /** @ingroup xode 
  *  Base class for movalbe scene objects.
  */
-class SceneObjectBase
+class SCENEML_API SceneObjectBase
 {
 	friend class Scene;
 public:
@@ -84,7 +105,7 @@ protected:
  *  The geometry class is used for any scene object has some non-zero volume. Notice that this class is not
  *  intended for general use as its constructor is protected. Object creation is provided by the Scene class.
  */
-class Geom : public SceneObjectBase
+class SCENEML_API Geom : public SceneObjectBase
 {
 	friend class Scene;
 public:
@@ -137,7 +158,7 @@ protected:
  *  Notice that this class is not intended for general use as its constructor is protected. Object creation is provided 
  *  by the Scene class.
  */
-class Body : public SceneObjectBase
+class SCENEML_API Body : public SceneObjectBase
 {
 	friend class Scene;
 public:

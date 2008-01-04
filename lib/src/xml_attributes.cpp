@@ -1,11 +1,28 @@
-#include "xml_attributes.h"
-#include <stdexcept>
+/*************************************************************************
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * All rights reserved.
+ * Email: yamokosk at gmail dot com
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of the License, 
+ * or (at your option) any later version. The text of the GNU Lesser General 
+ * Public License is included with this library in the file LICENSE.TXT.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+ * more details.
+ *
+ *************************************************************************/
 
-namespace xode {
+#include "xml_attributes.h"
+
+namespace sceneml {
 
 Attributes::Attributes()
 { 
-	parser_.DefineConst("pi", (double)PARSER_CONST_PI);
+	parser_.DefineConst("pi", (double)M_PI);
 }
 
 Attributes::~Attributes() 
@@ -63,7 +80,8 @@ void Attributes::get(const std::string& name, float* val)
 }
 
 void Attributes::parseValue(const char* str, float* val)
-{	char cstr[512], *tok = NULL;
+{
+	char cstr[512], *tok = NULL;
 	std::vector<float> retVal;
 	void *f = NULL;
 	
@@ -115,7 +133,8 @@ void AttributesBuilder::getAttributes()
 {
 	if ( node_->hasAttributes() ) {
 		DOMNamedNodeMap* theAttributes = node_->getAttributes();
-		int numAttributes = theAttributes->getLength();	
+		int numAttributes = theAttributes->getLength();
+	
 		for (int n=0; n < numAttributes; ++n) {
 			DOMNode* attrib = theAttributes->item(n);
 			char* pname = XMLString::transcode(attrib->getNodeName());
@@ -181,7 +200,7 @@ void SpaceAttributesBuilder::getParameters()
 	DOMNodeList* allChildNodes = node_->getChildNodes();
 
 	// Loop over all of the spaces
-	for (int c = 0; c < allChildNodes->getLength(); ++c) {
+	for (unsigned int c = 0; c < allChildNodes->getLength(); ++c) {
 		DOMNode* thisChildItem = allChildNodes->item(c);
 			    			
 		if (thisChildItem->getNodeType() == DOMNode::ELEMENT_NODE) {
@@ -192,7 +211,8 @@ void SpaceAttributesBuilder::getParameters()
      			
 				if ( thisChildItem->hasAttributes() ) {
 					DOMNamedNodeMap* theAttributes = thisChildItem->getAttributes();
-					int numAttributes = theAttributes->getLength();			
+					int numAttributes = theAttributes->getLength();
+			
 					if (numAttributes == 2) {
 						DOMNode* nodeName = theAttributes->item(0);
 						DOMNode* nodeValue = theAttributes->item(1);
@@ -315,7 +335,7 @@ void GeomAttributesBuilder::getParameters()
 	DOMNodeList* allChildNodes = node_->getChildNodes();
 
 	// Loop over all of the spaces
-	for (int c = 0; c < allChildNodes->getLength(); ++c) {
+	for (unsigned int c = 0; c < allChildNodes->getLength(); ++c) {
 		DOMNode* thisChildItem = allChildNodes->item(c);
 			    			
 		if (thisChildItem->getNodeType() == DOMNode::ELEMENT_NODE) {
@@ -326,7 +346,8 @@ void GeomAttributesBuilder::getParameters()
      			
 				if ( thisChildItem->hasAttributes() ) {
 					DOMNamedNodeMap* theAttributes = thisChildItem->getAttributes();
-					int numAttributes = theAttributes->getLength();			
+					int numAttributes = theAttributes->getLength();
+			
 					if (numAttributes == 2) {
 						DOMNode* nodeName = theAttributes->item(0);
 						DOMNode* nodeValue = theAttributes->item(1);

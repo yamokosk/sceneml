@@ -1,22 +1,46 @@
-#ifndef _XODE_ATTRIBUTES_H_FILE_
-#define _XODE_ATTRIBUTES_H_FILE_
+/*************************************************************************
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * All rights reserved.
+ * Email: yamokosk at gmail dot com
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of the License, 
+ * or (at your option) any later version. The text of the GNU Lesser General 
+ * Public License is included with this library in the file LICENSE.TXT.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+ * more details.
+ *
+ *************************************************************************/
 
-#include <memory>
+#ifndef _SCENEML_ATTRIBUTES_H_FILE_
+#define _SCENEML_ATTRIBUTES_H_FILE_
+
+#include <string>
 #include <map>
 #include <vector>
-
-#include <iostream>
+#include <list>
 #include <sstream>
+#include <stdexcept>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+#ifndef M_PI // Make sure M_PI is defined
+#define M_PI 3.14159265358979323846
+#endif
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
+// Required math expression parser
 #include <muParser.h>
-#define PARSER_CONST_PI  3.141592653589793238462643
-//#include <matheval.h>
 
-namespace xode {
+namespace sceneml {
 
 XERCES_CPP_NAMESPACE_USE
 

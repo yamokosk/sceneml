@@ -1,23 +1,40 @@
-#ifndef _XODE_SCENE_BUILDER_H_FILE_
-#define _XODE_SCENE_BUILDER_H_FILE_
+/*************************************************************************
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * All rights reserved.
+ * Email: yamokosk at gmail dot com
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of the License, 
+ * or (at your option) any later version. The text of the GNU Lesser General 
+ * Public License is included with this library in the file LICENSE.TXT.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+ * more details.
+ *
+ *************************************************************************/
 
-#include <xode/scene.h>
+#ifndef _SCENEML_SCENE_BUILDER_H_FILE_
+#define _SCENEML_SCENE_BUILDER_H_FILE_
 
-#include <string>
+#include <memory>
+#include "scene.h"
 
-namespace xode {
+namespace sceneml {
 
 // Abstract Builder
 class SceneBuilder
 {
 protected:
-	std::auto_ptr<Scene> scene;
+	std::auto_ptr<Scene> scene_;
 public:
 	SceneBuilder() {}
 	virtual ~SceneBuilder() {}
-	std::auto_ptr<Scene> GetScene() { return scene; }
+	std::auto_ptr<Scene> GetScene() { return scene_; }
  
-	void createNewScene() { scene.reset(new Scene); }
+	void createNewScene() { scene_.reset(new Scene); }
  
 	// General build methods
 	virtual void buildSpaces()=0;
@@ -26,7 +43,7 @@ public:
 };
  
 // Director
-class SceneDirector
+class SCENEML_API SceneDirector
 {
 	SceneBuilder* sceneBuilder;
 public:

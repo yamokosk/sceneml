@@ -1,13 +1,28 @@
-#include <xode/xml_scene_builder.h>
+/*************************************************************************
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * All rights reserved.
+ * Email: yamokosk at gmail dot com
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of the License, 
+ * or (at your option) any later version. The text of the GNU Lesser General 
+ * Public License is included with this library in the file LICENSE.TXT.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+ * more details.
+ *
+ *************************************************************************/
 
-#include <iostream>
+#include "xml_scene_builder.h"
+#include "xml_attributes.h"
+#include "MeshImport.h"
+
 #include <fstream>
-//#include <matheval.h>
 
-#include <xode/matrix.h>
-#include <xode/MeshImport.h>
-
-namespace xode {
+namespace sceneml {
 
 XMLSceneBuilder::XMLSceneBuilder() :
 	SceneBuilder(),
@@ -115,8 +130,9 @@ void XMLSceneBuilder::buildSpaces()
 		DOMNodeList* allSpaceItems = domDoc_->getElementsByTagName(tagname);
 		
 		// Loop over all of the spaces
-		for (int spaceIndex = 0; spaceIndex < allSpaceItems->getLength(); ++spaceIndex) 
-		{			DOMNode* thisSpaceItem = allSpaceItems->item(spaceIndex);
+		for (unsigned int spaceIndex = 0; spaceIndex < allSpaceItems->getLength(); ++spaceIndex) 
+		{
+			DOMNode* thisSpaceItem = allSpaceItems->item(spaceIndex);
 		
 			AttributesDirector attribDirector;
 
@@ -132,7 +148,7 @@ void XMLSceneBuilder::buildSpaces()
 			// Get parent if one exists
 			std::string spaceParent = attrib("parent");
 			if ( spaceParent.compare("_NOPARENT_") != 0 ) {
-				parentID = scene.get()->getSpace( spaceParent );
+				parentID = scene_.get()->getSpace( spaceParent );
 			}
 			
 			// Get the type now so we build the correct type
@@ -156,7 +172,7 @@ void XMLSceneBuilder::buildSpaces()
 			}
 		
 			//Then create a new space object
-			scene.get()->addSpace(attrib("name"), spaceID);
+			scene_.get()->addSpace(attrib("name"), spaceID);
 		}
 		
 		// Now that all spaces have been created, look for <pair> tags to
@@ -164,7 +180,7 @@ void XMLSceneBuilder::buildSpaces()
 		XMLString::transcode("pair", tagname, 29);
 		DOMNodeList* allPairItems = domDoc_->getElementsByTagName(tagname);
 		
-		for (int pairIndex = 0; pairIndex < allPairItems->getLength(); ++pairIndex)
+		for (unsigned int pairIndex = 0; pairIndex < allPairItems->getLength(); ++pairIndex)
 		{
 			DOMNode* thisPairItem = allPairItems->item(pairIndex);
 			
@@ -177,7 +193,7 @@ void XMLSceneBuilder::buildSpaces()
 			Attributes attrib = attribDirector.GetAttributes();
 
 			// With successfully parsed attributes we can build an ODE space
-			scene.get()->addCollisionPair(attrib("space1"), attrib("space2"));
+			scene_.get()->addCollisionPair(attrib("space1"), attrib("space2"));
 		}
 		
 	} catch (const XMLException& toCatch) {
@@ -217,8 +233,9 @@ void XMLSceneBuilder::buildBodies()
 		DOMNodeList* allBodyItems = domDoc_->getElementsByTagName(tagname);
 
 		// Loop over all of the bodies
-		for (int bodyIndex = 0; bodyIndex < allBodyItems->getLength(); ++bodyIndex) 
-		{			DOMNode* thisBodyItem = allBodyItems->item(bodyIndex);
+		for (unsigned int bodyIndex = 0; bodyIndex < allBodyItems->getLength(); ++bodyIndex) 
+		{
+			DOMNode* thisBodyItem = allBodyItems->item(bodyIndex);
 		
 			AttributesDirector attribDirector;
 
@@ -228,9 +245,9 @@ void XMLSceneBuilder::buildBodies()
 
 			Attributes attrib = attribDirector.GetAttributes();
 			
-			dBodyID b = dBodyCreate(scene.get()->getWorld());
-			Body* body = scene.get()->createBody(attrib("name"), b);
-			Body* prox = scene.get()->getBody(attrib("parent"));
+			dBodyID b = dBodyCreate(scene_.get()->getWorld());
+			Body* body = scene_.get()->createBody(attrib("name"), b);
+			Body* prox = scene_.get()->getBody(attrib("parent"));
 			body->setProxObj(prox);
 			prox->addDistBody(body);
 			
@@ -240,7 +257,7 @@ void XMLSceneBuilder::buildBodies()
 			for (; it != tlist.end(); ++it) {
 				body->addTransform( (*it) );
 				// If the transform is mutable, we need to notify the scene
-				if ( (*it)->isMutable() ) scene.get()->addVariable((*it), body);
+				if ( (*it)->isMutable() ) scene_.get()->addVariable((*it), body);
 			}*/
 			CompositeTransform* pRootTransform = new CompositeTransform();
 			parseTransform(thisBodyItem, pRootTransform, body);
@@ -286,8 +303,9 @@ void XMLSceneBuilder::buildGeoms()
 		DOMNodeList* allGeomItems = domDoc_->getElementsByTagName(tagname);
 		
 		// Loop over all of the spaces
-		for (int geomIndex = 0; geomIndex < allGeomItems->getLength(); ++geomIndex) 
-		{			DOMNode* thisGeomItem = allGeomItems->item(geomIndex);
+		for (unsigned int geomIndex = 0; geomIndex < allGeomItems->getLength(); ++geomIndex) 
+		{
+			DOMNode* thisGeomItem = allGeomItems->item(geomIndex);
 		
 			AttributesDirector attribDirector;
 
@@ -303,7 +321,7 @@ void XMLSceneBuilder::buildGeoms()
 			bodyDirector.SetAttributesBuilder( &bodyAttribBuilder );
 			bodyDirector.ConstructAttributes();
 			Attributes bodyAttrib = bodyDirector.GetAttributes();
-			Body* body = scene.get()->getBody(bodyAttrib("name"));
+			Body* body = scene_.get()->getBody(bodyAttrib("name"));
 			
 			// Get geom's space
 			DOMNode* thisGeomSpaceItem = thisGeomBodyItem->getParentNode();
@@ -312,7 +330,7 @@ void XMLSceneBuilder::buildGeoms()
 			spaceDirector.SetAttributesBuilder( &spaceAttribBuilder );
 			spaceDirector.ConstructAttributes();
 			Attributes spaceAttrib = spaceDirector.GetAttributes();
-			dSpaceID spaceID = scene.get()->getSpace(spaceAttrib("name"));
+			dSpaceID spaceID = scene_.get()->getSpace(spaceAttrib("name"));
 			
 			// Construct the ODE object - based on type of course
 			std::string type = geomAttrib("type");
@@ -403,7 +421,7 @@ void XMLSceneBuilder::buildGeoms()
 				dSpaceAdd(spaceID, g);
 			}
 			
-			Geom* geom = scene.get()->createGeom(geomAttrib("name"), g, t);
+			Geom* geom = scene_.get()->createGeom(geomAttrib("name"), g, t);
 			geom->setProxObj(body);
 			geom->setMesh(mesh);
 			geom->setCompositeTransform(pTransform);
@@ -451,7 +469,7 @@ void XMLSceneBuilder::parseTransform(DOMNode *node, CompositeTransform* pRootTra
 {
 	DOMNodeList *allChildItems = node->getChildNodes();
 		
-	for (int c=0; c < allChildItems->getLength(); ++c)
+	for (unsigned int c=0; c < allChildItems->getLength(); ++c)
 	{
 		DOMNode *thisChildItem = allChildItems->item(c);
 		
@@ -492,9 +510,10 @@ CoordinateTransform* XMLSceneBuilder::parseSimpleTransform(DOMNode *node, Body *
 	
 	DOMNodeList *allTransformItems = node->getChildNodes();
 
-	for (int t=0; t < allTransformItems->getLength(); ++t) 
+	for (unsigned int t=0; t < allTransformItems->getLength(); ++t) 
 	{
-		DOMNode *thisTransformItem = allTransformItems->item(t);		
+		DOMNode *thisTransformItem = allTransformItems->item(t);
+		
 		if (thisTransformItem->getNodeType() == DOMNode::ELEMENT_NODE)
 		{
 			char* pTransformTagName = XMLString::transcode(thisTransformItem->getNodeName());
@@ -539,7 +558,7 @@ CoordinateTransform* XMLSceneBuilder::parseSimpleTransform(DOMNode *node, Body *
 					msg << __FUNCTION__ << "(): Found a mutable variable for a geometry. This is not allowed!";
 					throw std::runtime_error(msg.str());
 				} else {
-					scene.get()->addMutableValue(attrib("name"), value, b);
+					scene_.get()->addMutableValue(attrib("name"), value, b);
 				}
 			}
 			
@@ -561,9 +580,10 @@ CoordinateTransform* XMLSceneBuilder::parseMarkerTransform(DOMNode *node, Body *
 	
 	DOMNodeList *allTransformItems = node->getChildNodes();
 
-	for (int t=0; t < allTransformItems->getLength(); ++t) 
+	for (unsigned int t=0; t < allTransformItems->getLength(); ++t) 
 	{
-		DOMNode *thisTransformItem = allTransformItems->item(t);		
+		DOMNode *thisTransformItem = allTransformItems->item(t);
+		
 		if (thisTransformItem->getNodeType() == DOMNode::ELEMENT_NODE)
 		{
 			char* pTransformTagName = XMLString::transcode(thisTransformItem->getNodeName());
@@ -607,7 +627,7 @@ CoordinateTransform* XMLSceneBuilder::parseMarkerTransform(DOMNode *node, Body *
 					msg << __FUNCTION__ << "(): Found a mutable variable for a geometry. This is not allowed!";
 					throw std::runtime_error(msg.str());
 				} else {
-					scene.get()->addMutableValue(attrib("name"), value, b);
+					scene_.get()->addMutableValue(attrib("name"), value, b);
 				}
 			}
 		}   

@@ -1,12 +1,25 @@
-// {{{ SCENE LIBRARY LICENSE }}}
+/*************************************************************************
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * All rights reserved.
+ * Email: yamokosk at gmail dot com
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of the License, 
+ * or (at your option) any later version. The text of the GNU Lesser General 
+ * Public License is included with this library in the file LICENSE.TXT.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+ * more details.
+ *
+ *************************************************************************/
 
-#define mBitsOn(x,by) ((x)|=(by))
-#define mBitsOff(x,bn) ((x)&= ~(bn))
-#define NUM_CONTACT_POINTS 1
+#include "scene.h"
+#include "matrix.h"
 
-#include <xode/scene.h>
-
-namespace xode {
+using namespace sceneml;
 
 void collisionCallback(void* data, dGeomID o1, dGeomID o2);
 
@@ -328,7 +341,7 @@ void Scene::collisionQuery()
 	contactData_.clear();
 	
 	// Now perform space to space collision checks
-	for (int n=0; n < spacePairs_.size(); ++n)
+	for (unsigned int n=0; n < spacePairs_.size(); ++n)
 		dSpaceCollide2((dGeomID)spacePairs_[n].first, (dGeomID)spacePairs_[n].second, (void*)&contactData_, collisionCallback);
 }
 
@@ -375,5 +388,3 @@ void Scene::reportVars()
 		std::cout << "Var: " << it->first << ", Body: " << (it->second)->getName() << std::endl;
 	}
 }
-
-};
