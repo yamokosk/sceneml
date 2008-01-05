@@ -1,7 +1,7 @@
-#include <common.h>
+#include "common.h"
 
 // sceneml includes
-#include <include/sceneml.h>
+#include <sceneml.h>
 
 // Global scene pointer
 std::auto_ptr<sceneml::Scene> g_scene;

@@ -20,30 +20,7 @@ option( BUILD_MATLAB "Build the mex interface to the SceneML library." ON )
 # ------------------------------------------------------------------------------
 # Project directories
 # ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# Installation preferences
-# ------------------------------------------------------------------------------
 GET_FILENAME_COMPONENT( PROJECT_BASE_DIR ${PROJECT_SOURCE_DIR} PATH )
-#set( CMAKE_INSTALL_RPATH "../private" )
-#message(STATUS "PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}")
-#set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR} CACHE PATH "Install path prefix" FORCE)
-#set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib CACHE PATH "Install lib prefix" FORCE)
-#set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Install exe prefix" FORCE)
-
-# Use environmental variable if it is set
-#set( PROJECT_INSTALL_DIR $ENV{${PROJECT_INSTALL_ENV_VAR}} )
-# If environment variable SCENEML_INSTALL is NOT set, use defaults
-#if( NOT PROJECT_INSTALL_DIR )
-#	if ( NOT WIN32 )
-		# Linux and friends: if environment variable ORCA2_INSTALL is not set, e.g. /opt/orca-1.2.3
-#		set( PROJECT_INSTALL_DIR /opt/${PROJECT_NAME}-${PROJECT_VERSION} )
-#	else ( NOT WIN32 )
-		# Windows: e.g. C:\orca-1.2.3
-#		set( PROJECT_INSTALL_DIR C:/${PROJECT_NAME}-${PROJECT_VERSION} )
-#	endif ( NOT WIN32 )
-#endif( NOT PROJECT_INSTALL_DIR )
-#set( CMAKE_INSTALL_PREFIX ${PROJECT_INSTALL_DIR} CACHE PATH "Installation directory" FORCE )
-#message( STATUS "Setting installation directory to ${CMAKE_INSTALL_PREFIX}" )
 
 # ------------------------------------------------------------------------------
 # Set build type and other build options
@@ -108,4 +85,5 @@ else (NOT DEPENDENCY_CHECK)
 	if (BUILD_TESTS)
 		subdirs( tests )
 	endif (BUILD_TESTS)
+	include ( ${PROJECT_SOURCE_DIR}/cmake/WriteMatlabCompile.cmake )
 endif (NOT DEPENDENCY_CHECK)
