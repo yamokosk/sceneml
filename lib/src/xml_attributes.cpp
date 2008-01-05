@@ -18,11 +18,60 @@
 
 #include "xml_attributes.h"
 
+// Required math expression parser
+#include <muParser.h>
+
 namespace sceneml {
 
-Attributes::Attributes()
-{ 
+class Attributes::MathParserImpl
+{
+public:
+	MathParserImpl();
+	virtual ~MathParserImpl() {};
+	void parseValue(const char* str, float* val);
+private:
+	mu::Parser parser_;	
+};
+
+Attributes::MathParserImpl::MathParserImpl() 
+{
 	parser_.DefineConst("pi", (double)M_PI);
+}
+
+void Attributes::MathParserImpl::parseValue(const char* str, float* val)
+{
+	char cstr[512], *tok = NULL;
+	std::vector<float> retVal;
+	void *f = NULL;
+	
+	// Copy input string to char array
+	memset(cstr, '\0', sizeof(cstr));
+	memcpy(cstr, str, strlen( str ) );
+	
+	// Step through each token, evaluate it, and store it in our return vector
+	tok = strtok(cstr, " ,");
+	int n = 0;
+	while (tok != NULL) 
+	{		
+		try {
+			parser_.SetExpr(tok);
+		
+			// Evaluate string
+			val[n] = (float)parser_.Eval();
+		} catch (mu::Parser::exception_type &e) {
+			val[n] = 0.0;
+			std::cout << e.GetMsg() << std::endl;
+		}
+		
+		// Get new token
+		tok = strtok(NULL, " ,");
+		n++;
+	}
+	return;
+}
+
+Attributes::Attributes() : pimpl_( new MathParserImpl )
+{ 
 }
 
 Attributes::~Attributes() 
@@ -50,18 +99,6 @@ void Attributes::update(const std::string& name, const std::string &val)
 	};
 }
 
-/*void Attributes::update(const char *name, const char *val)
-{
-	std::string sname = name;
-	std::string sval = val;
-	properties_t::iterator it = properties_.find(sname);
-	if (it != properties_.end()) {
-		properties_[name] = sval;
-	} else {
-		throw std::runtime_error("Attributes::update() - Parameter " + sname + " not found in attributes.");
-	};
-}*/
-
 void Attributes::get(const std::string& name, std::string& str)
 {
 	properties_t::iterator it = properties_.find(name);
@@ -81,48 +118,7 @@ void Attributes::get(const std::string& name, float* val)
 
 void Attributes::parseValue(const char* str, float* val)
 {
-	char cstr[512], *tok = NULL;
-	std::vector<float> retVal;
-	void *f = NULL;
-	
-	// Copy input string to char array
-	memset(cstr, '\0', sizeof(cstr));
-	memcpy(cstr, str, strlen( str ) );
-	//std:: cout << "DEBUG - cstr = " << cstr << std::endl;
-	
-	// Step through each token, evaluate it, and store it in our return vector
-	tok = strtok(cstr, " ,");
-	int n = 0;
-	while (tok != NULL) 
-	{		
-		try {
-			parser_.SetExpr(tok);
-		
-			// Evaluate string
-			val[n] = (float)parser_.Eval();
-		} catch (mu::Parser::exception_type &e) {
-			val[n] = 0.0;
-			std::cout << e.GetMsg() << std::endl;
-		}
-		
-		// Get new token
-		tok = strtok(NULL, " ,");
-		n++;
-		
-		/* // Create evaluator for function.
-		f = evaluator_create(tok);
-
-		// Evaluate string
-		//std::cout << "\tDEBUG - tok = " << tok << std::endl;
-		val[n] = (float)evaluator_evaluate(f, 0, NULL, NULL);
-		//std::cout << "\tDEBUG - val[" << n << "] = " << val[n] << std::endl;
-		
-		// Destroy evaluators.
-		evaluator_destroy (f);
-		// Get new token
-		tok = strtok(NULL, " ,");
-		n++;*/
-	}
+	pimpl_->parseValue(str, val);
 	return;
 }
 
@@ -138,32 +134,25 @@ void AttributesBuilder::getAttributes()
 		for (int n=0; n < numAttributes; ++n) {
 			DOMNode* attrib = theAttributes->item(n);
 
-			// This is the way!
-			const XMLCh* xmlch_OptionA = currentElement->getAttribute(ATTR_OptionA);
-            m_OptionA = XMLString::transcode(xmlch_OptionA);
+			const XMLCh* xmlch_Name = attrib->getNodeName();
+			char* attrName = XMLString::transcode(xmlch_Name);
 
-			// Then release with
-			XMLString::release( &TAG_root );
-
-			DOMString attrName( attrib->getNodeName() );
-			DOMString attrVal( attrib->getNodeValue() );
-
-			std::auto_ptr<char> attrNamePtr = attrName.transcode();
-			std::auto_ptr<char> attrValPtr = attrVal.transcode();
-			
-			//std::auto_ptr<char> pname( XMLString::transcode(attrib->getNodeName()) );
-			//std::auto_ptr<char> pval( XMLString::transcode(attrib->getNodeValue()) );
-			
+			const XMLCh* xmlch_Value = attrib->getNodeValue();
+			char* attrValue = XMLString::transcode(xmlch_Value);
+		
 			try {
 				//attrib_->update(pname.get(), pval.get());
-				attrib_->update(*attrNamePtr, *attrValPtr);
+				attrib_->update(attrName, attrValue);
 			} catch (std::runtime_error &ex) {
 				std::cerr << ex.what() << std::endl
 						<< builderType_ << "::getAttributes() - "
 						<< "In space \"" << (*attrib_)("name")
-						<< "\", unrecognized attribute \"" << *attrNamePtr << "=" << *attrValPtr
+						<< "\", unrecognized attribute \"" << attrName << "=" << attrValue
 						<< "\". Ignoring it." << std::endl;
 			};
+
+			XMLString::release( &attrName );
+			XMLString::release( &attrValue );
 		}
 		
 	}
@@ -174,7 +163,12 @@ void AttributesBuilder::getAttributes()
 // ----------------------------------------------------------------------------
 SpaceAttributesBuilder::SpaceAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "SpaceAttributesBuilder") 
+{ }
+
+void SpaceAttributesBuilder::createNewAttributes()
 {
+	AttributesBuilder::createNewAttributes();
+
 	attrib_->add("name", "_NODATA_");
 	attrib_->add("parent", "_NOPARENT_");
 	attrib_->add("type", "simple");
@@ -229,20 +223,26 @@ void SpaceAttributesBuilder::getParameters()
 						DOMNode* nodeName = theAttributes->item(0);
 						DOMNode* nodeValue = theAttributes->item(1);
 
-						std::auto_ptr<char> pName( XMLString::transcode(nodeName->getNodeValue()) );
-						std::auto_ptr<char> pVal( XMLString::transcode(nodeValue->getNodeValue()) );
-						
+						const XMLCh* xmlch_Name = nodeName->getNodeName();
+						char* attrName = XMLString::transcode(xmlch_Name);
+
+						const XMLCh* xmlch_Value = nodeValue->getNodeValue();
+						char* attrValue = XMLString::transcode(xmlch_Value);
+
 						try {
-							attrib_->update(pName.get(), pVal.get());
+							attrib_->update(attrName, attrValue);
 						} catch (std::runtime_error &ex) {
 							std::cerr << ex.what() << std::endl
 									<< builderType_ << "::getParameters() - "
 									<< "In space \"" << (*attrib_)("name")
-									<< "\", parameter \"" << *pName << "=" << *pVal
+									<< "\", parameter \"" << attrName << "=" << attrValue
 									<< "\" is illegal for this space type ("
 									<< (*attrib_)("type")
 									<< "). Ignoring it." << std::endl;
-						};	
+						}
+
+						XMLString::release( &attrName );
+						XMLString::release( &attrValue );
 					}
 				}
 			}
@@ -266,6 +266,13 @@ void SpaceAttributesBuilder::verify()
 BodyAttributesBuilder::BodyAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "BodyAttributesBuilder") 
 {
+	
+}
+
+void BodyAttributesBuilder::createNewAttributes()
+{
+	AttributesBuilder::createNewAttributes();
+
 	attrib_->add("name", "_NODATA_");
 	attrib_->add("parent", "_NODATA_");
 }
@@ -296,6 +303,13 @@ void BodyAttributesBuilder::verify()
 GeomAttributesBuilder::GeomAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "GeomAttributesBuilder") 
 {
+	
+}
+
+void GeomAttributesBuilder::createNewAttributes()
+{
+	AttributesBuilder::createNewAttributes();
+
 	attrib_->add("name", "_NODATA_");
 	attrib_->add("parent", "_NODATA_");
 	attrib_->add("type", "_NODATA_");
@@ -361,23 +375,26 @@ void GeomAttributesBuilder::getParameters()
 						DOMNode* nodeName = theAttributes->item(0);
 						DOMNode* nodeValue = theAttributes->item(1);
 
-						const char* pName = XMLString::transcode(nodeName->getNodeValue());
-						const char* pVal = XMLString::transcode(nodeValue->getNodeValue());
+						const XMLCh* xmlch_Name = nodeName->getNodeName();
+						char* attrName = XMLString::transcode(xmlch_Name);
+
+						const XMLCh* xmlch_Value = nodeValue->getNodeValue();
+						char* attrValue = XMLString::transcode(xmlch_Value);
 						
 						try {
-							attrib_->update(pName, pVal);
+							attrib_->update(attrName, attrValue);
 						} catch (std::runtime_error &ex) {
 							std::cerr << ex.what() << std::endl
 									<< builderType_ << "::getParameters() - "
 									<< "In geom \"" << (*attrib_)("name")
-									<< "\", parameter \"" << pName << "=" << pVal
+									<< "\", parameter \"" << attrName << "=" << attrValue
 									<< "\" is illegal for this geom type ("
 									<< (*attrib_)("type")
 									<< "). Ignoring it." << std::endl;
 						};
 						
-						delete [] pName;
-						delete [] pVal;		
+						XMLString::release( &attrName );
+						XMLString::release( &attrValue );		
 					}
 				}
 			}
@@ -413,6 +430,13 @@ void GeomAttributesBuilder::verify()
 TranslationAttributesBuilder::TranslationAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "TranslationAttributesBuilder") 
 {
+
+}
+
+void TranslationAttributesBuilder::createNewAttributes()
+{
+	AttributesBuilder::createNewAttributes();
+
 	// type="z" value="0" mutable="true" name
 	attrib_->add("type", "_NODATA_"); // Type is not defined for translations.. but its here for consistency
 	attrib_->add("value", "0 0 0");
@@ -450,6 +474,13 @@ void TranslationAttributesBuilder::verify()
 RotationAttributesBuilder::RotationAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "RotationAttributesBuilder") 
 {
+
+}
+
+void RotationAttributesBuilder::createNewAttributes()
+{
+	AttributesBuilder::createNewAttributes();
+
 	attrib_->add("type", "_NODATA_");
 	attrib_->add("value", "0");
 	attrib_->add("mutable", "0");
@@ -491,6 +522,13 @@ void RotationAttributesBuilder::verify()
 PairAttributesBuilder::PairAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "PairAttributesBuilder") 
 {
+
+}
+
+void PairAttributesBuilder::createNewAttributes()
+{
+	AttributesBuilder::createNewAttributes();
+
 	attrib_->add("space1", "_NODATA_");
 	attrib_->add("space2", "_NODATA_");
 }
@@ -527,6 +565,12 @@ void PairAttributesBuilder::verify()
 MarkerAttributesBuilder::MarkerAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "MarkerAttributesBuilder") 
 {
+}
+
+void MarkerAttributesBuilder::createNewAttributes()
+{
+	AttributesBuilder::createNewAttributes();
+
 	attrib_->add("type", "_NODATA_");
 	attrib_->add("value", "0 0 0");
 	attrib_->add("mutable", "0");
@@ -569,6 +613,13 @@ void MarkerAttributesBuilder::verify()
 TransformAttributesBuilder::TransformAttributesBuilder(const DOMNode* node) : 
 	AttributesBuilder(node, "TransformAttributesBuilder") 
 {
+
+}
+
+void TransformAttributesBuilder::createNewAttributes()
+{
+	AttributesBuilder::createNewAttributes();
+
 	attrib_->add("type", "simple");
 }
 
