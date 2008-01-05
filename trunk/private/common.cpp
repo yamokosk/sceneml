@@ -1,4 +1,4 @@
-#include <xode/mex/common.h>
+#include "common.h"
 
 std::map<std::string, StringValue> g_MapStringValues;
 bool g_bLibraryIsInit;
