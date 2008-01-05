@@ -39,9 +39,6 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
-// Required math expression parser
-#include <muParser.h>
-
 namespace sceneml {
 
 XERCES_CPP_NAMESPACE_USE
@@ -56,7 +53,6 @@ public:
 	
 	void add(const std::string& name, const std::string &val);
 	void update(const std::string& name, const std::string &val);
-	//void update(const char* name, const char* val);
 	
 	void get(const std::string& name, std::string& str);
 	void get(const std::string& name, float* val);
@@ -68,8 +64,9 @@ public:
 	} 
 
 private:
+	class MathParserImpl; // Forward declaration
+	std::auto_ptr<MathParserImpl> pimpl_;
 	void parseValue(const char* str, float* val);
-	mu::Parser parser_;	
 	properties_t properties_;
 };
 
@@ -87,10 +84,9 @@ public:
 	virtual ~AttributesBuilder() {}
 	AttributesPtr GetAttributes() { return attrib_; }
  
-	void createNewAttributes() { attrib_.reset(new Attributes); }
- 
 	// General build methods
-	void getAttributes();
+	virtual void createNewAttributes() { attrib_.reset(new Attributes); }
+	virtual void getAttributes();
 	virtual void getParameters()=0;
 	virtual void verify()=0;
 	
@@ -122,6 +118,7 @@ class SpaceAttributesBuilder : public AttributesBuilder
 public:
 	SpaceAttributesBuilder(const DOMNode* node);
 	
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();
@@ -133,6 +130,7 @@ class BodyAttributesBuilder : public AttributesBuilder
 public:
 	BodyAttributesBuilder(const DOMNode* node);
 	
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();
@@ -143,7 +141,8 @@ class GeomAttributesBuilder : public AttributesBuilder
 {
 public:
 	GeomAttributesBuilder(const DOMNode* node);
-	
+
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();
@@ -155,6 +154,7 @@ class TranslationAttributesBuilder : public AttributesBuilder
 public:
 	TranslationAttributesBuilder(const DOMNode* node);
 	
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();
@@ -166,6 +166,7 @@ class RotationAttributesBuilder : public AttributesBuilder
 public:
 	RotationAttributesBuilder(const DOMNode* node);
 	
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();
@@ -177,6 +178,7 @@ class PairAttributesBuilder : public AttributesBuilder
 public:
 	PairAttributesBuilder(const DOMNode* node);
 	
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();
@@ -188,6 +190,7 @@ class MarkerAttributesBuilder : public AttributesBuilder
 public:
 	MarkerAttributesBuilder(const DOMNode* node);
 	
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();
@@ -199,6 +202,7 @@ class TransformAttributesBuilder : public AttributesBuilder
 public:
 	TransformAttributesBuilder(const DOMNode* node);
 	
+	void createNewAttributes();
 	void getAttributes();	
 	void getParameters();
 	void verify();

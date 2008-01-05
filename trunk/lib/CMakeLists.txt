@@ -15,42 +15,40 @@ set(TARGET_NAME "sceneml")
 # Project options
 # ---------------------------------------------------------------------------------------------------------------------------
 option( BUILD_TESTS "Try to build the tests of the library." OFF )
-option( BUILD_SHARED "Build the SceneML library shared." ON )
-option( BUILD_DEBUG "Build a debug version of the library." OFF )
 option( BUILD_MATLAB "Build the mex interface to the SceneML library." ON )
 
 # ------------------------------------------------------------------------------
 # Project directories
 # ------------------------------------------------------------------------------
-set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin )
-set( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib )
+# ------------------------------------------------------------------------------
+# Installation preferences
+# ------------------------------------------------------------------------------
+GET_FILENAME_COMPONENT( PROJECT_BASE_DIR ${PROJECT_SOURCE_DIR} PATH )
+#set( CMAKE_INSTALL_RPATH "../private" )
+#message(STATUS "PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}")
+#set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR} CACHE PATH "Install path prefix" FORCE)
+#set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib CACHE PATH "Install lib prefix" FORCE)
+#set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Install exe prefix" FORCE)
 
 # Use environmental variable if it is set
-set( PROJECT_INSTALL_DIR $ENV{${PROJECT_INSTALL_ENV_VAR}} )
+#set( PROJECT_INSTALL_DIR $ENV{${PROJECT_INSTALL_ENV_VAR}} )
 # If environment variable SCENEML_INSTALL is NOT set, use defaults
-if( NOT PROJECT_INSTALL_DIR )
-	if ( NOT WIN32 )
+#if( NOT PROJECT_INSTALL_DIR )
+#	if ( NOT WIN32 )
 		# Linux and friends: if environment variable ORCA2_INSTALL is not set, e.g. /opt/orca-1.2.3
-		set( PROJECT_INSTALL_DIR /opt/${PROJECT_NAME}-${PROJECT_VERSION} )
-	else ( NOT WIN32 )
+#		set( PROJECT_INSTALL_DIR /opt/${PROJECT_NAME}-${PROJECT_VERSION} )
+#	else ( NOT WIN32 )
 		# Windows: e.g. C:\orca-1.2.3
-		set( PROJECT_INSTALL_DIR C:/${PROJECT_NAME}-${PROJECT_VERSION} )
-	endif ( NOT WIN32 )
-endif( NOT PROJECT_INSTALL_DIR )
-set( CMAKE_INSTALL_PREFIX ${PROJECT_INSTALL_DIR} CACHE PATH "Installation directory" FORCE )
-message( STATUS "Setting installation directory to ${CMAKE_INSTALL_PREFIX}" )
+#		set( PROJECT_INSTALL_DIR C:/${PROJECT_NAME}-${PROJECT_VERSION} )
+#	endif ( NOT WIN32 )
+#endif( NOT PROJECT_INSTALL_DIR )
+#set( CMAKE_INSTALL_PREFIX ${PROJECT_INSTALL_DIR} CACHE PATH "Installation directory" FORCE )
+#message( STATUS "Setting installation directory to ${CMAKE_INSTALL_PREFIX}" )
 
 # ------------------------------------------------------------------------------
 # Set build type and other build options
 # ------------------------------------------------------------------------------
-# Build type
-if( BUILD_DEBUG )
-	message(STATUS "Building debug version of SceneML")
-	set(CMAKE_BUILD_TYPE Debug)
-else( BUILD_DEBUG )
-	message(STATUS "Building release version of SceneML")
-	set(CMAKE_BUILD_TYPE Release)
-endif( BUILD_DEBUG )
+set(CMAKE_BUILD_TYPE Release)
 
 # Build options based on processor
 if( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
@@ -66,13 +64,12 @@ endif( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
 # Build options based on OS
 if (WIN32)
 	add_definitions(-D_STANDARD_)
-	if ( BUILD_SHARED )
-		add_definitions(-DSCENEML_DLL)
-	endif ( BUILD_SHARED )
 endif (WIN32)
+
 if (APPLE)
 	# Nothing for now
 endif (APPLE)
+
 if ( UNIX AND NOT APPLE )
 	# Nothing for now
 endif ( UNIX AND NOT APPLE )
@@ -99,22 +96,9 @@ if (NOT XERCES_FOUND)
 	set(DEPENDENCY_CHECK 0)
 endif (NOT XERCES_FOUND)
 
-	
 # ------------------------------------------------------------------------------
-# Library types
-# ------------------------------------------------------------------------------
-if( BUILD_SHARED )
-	set( LIBRARY_TYPE	SHARED )
-else( BUILD_SHARED )
-	set( LIBRARY_TYPE	STATIC )
-endif( BUILD_SHARED )
-
-# ------------------------------------------------------------------------------
-# Installation preferences
-# ------------------------------------------------------------------------------
-set( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib )
-
 # Finally, recurse in the sub directories
+# ------------------------------------------------------------------------------
 if (NOT DEPENDENCY_CHECK)
 	message( ERROR " ${TARGET_NAME} is missing a required dependency. Skipping it." )
 else (NOT DEPENDENCY_CHECK)

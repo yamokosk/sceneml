@@ -251,14 +251,6 @@ void XMLSceneBuilder::buildBodies()
 			body->setProxObj(prox);
 			prox->addDistBody(body);
 			
-			// Get/set transform data
-			/*TransformList_t tlist = parseTransform(thisBodyItem);
-			TransformList_t::iterator it = tlist.begin();
-			for (; it != tlist.end(); ++it) {
-				body->addTransform( (*it) );
-				// If the transform is mutable, we need to notify the scene
-				if ( (*it)->isMutable() ) scene_->addVariable((*it), body);
-			}*/
 			CompositeTransformPtr pRootTransform( new CompositeTransform() );
 			parseTransform(thisBodyItem, pRootTransform.get(), body);
 			body->setCompositeTransform(pRootTransform);						
@@ -528,6 +520,7 @@ CoordinateTransformPtr XMLSceneBuilder::parseSimpleTransform(DOMNode *node, Body
 			} else {
 				std::ostringstream msg;
 				msg << __FUNCTION__ << "(): Found an illegal tag " << pTransformTagName << " within a simple transformation.";
+				XMLString::release(&pTransformTagName);
 				throw std::runtime_error(msg.str());
 			}
 			attribDirector.SetAttributesBuilder( pBuilder.get() );
