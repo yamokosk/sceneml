@@ -1,5 +1,5 @@
-#ifndef _COMMON_H_FILE_
-#define _COMMON_H_FILE_
+#ifndef _MEX_COMMON_H_FILE_
+#define _MEX_COMMON_H_FILE_
 
 #include <mex.h> // Required MATLAB includes
 #include <string>

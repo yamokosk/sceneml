@@ -1,4 +1,4 @@
 function b = sceneGetBody(name)
 % TODO - Write HELP for sceneGetBody()
 
-b = scene('GetBody', name);
+b = sceneml('GetBody', name);

@@ -73,6 +73,12 @@ if (NOT XERCES_FOUND)
 	set(DEPENDENCY_CHECK 0)
 endif (NOT XERCES_FOUND)
 
+find_package(Boost REQUIRED)
+if (NOT Boost_FOUND)
+	message( WARNING " Boost is missing." )
+	set(DEPENDENCY_CHECK_XODE 0)
+endif (NOT Boost_FOUND)
+
 # ------------------------------------------------------------------------------
 # Finally, recurse in the sub directories
 # ------------------------------------------------------------------------------
