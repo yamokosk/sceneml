@@ -9,17 +9,14 @@ include_directories( ${ODE_HOME}/include
 					 ${Boost_INCLUDE_DIRS}
 					 ${PROJECT_SOURCE_DIR}/src )
 link_directories( ${XERCES_HOME}/lib
+				  ${ODE_HOME}/lib
 				  ${MUPARSER_HOME}/lib	)
-if (WIN32)
-	link_directories( ${ODE_HOME}/lib/releaselib )
-else (WIN32)
-	link_directories( ${ODE_HOME}/lib )
-endif (WIN32)
 
 # Create target
 add_library( ${TARGET_NAME}	STATIC ${SRCS})
 if (WIN32)
-	target_link_libraries( ${TARGET_NAME} ode xerces-c_2 muparser)
+	#add_definitions (-DXML_LIBRARY)
+	target_link_libraries( ${TARGET_NAME} odeD xerces-c_2D muparser_static)
 else (WIN32)
 	target_link_libraries( ${TARGET_NAME} ode xerces-c muparser)
 endif (WIN32)

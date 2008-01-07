@@ -38,7 +38,7 @@ XERCES_CPP_NAMESPACE_USE
 class SCENEML_API XMLSceneBuilder : public SceneBuilder
 {
 public:
-	XMLSceneBuilder(const std::string& filename);
+	XMLSceneBuilder(const char* filename);
 	~XMLSceneBuilder();
 
 	// Redefinition of parent functions
@@ -60,7 +60,7 @@ private:
 	DOMBuilder* parser_;
 	DOMDocument* domDoc_;
 	
-	std::string filename_;
+	char filename_[256];
 };
 
 };

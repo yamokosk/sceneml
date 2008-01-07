@@ -23,7 +23,7 @@
 
 namespace sceneml {
 
-class Attributes::MathParserImpl
+/*class Attributes::MathParserImpl
 {
 public:
 	MathParserImpl();
@@ -68,10 +68,12 @@ void Attributes::MathParserImpl::parseValue(const char* str, float* val)
 		n++;
 	}
 	return;
-}
+}*/
 
-Attributes::Attributes() : pimpl_( new MathParserImpl )
-{ 
+//Attributes::Attributes() : pimpl_( new MathParserImpl )
+Attributes::Attributes()
+{
+	parser_.DefineConst("pi", (double)My_PI);
 }
 
 Attributes::~Attributes() 
@@ -118,7 +120,34 @@ void Attributes::get(const std::string& name, float* val)
 
 void Attributes::parseValue(const char* str, float* val)
 {
-	pimpl_->parseValue(str, val);
+	//pimpl_->parseValue(str, val);
+	char cstr[512], *tok = NULL;
+	std::vector<float> retVal;
+	void *f = NULL;
+	
+	// Copy input string to char array
+	memset(cstr, '\0', sizeof(cstr));
+	memcpy(cstr, str, strlen( str ) );
+	
+	// Step through each token, evaluate it, and store it in our return vector
+	tok = strtok(cstr, " ,");
+	int n = 0;
+	while (tok != NULL) 
+	{		
+		try {
+			parser_.SetExpr(tok);
+		
+			// Evaluate string
+			val[n] = (float)parser_.Eval();
+		} catch (mu::Parser::exception_type &e) {
+			val[n] = 0.0;
+			std::cout << e.GetMsg() << std::endl;
+		}
+		
+		// Get new token
+		tok = strtok(NULL, " ,");
+		n++;
+	}
 	return;
 }
 
