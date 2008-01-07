@@ -214,16 +214,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			{
 				// XML scene description filename in prhs[1]
 				char* cfname = mxArrayToString(prhs[1]);
-				std::string filename(cfname);
-				mxFree(cfname);
-				
+                				
 				sceneml::SceneDirector sceneDirector;
-				sceneml::XMLSceneBuilder xmlSceneBuilder(filename);
+				sceneml::XMLSceneBuilder xmlSceneBuilder(cfname);
 				sceneDirector.SetSceneBuilder( &xmlSceneBuilder );
 				sceneDirector.ConstructScene();
 			
 				g_scene = sceneDirector.GetScene();
-				g_scene.get()->update();
+				/*g_scene->update();*/
+                mxFree(cfname);
 				break;
 			}
 			case evUpdate:

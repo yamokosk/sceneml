@@ -25,8 +25,7 @@
 namespace sceneml {
 
 XMLSceneBuilder::XMLSceneBuilder() :
-	SceneBuilder(),
-	filename_("")
+	SceneBuilder()
 {
 	try {
 		XMLPlatformUtils::Initialize();
@@ -38,12 +37,15 @@ XMLSceneBuilder::XMLSceneBuilder() :
 		throw std::runtime_error(msg.str());
 	}
 	
+	memset(filename_, '\0', sizeof(filename_));
 }
 
-XMLSceneBuilder::XMLSceneBuilder(const std::string& filename) :
-	SceneBuilder(),
-	filename_(filename)
+XMLSceneBuilder::XMLSceneBuilder(const char* filename) :
+	SceneBuilder()
 {
+	memset(filename_, '\0', sizeof(filename_));
+	memcpy(filename_, filename, sizeof(char)*strlen(filename));
+
 	try {
 		XMLPlatformUtils::Initialize();
 	} catch (const XMLException& toCatch) {
@@ -66,12 +68,13 @@ XMLSceneBuilder::~XMLSceneBuilder()
 
 void XMLSceneBuilder::isFileValid()
 {
-	std::fstream fp(filename_.c_str(), std::fstream::in);  // declarations of streams fp_in and fp_out
+	std::fstream fp(filename_, std::fstream::in);  // declarations of streams fp_in and fp_out
 	if (!fp.good()) {
 		std::ostringstream msg;
 		msg << __FUNCTION__ << "(): " << filename_ << " is not a valid XML file.";
 		throw std::runtime_error(msg.str());
 	}
+	std::cout << "Filename: " << filename_ << std::endl;
 	fp.close();
 }
 
@@ -99,7 +102,7 @@ void XMLSceneBuilder::readXMLDescription( )
 	
 	// Now parse the actual document
 	try {
-		domDoc_ = parser_->parseURI( filename_.c_str() );
+		domDoc_ = parser_->parseURI( filename_ );
 	} catch (const XMLException& toCatch) {
 		std::ostringstream msg;
 		char* message = XMLString::transcode(toCatch.getMessage());

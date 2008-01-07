@@ -32,12 +32,17 @@
 #include <cmath>
 
 #ifndef M_PI // Make sure M_PI is defined
-#define M_PI 3.14159265358979323846
+#define My_PI 3.14159265358979323846
+#else
+#define My_PI M_PI
 #endif
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
+
+// Required math expression parser
+#include <muParser.h>
 
 namespace sceneml {
 
@@ -64,8 +69,9 @@ public:
 	} 
 
 private:
-	class MathParserImpl; // Forward declaration
-	std::auto_ptr<MathParserImpl> pimpl_;
+	//class MathParserImpl; // Forward declaration
+	//std::auto_ptr<MathParserImpl> pimpl_;
+	mu::Parser parser_;
 	void parseValue(const char* str, float* val);
 	properties_t properties_;
 };

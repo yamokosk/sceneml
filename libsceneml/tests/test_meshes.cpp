@@ -1,5 +1,5 @@
 #ifdef _MSC_VER
-#include "vld.h"
+//#include "vld.h"
 #endif
 
 #include <sceneml.h>

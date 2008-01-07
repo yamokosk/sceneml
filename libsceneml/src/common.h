@@ -37,10 +37,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#ifndef M_PI // Make sure M_PI is defined
-#define M_PI 3.14159265358979323846
-#endif
-
 // Useful macros
 #define mBitsOn(x,by) ((x)|=(by))
 #define mBitsOff(x,bn) ((x)&= ~(bn))
