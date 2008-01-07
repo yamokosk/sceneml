@@ -1,4 +1,4 @@
-#include "common.h"
+#include "mex_common.h"
 
 // sceneml includes
 #include <sceneml.h>
@@ -233,7 +233,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 					msg << mexFunctionName() << "::" << __FUNCTION__ << "(): Second argument must be a cell array.";
 					throw std::runtime_error(msg.str());
 				}
-				mwIndex subs[2], ind;
+				int subs[2], ind;
 				//sceneml::ValueList_t values;
 				
 				for (int r=0; r < mxGetM(prhs[1]); ++r) {
@@ -344,8 +344,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			case evGetAllGeoms:
 			{
 				// Get sceneml/ode object
-				sceneml::GeomList_t allGeoms = g_scene.get()->getAllGeoms();
-				sceneml::GeomList_t::iterator it = allGeoms.begin();
+				sceneml::GeomPtrList_t allGeoms = g_scene.get()->getAllGeoms();
+				sceneml::GeomPtrList_t::iterator it = allGeoms.begin();
 				
 				// Create output structure for Matlab and populate
 				//plhs[0] = mxCreateStructMatrix(allGeoms.size(), 1, NUM_GEOM_FIELDS, fnames_geom);
@@ -354,7 +354,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 				for (int row=0; it != allGeoms.end(); ++row, ++it) {
 					// Create tmp mxArray to collect all the outputs
 					mxArray *tmp[NUM_GEOM_FIELDS];
-					dGeomToMxArray(tmp, (*it));
+					dGeomToMxArray(tmp, (*it).get());
 					
 					mxArray *structure = mxCreateStructMatrix(1, 1, NUM_GEOM_FIELDS, fnames_geom);
 					for (int n=0; n < NUM_GEOM_FIELDS; ++n)

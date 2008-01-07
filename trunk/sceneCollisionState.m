@@ -1,4 +1,4 @@
 function state = sceneCollisionState()
 % TODO - Write HELP for sceneGetGeom()
 
-state = scene('InCollision');
+state = sceneml('InCollision');

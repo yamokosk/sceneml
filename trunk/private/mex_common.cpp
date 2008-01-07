@@ -1,4 +1,4 @@
-#include "common.h"
+#include "mex_common.h"
 
 std::map<std::string, StringValue> g_MapStringValues;
 bool g_bLibraryIsInit;

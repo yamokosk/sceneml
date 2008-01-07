@@ -6,6 +6,7 @@ file(GLOB HEADERS "*.h")
 include_directories( ${ODE_HOME}/include
 					 ${XERCES_HOME}/include
 					 ${MUPARSER_HOME}/include
+					 ${Boost_INCLUDE_DIRS}
 					 ${PROJECT_SOURCE_DIR}/src )
 link_directories( ${XERCES_HOME}/lib
 				  ${MUPARSER_HOME}/lib	)
