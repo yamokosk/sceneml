@@ -4,7 +4,7 @@
 #INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake )
 #INCLUDE( ${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake )
 
-set( COMPILE_M ${PROJECT_BASE_DIR}/private/compile.m )
+set( COMPILE_M ${PROJECT_BASE_DIR}/mex/compile.m )
 set( SRCS	sceneml.cpp mex_common.cpp )
 
 # Only write config.h once
