@@ -74,7 +74,6 @@ void XMLSceneBuilder::isFileValid()
 		msg << __FUNCTION__ << "(): " << filename_ << " is not a valid XML file.";
 		throw std::runtime_error(msg.str());
 	}
-	std::cout << "Filename: " << filename_ << std::endl;
 	fp.close();
 }
 
@@ -82,11 +81,12 @@ void XMLSceneBuilder::readXMLDescription( )
 {
 	// Initialize DOM parser and set properties
 	XMLCh tempStr[100];
-	XMLString::transcode("LS", tempStr, 99);
+	XMLString::transcode("LS", tempStr, 99); // What is LS? Need comment here!  -J.D.
 	impl_ = DOMImplementationRegistry::getDOMImplementation(tempStr);
 	parser_ = ((DOMImplementationLS*)impl_)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
 
-	// optionally you can set some features on this builder
+	// FUTURE WORK - Lookup and use features of the DOM parser.. sure there is
+	// something useful I could use in there.  -J.D.
 	//if (parser->canSetFeature(XMLUni::fgDOMValidation, true))
 	//	parser->setFeature(XMLUni::fgDOMValidation, true);
 	//if (parser->canSetFeature(XMLUni::fgDOMNamespaces, true))
@@ -149,33 +149,31 @@ void XMLSceneBuilder::buildSpaces()
 			dSpaceID spaceID = NULL, parentID = NULL;
 
 			// Get parent if one exists
-			std::string spaceParent = (*attrib)("parent");
+			std::string spaceParent = attrib->getValAsStr("parent");
 			if ( spaceParent.compare("_NOPARENT_") != 0 ) {
 				parentID = scene_->getSpace( spaceParent );
 			}
 			
 			// Get the type now so we build the correct type
-			std::string spaceType = (*attrib)("type");				
+			std::string spaceType = attrib->getValAsStr("type");				
 			if ( spaceType.compare("simple") == 0 ) {
 				spaceID = dSimpleSpaceCreate(parentID);
 			} else if (spaceType.compare("hash") == 0) {
-				float center[3], extents[3]; float depth;
-				attrib->get("center", center);
-				attrib->get("extents", extents);
-				attrib->get("depth", &depth);
+				dRealPtr center = attrib->getValAsVec("center", 3);
+				dRealPtr extents = attrib->getValAsVec("extents", 3);
+				float depth = attrib->getValAsReal("depth");
 				
-				spaceID = dQuadTreeSpaceCreate(parentID, center, extents, (int)depth);
+				spaceID = dQuadTreeSpaceCreate(parentID, center.get(), extents.get(), (int)depth);
 			} else if (spaceType.compare("quadtree") == 0) {
 				spaceID = dHashSpaceCreate(parentID);
 				
-				float minlevel, maxlevel;
-				attrib->get("minlevel", &minlevel);
-				attrib->get("maxlevel", &maxlevel);
+				float minlevel = attrib->getValAsReal("minlevel");
+				float maxlevel = attrib->getValAsReal("maxlevel");
 				dHashSpaceSetLevels(spaceID, (int)minlevel, (int)maxlevel);
 			}
 		
 			//Then create a new space object
-			scene_->addSpace((*attrib)("name"), spaceID);
+			scene_->addSpace(attrib->getValAsStr("name"), spaceID);
 		}
 		
 		// Now that all spaces have been created, look for <pair> tags to
@@ -196,7 +194,7 @@ void XMLSceneBuilder::buildSpaces()
 			AttributesPtr attrib = attribDirector.GetAttributes();
 
 			// With successfully parsed attributes we can build an ODE space
-			scene_->addCollisionPair((*attrib)("space1"), (*attrib)("space2"));
+			scene_->addCollisionPair(attrib->getValAsStr("space1"), attrib->getValAsStr("space2"));
 		}
 		
 	} catch (const XMLException& toCatch) {
@@ -249,8 +247,8 @@ void XMLSceneBuilder::buildBodies()
 			AttributesPtr attrib = attribDirector.GetAttributes();
 			
 			dBodyID b = dBodyCreate(scene_->getWorld());
-			Body* body = scene_->createBody((*attrib)("name"), b);
-			Body* prox = scene_->getBody((*attrib)("parent"));
+			Body* body = scene_->createBody(attrib->getValAsStr("name"), b);
+			Body* prox = scene_->getBody(attrib->getValAsStr("parent"));
 			body->setProxObj(prox);
 			prox->addDistBody(body);
 			
@@ -316,7 +314,7 @@ void XMLSceneBuilder::buildGeoms()
 			bodyDirector.SetAttributesBuilder( &bodyAttribBuilder );
 			bodyDirector.ConstructAttributes();
 			AttributesPtr bodyAttrib = bodyDirector.GetAttributes();
-			Body* body = scene_->getBody((*bodyAttrib)("name"));
+			Body* body = scene_->getBody(bodyAttrib->getValAsStr("name"));
 			
 			// Get geom's space
 			DOMNode* thisGeomSpaceItem = thisGeomBodyItem->getParentNode();
@@ -325,43 +323,38 @@ void XMLSceneBuilder::buildGeoms()
 			spaceDirector.SetAttributesBuilder( &spaceAttribBuilder );
 			spaceDirector.ConstructAttributes();
 			AttributesPtr spaceAttrib = spaceDirector.GetAttributes();
-			dSpaceID spaceID = scene_->getSpace((*spaceAttrib)("name"));
+			dSpaceID spaceID = scene_->getSpace(spaceAttrib->getValAsStr("name"));
 			
 			// Construct the ODE object - based on type of course
-			std::string type = (*geomAttrib)("type");
+			std::string type = geomAttrib->getValAsStr("type");
 			dGeomID g = NULL, t = NULL;
 			PolyhedronPtr mesh;
 			
 			if (!type.compare("box")) {
-				float length, width, height;
-				geomAttrib->get("length", &length);
-				geomAttrib->get("width", &width);
-				geomAttrib->get("height", &height);
+				float length = geomAttrib->getValAsReal("length");
+				float width = geomAttrib->getValAsReal("width");
+				float height = geomAttrib->getValAsReal("height");
 				g = dCreateBox(NULL, length, width, height);
 			} else if (!type.compare("ccylinder")) {
-				float length, radius;
-				geomAttrib->get("length", &length);
-				geomAttrib->get("radius", &radius);
+				float length = geomAttrib->getValAsReal("length");
+				float radius = geomAttrib->getValAsReal("radius");
 				g = dCreateCCylinder(NULL, radius, length);
 			} else if (!type.compare("cylinder")) {
-				float length, radius;
-				geomAttrib->get("length", &length);
-				geomAttrib->get("radius", &radius);
+				float length = geomAttrib->getValAsReal("length");
+				float radius = geomAttrib->getValAsReal("radius");
 				g = dCreateCylinder(NULL, radius, length);
 			} else if (!type.compare("sphere")) {
-				float radius;
-				geomAttrib->get("radius", &radius);
+				float radius = geomAttrib->getValAsReal("radius");
 				g = dCreateSphere(NULL, radius);
 			} else if (!type.compare("plane")) {
-				float nx, ny, nz, d;
-				geomAttrib->get("normal_x", &nx);
-				geomAttrib->get("normal_y", &ny);
-				geomAttrib->get("normal_z", &nz);
-				geomAttrib->get("d", &d);
+				float nx = geomAttrib->getValAsReal("normal_x");
+				float ny = geomAttrib->getValAsReal("normal_y");
+				float nz = geomAttrib->getValAsReal("normal_z");
+				float d = geomAttrib->getValAsReal("d");
 				g = dCreatePlane(NULL, nx, ny, nz, d);
 			} else if (!type.compare("mesh")) {				
 				// Got to make a TriMeshObj!.. tough one.
-				std::string filename = (*geomAttrib)("filename");
+				std::string filename = geomAttrib->getValAsStr("filename");
 				int pos = filename.find_last_of(".");
 				std::string extension = filename.substr(pos+1);
 				
@@ -393,7 +386,11 @@ void XMLSceneBuilder::buildGeoms()
 				dGeomTriMeshDataBuildSingle(Data,
                                  (void*)mesh->vertices.get(), mesh->vertex_stride, mesh->vertex_count,
                                  (void*)mesh->indices.get(),mesh->index_count,mesh->index_stride);
-                g = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);
+				g = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);
+			} else {
+				std::ostringstream msg;
+				msg << type << " is an unrecognized geom type. Currently only stl and obj files are supported." << std::endl;
+				throw std::runtime_error(msg.str());
 			}
 			
 			// At this point the geom has NOT been added to the correct space. First
@@ -416,16 +413,15 @@ void XMLSceneBuilder::buildGeoms()
 				dSpaceAdd(spaceID, g);
 			}
 			
-			Geom* geom = scene_->createGeom((*geomAttrib)("name"), g, t);
+			Geom* geom = scene_->createGeom(geomAttrib->getValAsStr("name"), g, t);
 			geom->setProxObj(body);
 			geom->setMesh(mesh);
 			geom->setCompositeTransform(pTransform);
 			body->addGeom(geom);
 			
 			// Get color info
-			dVector3 rgb;
-			geomAttrib->get("color", rgb);
-			geom->setColor(rgb);
+			dRealPtr rgb = geomAttrib->getValAsVec("color", 3);
+			geom->setColor(rgb.get());
 			
 			// Invalidate and move on to next geom
 			geom->invalidate();
@@ -483,7 +479,7 @@ void XMLSceneBuilder::parseTransform(DOMNode *node, CompositeTransform* pRootTra
 				
 				AttributesPtr attrib = attribDirector.GetAttributes();
 				
-				std::string type = (*attrib)("type");
+				std::string type = attrib->getValAsStr("type");
 				CoordinateTransformPtr pTransform;
 				
 				if ( !type.compare("simple") ) pTransform = parseSimpleTransform(thisChildItem, b);
@@ -536,25 +532,23 @@ CoordinateTransformPtr XMLSceneBuilder::parseSimpleTransform(DOMNode *node, Body
 			if ( strcmp(pTransformTagName, "translation") == 0 ) {
 				aTransform.reset( new SimpleTransform("translation", "_NODATA_") );
 			} else if ( strcmp(pTransformTagName, "rotation") == 0 ) {
-				aTransform.reset( new SimpleTransform("rotation", (*attrib)("type")) );
+				aTransform.reset( new SimpleTransform("rotation", attrib->getValAsStr("type")) );
 			}
 			XMLString::release(&pTransformTagName);
 
 			// Add value
-			dRealPtr value(new dReal[3]);
-			attrib->get("value", value.get());
+			dRealPtr value = attrib->getValAsVec("value", 3);
 			((SimpleTransform*)aTransform.get())->setData(value);
 			
 			// If value is mutable, register it with the scene			
-			float isMutable = 0;
-			attrib->get("mutable", &isMutable);
+			float isMutable = attrib->getValAsReal("mutable");
 			if ( isMutable ) {
 				if (b == NULL) {
 					std::ostringstream msg;
 					msg << __FUNCTION__ << "(): Found a mutable variable for a geometry. This is not allowed!";
 					throw std::runtime_error(msg.str());
 				} else {
-					scene_->addMutableValue((*attrib)("name"), value, b);
+					scene_->addMutableValue(attrib->getValAsStr("name"), value, b);
 				}
 			}
 			
@@ -597,9 +591,8 @@ CoordinateTransformPtr XMLSceneBuilder::parseMarkerTransform(DOMNode *node, Body
 			attribDirector.ConstructAttributes();
 			AttributesPtr attrib = attribDirector.GetAttributes();
 			
-			dRealPtr value( new dReal[3] );
-			attrib->get("value", value.get());
-			std::string type = (*attrib)("type");
+			dRealPtr value = attrib->getValAsVec("value", 3);
+			std::string type = attrib->getValAsStr("type");
 			if ( !type.compare("local") ){
 				((MarkerTransform*)pMarkerTransform.get())->addLocalCoord( value );
 				nLocalCoord++;
@@ -613,15 +606,14 @@ CoordinateTransformPtr XMLSceneBuilder::parseMarkerTransform(DOMNode *node, Body
 			}
 
 			// If value is mutable, register it with the scene			
-			float isMutable = 0;
-			attrib->get("mutable", &isMutable);
+			float isMutable = attrib->getValAsReal("mutable");
 			if ( isMutable ) {
 				if (b == NULL) {
 					std::ostringstream msg;
 					msg << __FUNCTION__ << "(): Found a mutable variable for a geometry. This is not allowed!";
 					throw std::runtime_error(msg.str());
 				} else {
-					scene_->addMutableValue((*attrib)("name"), value, b);
+					scene_->addMutableValue(attrib->getValAsStr("name"), value, b);
 				}
 			}
 		}   

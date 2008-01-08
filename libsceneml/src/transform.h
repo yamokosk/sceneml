@@ -25,7 +25,7 @@
 #include <vector>
 #include <string>
 #include <list>
-
+#include <stdexcept>
 #include <boost/shared_ptr.hpp>
 
 namespace sceneml {

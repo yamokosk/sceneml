@@ -4,7 +4,7 @@
 #include <sceneml.h>
 
 // Global scene pointer
-std::auto_ptr<sceneml::Scene> g_scene;
+sceneml::ScenePtr g_scene;
 extern std::map<std::string, StringValue> g_MapStringValues;
 extern bool g_bLibraryIsInit;
 
@@ -212,6 +212,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		{
 			case evInit:
 			{
+				if (g_scene.get() != NULL) g_scene.release();
+				
 				// XML scene description filename in prhs[1]
 				char* cfname = mxArrayToString(prhs[1]);
                 				
@@ -221,8 +223,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 				sceneDirector.ConstructScene();
 			
 				g_scene = sceneDirector.GetScene();
-				/*g_scene->update();*/
-                mxFree(cfname);
+				g_scene->update();
+				mxFree(cfname);
 				break;
 			}
 			case evUpdate:
@@ -251,16 +253,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 					// Convert to library expected types
 					if (nvalues == 3) {
 						double *ptr = mxGetPr(value);
-						g_scene.get()->setMutableValue(name, ptr[0], ptr[1], ptr[2]);
+						g_scene->setMutableValue(name, ptr[0], ptr[1], ptr[2]);
 					} else {
-						g_scene.get()->setMutableValue(name, (float)mxGetScalar(value) );
+						g_scene->setMutableValue(name, (float)mxGetScalar(value) );
 					}
 					
 					// Clean up
 					mxFree(name);
 				}
 				
-				g_scene.get()->update();
+				g_scene->update();
 				
 				break;
 			}
@@ -268,7 +270,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			{
 				// Get sceneml object
 				char* name = mxArrayToString(prhs[1]);
-				sceneml::Body *obj = g_scene.get()->getBody(name);
+				sceneml::Body *obj = g_scene->getBody(name);
 				mxFree(name);
 				
 				// Create tmp mxArray to collect all the outputs
@@ -325,7 +327,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			{
 				// Get sceneml object
 				char* name = mxArrayToString(prhs[1]);
-				sceneml::Geom *obj = g_scene.get()->getGeom(name);
+				sceneml::Geom *obj = g_scene->getGeom(name);
 				mxFree(name);
 				
 				// Create tmp mxArray to collect all the outputs
@@ -343,7 +345,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			case evGetAllGeoms:
 			{
 				// Get sceneml/ode object
-				sceneml::GeomPtrList_t allGeoms = g_scene.get()->getAllGeoms();
+				sceneml::GeomPtrList_t allGeoms = g_scene->getAllGeoms();
 				sceneml::GeomPtrList_t::iterator it = allGeoms.begin();
 				
 				// Create output structure for Matlab and populate
@@ -365,13 +367,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			}
 			case evInCollision:
 			{
-				plhs[0] = mxCreateLogicalScalar( g_scene.get()->inCollision() );
+				plhs[0] = mxCreateLogicalScalar( g_scene->inCollision() );
 				break;
 			}
 			case evGetContactData:
 			{
 				// Get sceneml/ode object
-				sceneml::ContactGeoms_t contactData = g_scene.get()->getContactData();
+				sceneml::ContactGeoms_t contactData = g_scene->getContactData();
 
 				// Create output structure for Matlab and populate
 				plhs[0] = mxCreateStructMatrix(contactData.size(), 1, NUM_CONTACT_FIELDS, fnames_contact);
@@ -387,9 +389,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 					// Depth
 					tmp[2] = mxCreateDoubleScalar( contactData[row].depth );
 					// Geom #1
-					tmp[3] = mxCreateString( g_scene.get()->getGeomByID( contactData[row].g1 ).c_str() );
+					tmp[3] = mxCreateString( g_scene->getGeomByID( contactData[row].g1 ).c_str() );
 					// Geom #2
-					tmp[4] = mxCreateString( g_scene.get()->getGeomByID( contactData[row].g2 ).c_str() );
+					tmp[4] = mxCreateString( g_scene->getGeomByID( contactData[row].g2 ).c_str() );
 					
 					// Copy the vector data into the appropriate Matlab containers
 					dVector3ToMxArray( mxGetPr(tmp[0]), contactData[row].pos );
@@ -421,5 +423,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 void MexExitFcn(void)
 {
+	g_scene.release();
 	mexWarnMsgTxt("mode library being unloaded.");
 }

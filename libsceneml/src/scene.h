@@ -43,8 +43,6 @@ typedef std::vector< SpacePair_t > SpacePairs_t;
 typedef std::vector< dContactGeom > ContactGeoms_t;
 typedef std::map<std::string, dRealPtr> StringVariableMap_t;
 
-typedef std::auto_ptr<Scene> ScenePtr;
-
 /**
  *  The scene class. A more elaborate scene description.
  */
@@ -115,6 +113,8 @@ private:
 	//! The world.. according to ODE
 	dWorldID worldID_;
 };
+
+typedef std::auto_ptr<Scene> ScenePtr;
 
 };
 
