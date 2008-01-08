@@ -801,7 +801,7 @@
 				<rotation type="z" value="pi/2" />
 			</transform>	
 		</body>
-		<body name="pelivs" parent="world">
+		<body name="pelivs" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lRPP" />
 				<marker type="local"  value="0 0 0" mutable="1" name="lLPP" />
@@ -813,13 +813,13 @@
 				<marker type="global"  value="0 0 0" mutable="1" name="gLAS" />
 			</transform>
 			<geometry type="box" name="pelvis_01">
-				<parameter type="length" value="100" />
+				<parameter type="length" value="200" />
 				<parameter type="width" value="400" />
-				<parameter type="height" value="200" />
+				<parameter type="height" value="100" />
 				<parameter type="color" value="96 41 21" />
 			</geometry>
 		</body>
-		<body name="rthigh" parent="world">
+		<body name="rthigh" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lRTH1" />
 				<marker type="local"  value="0 0 0" mutable="1" name="lRTH2" />
@@ -833,13 +833,13 @@
 			<geometry type="cylinder" name="rthigh_01">
 				<parameter type="length" value="415"/>
 				<parameter type="radius" value="83.5"/>
-				<parameter type="color" value="96 41 21" />
+				<parameter type="color" value="255 0 0" />
 				<transform>
 					<translation value="0 0 415/2" />
 				</transform>
 			</geometry>
 		</body>
-		<body name="rshank" parent="world">
+		<body name="rshank" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lRSK1" />
 				<marker type="local"  value="0 0 0" mutable="1" name="lRSK2" />
@@ -853,13 +853,13 @@
 			<geometry type="cylinder" name="rshank_01">
 				<parameter type="length" value="391"/>
 				<parameter type="radius" value="62.7"/>
-				<parameter type="color" value="96 41 21" />
+				<parameter type="color" value="255 0 0" />
 				<transform>
 					<translation value="0 0 391/2" />
 				</transform>
 			</geometry>
 		</body>
-		<body name="rfoot" parent="world">
+		<body name="rfoot" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lRFT1" />
 				<marker type="local"  value="0 0 0" mutable="1" name="lRFT2" />
@@ -869,15 +869,16 @@
 				<marker type="global"  value="0 0 0" mutable="1" name="gRFT3" />
 			</transform>
 			<geometry type="box" name="rfoot_01" >
-				<parameter type="length" value="99"/>
-				<parameter type="width" value="68.8"/>
-				<parameter type="height" value="273"/>
+				<parameter type="length" value="68.8"/>
+				<parameter type="width" value="273"/>
+				<parameter type="height" value="99"/>
+				<parameter type="color" value="255 0 0" />
 				<transform>
-					<translation value="0 -68.8/2 -273/2" />
+					<translation value="68.8/2 273/2 0" />
 				</transform>
 			</geometry>
 		</body>
-		<body name="lthigh" parent="world">
+		<body name="lthigh" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lLTH1" />
 				<marker type="local"  value="0 0 0" mutable="1" name="lLTH2" />
@@ -891,13 +892,13 @@
 			<geometry type="cylinder" name="lthigh_01">
 				<parameter type="length" value="415"/>
 				<parameter type="radius" value="83.5"/>
-				<parameter type="color" value="96 41 21" />
+				<parameter type="color" value="0 0 255" />
 				<transform>
 					<translation value="0 0 415/2" />
 				</transform>
 			</geometry>
 		</body>
-		<body name="lshank" parent="world">
+		<body name="lshank" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lLSK1" />
 				<marker type="local"  value="0 0 0" mutable="1" name="lLSK2" />
@@ -911,13 +912,13 @@
 			<geometry type="cylinder" name="lshank_01">
 				<parameter type="length" value="391"/>
 				<parameter type="radius" value="62.7"/>
-				<parameter type="color" value="96 41 21" />
+				<parameter type="color" value="0 0 255" />
 				<transform>
 					<translation value="0 0 391/2" />
 				</transform>
 			</geometry>
 		</body>
-		<body name="lfoot" parent="world">
+		<body name="lfoot" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lLFT1" />
 				<marker type="local"  value="0 0 0" mutable="1" name="lLFT2" />
@@ -927,11 +928,12 @@
 				<marker type="global"  value="0 0 0" mutable="1" name="gLFT3" />
 			</transform>
 			<geometry type="box" name="lfoot_01" >
-				<parameter type="length" value="99"/>
-				<parameter type="width" value="68.8"/>
-				<parameter type="height" value="273"/>
+				<parameter type="length" value="68.8"/>
+				<parameter type="width" value="273"/>
+				<parameter type="height" value="99"/>
+				<parameter type="color" value="0 0 255" />
 				<transform>
-					<translation value="0 -68.8/2 -273/2" />
+					<translation value="-68.8/2 273/2 0" />
 				</transform>
 			</geometry>
 		</body>

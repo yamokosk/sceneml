@@ -44,7 +44,15 @@
 // Required math expression parser
 #include <muParser.h>
 
+// Boost shared ptr
+#include <boost/shared_ptr.hpp>
+
+// ODE
+#include <ode/ode.h>
+
 namespace sceneml {
+
+typedef boost::shared_ptr<dReal> dRealPtr;
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -59,20 +67,33 @@ public:
 	void add(const std::string& name, const std::string &val);
 	void update(const std::string& name, const std::string &val);
 	
-	void get(const std::string& name, std::string& str);
-	void get(const std::string& name, float* val);
-	std::string operator()(const std::string& name) 
+	float getValAsReal(const std::string& name)
 	{
-		std::string str;
-		this->get(name, str);
-		return str;
-	} 
+		float val = 0.0;
+		dRealPtr pval( this->get(name, 1) );
+		val = *pval;
+		return val;
+	}
+	
+	dRealPtr getValAsVec(const std::string& name, int length)
+	{
+		dRealPtr val( this->get(name, length) );
+		return val;
+	}
+	
+	std::string getValAsStr(const std::string& name)
+	{
+		return this->get(name);
+	}
 
 private:
+	std::string get(const std::string& name);
+	float* get(const std::string& name, int length);
+	
 	//class MathParserImpl; // Forward declaration
 	//std::auto_ptr<MathParserImpl> pimpl_;
 	mu::Parser parser_;
-	void parseValue(const char* str, float* val);
+	void parseValue(const char* str, float* val, int length);
 	properties_t properties_;
 };
 
@@ -91,7 +112,7 @@ public:
 	AttributesPtr GetAttributes() { return attrib_; }
  
 	// General build methods
-	virtual void createNewAttributes() { attrib_.reset(new Attributes); }
+	virtual void createNewAttributes() {attrib_.reset(new Attributes);}
 	virtual void getAttributes();
 	virtual void getParameters()=0;
 	virtual void verify()=0;

@@ -27,9 +27,9 @@
 #define SCENEML_API
 #endif
 
-#ifndef WIN32
-#include <stdlib> 
-#endif
+//#ifndef WIN32
+//#include <stdlib> 
+//#endif
 
 #ifdef _MSC_VER
 #pragma warning (disable:4251)

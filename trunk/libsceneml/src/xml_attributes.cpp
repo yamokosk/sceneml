@@ -87,7 +87,9 @@ void Attributes::add(const std::string& name, const std::string &val)
 	if (it == properties_.end()) {
 		properties_[name] = val;
 	} else {
-		throw std::runtime_error("Attributes::add() - Parameter " + name + " already exists in attributes.");
+		std::ostringstream msg;
+		msg << __FUNCTION__ << "() - Parameter " + name + " already exists in attributes.";
+		throw std::runtime_error(msg.str());
 	}
 }
 
@@ -97,28 +99,34 @@ void Attributes::update(const std::string& name, const std::string &val)
 	if (it != properties_.end()) {
 		properties_[name] = val;
 	} else {
-		throw std::runtime_error("Attributes::update() - Parameter " + name + " not found in attributes.");
+		std::ostringstream msg;
+		msg << __FUNCTION__ << "() - Parameter " + name + " not found in attributes.";
+		throw std::runtime_error(msg.str());
 	};
 }
 
-void Attributes::get(const std::string& name, std::string& str)
+std::string Attributes::get(const std::string& name)
 {
 	properties_t::iterator it = properties_.find(name);
 	if (it != properties_.end()) {
-		str = it->second;
+		return it->second;
 	} else {
-		throw std::runtime_error("Attributes::get() - Parameter " + name + " not found in attributes.");
+		std::ostringstream msg;
+		msg << __FUNCTION__ << "() - Parameter " + name + " not found in attributes.";
+		throw std::runtime_error(msg.str());
 	};
 }
 
-void Attributes::get(const std::string& name, float* val)
+float* Attributes::get(const std::string& name, int length)
 {
-	std::string str;
-	this->get(name, str);
-	this->parseValue(str.c_str(), val);
+	std::string str = this->get(name);
+	
+	float *val = new float[length];
+	this->parseValue(str.c_str(), val, length);
+	return val;
 }
 
-void Attributes::parseValue(const char* str, float* val)
+void Attributes::parseValue(const char* str, float* val, int length)
 {
 	//pimpl_->parseValue(str, val);
 	char cstr[512], *tok = NULL;
@@ -131,22 +139,29 @@ void Attributes::parseValue(const char* str, float* val)
 	
 	// Step through each token, evaluate it, and store it in our return vector
 	tok = strtok(cstr, " ,");
-	int n = 0;
-	while (tok != NULL) 
-	{		
-		try {
-			parser_.SetExpr(tok);
-		
-			// Evaluate string
-			val[n] = (float)parser_.Eval();
-		} catch (mu::Parser::exception_type &e) {
+	for (int n=0; n < length; ++n)
+	{
+		if ( tok == NULL ) {
+			//std::ostringstream msg;
+			//msg << __FUNCTION__ << "(): Requested vector length (" << length
+			//    << ") appearantly exceeds the number of tokens in the attribute: "
+			//    << cstr;
+			//throw std::runtime_error(msg.str());
 			val[n] = 0.0;
-			std::cout << e.GetMsg() << std::endl;
-		}
+		} else {
+			try {
+				parser_.SetExpr(tok);
+			
+				// Evaluate string
+				val[n] = (float)parser_.Eval();
+			} catch (mu::Parser::exception_type &e) {
+				val[n] = 0.0;
+				std::cout << e.GetMsg() << std::endl;
+			}
 		
-		// Get new token
-		tok = strtok(NULL, " ,");
-		n++;
+			// Get new token
+			tok = strtok(NULL, " ,");
+		}
 	}
 	return;
 }
@@ -174,8 +189,8 @@ void AttributesBuilder::getAttributes()
 				attrib_->update(attrName, attrValue);
 			} catch (std::runtime_error &ex) {
 				std::cerr << ex.what() << std::endl
-						<< builderType_ << "::getAttributes() - "
-						<< "In space \"" << (*attrib_)("name")
+						<< builderType_ << __FUNCTION__ << "(): "
+						<< "In space \"" << attrib_->getValAsStr("name")
 						<< "\", unrecognized attribute \"" << attrName << "=" << attrValue
 						<< "\". Ignoring it." << std::endl;
 			};
@@ -218,7 +233,7 @@ void SpaceAttributesBuilder::getParameters()
 	//			depth,	int
 	//	quatree:	minlevel,	int
 	//			maxlevel,	int
-	std::string type = (*attrib_)("type");
+	std::string type = attrib_->getValAsStr("type");
 	
 	if (!type.compare("simple")) return; // No parameters for simple space
 	else if (!type.compare("hash")) {
@@ -252,21 +267,22 @@ void SpaceAttributesBuilder::getParameters()
 						DOMNode* nodeName = theAttributes->item(0);
 						DOMNode* nodeValue = theAttributes->item(1);
 
-						const XMLCh* xmlch_Name = nodeName->getNodeName();
+						const XMLCh* xmlch_Name = nodeName->getNodeValue();
 						char* attrName = XMLString::transcode(xmlch_Name);
 
 						const XMLCh* xmlch_Value = nodeValue->getNodeValue();
 						char* attrValue = XMLString::transcode(xmlch_Value);
 
+						
 						try {
 							attrib_->update(attrName, attrValue);
 						} catch (std::runtime_error &ex) {
 							std::cerr << ex.what() << std::endl
 									<< builderType_ << "::getParameters() - "
-									<< "In space \"" << (*attrib_)("name")
+									<< "In space \"" << attrib_->getValAsStr("name")
 									<< "\", parameter \"" << attrName << "=" << attrValue
 									<< "\" is illegal for this space type ("
-									<< (*attrib_)("type")
+									<< attrib_->getValAsStr("type")
 									<< "). Ignoring it." << std::endl;
 						}
 
@@ -284,7 +300,7 @@ void SpaceAttributesBuilder::getParameters()
 void SpaceAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string name = (*attrib_)("name");
+	std::string name = attrib_->getValAsStr("name");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - A space has no name!");
 }
@@ -320,7 +336,7 @@ void BodyAttributesBuilder::getParameters()
 void BodyAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string name = (*attrib_)("name");
+	std::string name = attrib_->getValAsStr("name");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - A body has no name!");
 }
@@ -359,7 +375,7 @@ void GeomAttributesBuilder::getParameters()
 	//	sphere:		radius (all doubles)
 	//	plane:		normal_x, normal_y, normal_z, d (all doubles)
 	//	mesh:		filname (std::string)	
-	std::string type = (*attrib_)("type");
+	std::string type = attrib_->getValAsStr("type");
 	
 	if (!type.compare("box")) {
 		attrib_->add("length", "1");
@@ -386,7 +402,7 @@ void GeomAttributesBuilder::getParameters()
 	
 	DOMNodeList* allChildNodes = node_->getChildNodes();
 
-	// Loop over all of the spaces
+	// Loop over all of the parameters
 	for (unsigned int c = 0; c < allChildNodes->getLength(); ++c) {
 		DOMNode* thisChildItem = allChildNodes->item(c);
 			    			
@@ -396,15 +412,16 @@ void GeomAttributesBuilder::getParameters()
 			
 			if ( strcmp(pChildTagName, "parameter") == 0 ) {
      			
-				if ( thisChildItem->hasAttributes() ) {
+				if ( thisChildItem->hasAttributes() ) 
+				{
 					DOMNamedNodeMap* theAttributes = thisChildItem->getAttributes();
 					int numAttributes = theAttributes->getLength();
 			
-					if (numAttributes == 2) {
+					if (numAttributes == 2) { // Parameters can only 1 Name/Value pair
 						DOMNode* nodeName = theAttributes->item(0);
 						DOMNode* nodeValue = theAttributes->item(1);
 
-						const XMLCh* xmlch_Name = nodeName->getNodeName();
+						const XMLCh* xmlch_Name = nodeName->getNodeValue();
 						char* attrName = XMLString::transcode(xmlch_Name);
 
 						const XMLCh* xmlch_Value = nodeValue->getNodeValue();
@@ -415,10 +432,10 @@ void GeomAttributesBuilder::getParameters()
 						} catch (std::runtime_error &ex) {
 							std::cerr << ex.what() << std::endl
 									<< builderType_ << "::getParameters() - "
-									<< "In geom \"" << (*attrib_)("name")
+									<< "In geom \"" << attrib_->getValAsStr("name")
 									<< "\", parameter \"" << attrName << "=" << attrValue
 									<< "\" is illegal for this geom type ("
-									<< (*attrib_)("type")
+									<< attrib_->getValAsStr("type")
 									<< "). Ignoring it." << std::endl;
 						};
 						
@@ -436,16 +453,16 @@ void GeomAttributesBuilder::getParameters()
 void GeomAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string name = (*attrib_)("name");
+	std::string name = attrib_->getValAsStr("name");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - A geom has not been named!");
 		
-	std::string type = (*attrib_)("type");
+	std::string type = attrib_->getValAsStr("type");
 	if (!name.compare("_NODATA_"))
 		throw std::runtime_error(builderType_ + "::verify() - Geom (" + name + ") has no type!");
 		
 	if (!type.compare("mesh")) {
-		std::string filename = (*attrib_)("filename");
+		std::string filename = attrib_->getValAsStr("filename");
 		
 		if (!filename.compare("_NODATA_")) {
 			throw std::runtime_error(builderType_ + "::verify() - Geom (" + name + ") is a mesh but no mesh filename was given."); 
@@ -487,10 +504,10 @@ void TranslationAttributesBuilder::getParameters()
 void TranslationAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string isMutable = (*attrib_)("mutable");
+	std::string isMutable = attrib_->getValAsStr("mutable");
 	
 	if (!isMutable.compare("true")) {
-		std::string name = (*attrib_)("name");
+		std::string name = attrib_->getValAsStr("name");
 		
 		if (!name.compare("_NODATA_"))
 			throw std::runtime_error(builderType_ + "::verify() - A translation is marked mutable but has no name!");
@@ -530,16 +547,16 @@ void RotationAttributesBuilder::getParameters()
 void RotationAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string isMutable = (*attrib_)("mutable");
+	std::string isMutable = attrib_->getValAsStr("mutable");
 	
 	if (!isMutable.compare("true")) {
-		std::string name = (*attrib_)("name");
+		std::string name = attrib_->getValAsStr("name");
 		
 		if (!name.compare("_NODATA_"))
 			throw std::runtime_error(builderType_ + "::verify() - A rotation is marked mutable but has no name!");
 	}
 	
-	std::string type = (*attrib_)("type");
+	std::string type = attrib_->getValAsStr("type");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A rotation did not specify a type!");
 	}
@@ -576,12 +593,12 @@ void PairAttributesBuilder::getParameters()
 void PairAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string type = (*attrib_)("space1");
+	std::string type = attrib_->getValAsStr("space1");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A pair did not specify space1!");
 	}
 	
-	type = (*attrib_)("space2");
+	type = attrib_->getValAsStr("space2");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A pair did not specify space2!");
 	}
@@ -620,16 +637,16 @@ void MarkerAttributesBuilder::getParameters()
 void MarkerAttributesBuilder::verify()
 {
 	// Check to make sure we have good values
-	std::string isMutable = (*attrib_)("mutable");
+	std::string isMutable = attrib_->getValAsStr("mutable");
 	
 	if (!isMutable.compare("true")) {
-		std::string name = (*attrib_)("name");
+		std::string name = attrib_->getValAsStr("name");
 		
 		if (!name.compare("_NODATA_"))
 			throw std::runtime_error(builderType_ + "::verify() - A marker is marked mutable but has no name!");
 	}
 	
-	std::string type = (*attrib_)("type");
+	std::string type = attrib_->getValAsStr("type");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A marker did not specify a type!");
 	}
@@ -665,7 +682,7 @@ void TransformAttributesBuilder::getParameters()
 
 void TransformAttributesBuilder::verify()
 {
-	std::string type = (*attrib_)("type");
+	std::string type = attrib_->getValAsStr("type");
 	if (!type.compare("_NODATA_")) {
 		throw std::runtime_error(builderType_ + "::verify() - A transform did not specify a type!");
 	}

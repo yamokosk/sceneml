@@ -1,2 +1,2 @@
 function sceneSetVars(vars)
-scene('Update', vars);
+sceneml('Update', vars);

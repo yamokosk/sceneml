@@ -25,7 +25,7 @@ GET_FILENAME_COMPONENT( PROJECT_BASE_DIR ${PROJECT_SOURCE_DIR} PATH )
 # ------------------------------------------------------------------------------
 # Set build type and other build options
 # ------------------------------------------------------------------------------
-set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release)
 
 # Build options based on processor
 if( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
@@ -76,8 +76,15 @@ endif (NOT XERCES_FOUND)
 find_package(Boost REQUIRED)
 if (NOT Boost_FOUND)
 	message( WARNING " Boost is missing." )
-	set(DEPENDENCY_CHECK_XODE 0)
+	set(DEPENDENCY_CHECK 0)
 endif (NOT Boost_FOUND)
+
+include ( ${PROJECT_SOURCE_DIR}/cmake/FindNewmat.cmake )
+if (NOT NEWMAT_FOUND)
+	message( WARNING " Newmat is missing.")
+	set(DEPENDENCY_CHECK 0)
+endif (NOT NEWMAT_FOUND)
+	
 
 # ------------------------------------------------------------------------------
 # Finally, recurse in the sub directories
