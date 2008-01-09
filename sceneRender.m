@@ -11,11 +11,13 @@ if (isempty(patches))
     % if the patches don't already exist, create them
     geomData = sceneGetAllGeoms();
     for n=1:length(geomData)
-        [fv,color] = createGeom(geomData{n});
-        h = patch(fv, 'FaceColor', color);
-        set(h, 'FaceLighting', 'flat');
-        set(h, 'EdgeColor', 'none');
-        set(h, 'UserData', geomData{n}.name);
+       [fv,color] = createGeom(geomData{n});
+       h = patch(fv, 'FaceColor', color);
+       set(h, 'FaceLighting', 'flat');
+       set(h, 'EdgeColor', 'none');
+       set(h, 'UserData', geomData{n}.name);
+        
+%        drawCoordinateSystem(fig, geomData{n}.T_world_geom, geomData{n}.name);
     end
 else
     % otherwise just update vertex data
@@ -25,6 +27,8 @@ else
         [fv,color] = createGeom(geomData);
         set(patches(n), 'Vertices', fv.vertices);
         set(patches(n), 'FaceColor', color);
+        
+%        drawCoordinateSystem(fig, geomData.T_world_geom, geomData.name);
     end
 end
 
@@ -92,7 +96,7 @@ end % End of drawGeom()
 
 function fig = createWindow(varargin)
 fig = figure('Position', [50, 50, 1024, 768], ...
-             'Renderer', 'OpenGL', ...
+             'Renderer', 'zbuffer', ...
              'UserData', 'xode');
 nopts = size(varargin{1},2);
 for n = 1:2:nopts

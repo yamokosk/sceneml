@@ -308,6 +308,7 @@ void Body::validate()
 		// Someone has invalidated my local transformation, therefore I need
 		// to compute a new one, then update my world transformation by asking
 		// my prox body for his.
+//		std::cout << this->name_ << ": Computing local transform" << std::endl;
 		computeLocalTransform();
 		Body* prox = (Body*)getProxObj();
 		
