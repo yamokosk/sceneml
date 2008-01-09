@@ -16,11 +16,13 @@ link_directories( ${XERCES_HOME}/lib
 
 # Create target
 add_library( ${TARGET_NAME}	STATIC ${SRCS})
+set_target_properties(${TARGET_NAME} PROPERTIES INSTALL_NAME_DIR "${PROJECT_BASE_DIR}/mex/lib")
+
 if (WIN32)
 	#add_definitions (-DXML_LIBRARY)
 	target_link_libraries( ${TARGET_NAME} odeD xerces-c_2D muparser_static newmat)
 else (WIN32)
-	target_link_libraries( ${TARGET_NAME} odegim xerces-c muparser newmat)
+	target_link_libraries( ${TARGET_NAME} ode xerces-c muparser newmat)
 endif (WIN32)
 
 install(TARGETS ${TARGET_NAME} ARCHIVE DESTINATION ${PROJECT_BASE_DIR}/mex/lib)
