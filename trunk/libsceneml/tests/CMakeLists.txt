@@ -4,8 +4,9 @@ foreach( demo_prog ${DEMO_PROGS} )
 						${XERCES_HOME}/include
 						${MUPARSER_HOME}/include
 						${Boost_INCLUDE_DIRS}
+						${NEWMAT_HOME}/newmat
 						${PROJECT_SOURCE_DIR}/src )
-	link_directories(${XERCES_HOME}/lib ${MUPARSER_HOME}/lib ${ODE_HOME}/lib ${PROJECT_SOURCE_DIR}/build/vs8/lib/debug)
+	link_directories(${XERCES_HOME}/lib ${MUPARSER_HOME}/lib ${ODE_HOME}/lib ${NEWMAT_HOME}/lib ${PROJECT_SOURCE_DIR}/src)
 	add_executable(${demo_prog} ${demo_prog}.cpp)
 	target_link_libraries(${demo_prog} sceneml)
 	install(PROGRAMS ${demo_prog}.exe DESTINATION ${PROJECT_BASE_DIR})

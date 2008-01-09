@@ -13,24 +13,28 @@ using namespace sceneml;
 
 int main(int argc, char* argv[])
 {	
-	SceneDirector sceneDirector;
-	XMLSceneBuilder *xmlSceneBuilder = NULL;
+	ScenePtr scene;
 	
-	if (argc == 2) {
-		xmlSceneBuilder = new XMLSceneBuilder(argv[1]);
-	} else {
-		xmlSceneBuilder = new XMLSceneBuilder("twopa10.scene");
-	}	
-	
-	sceneDirector.SetSceneBuilder( xmlSceneBuilder );
-	sceneDirector.ConstructScene();
+	while (1) {
+		SceneDirector sceneDirector;
+		std::auto_ptr<XMLSceneBuilder> xmlSceneBuilder;
 		
-	ScenePtr scene = sceneDirector.GetScene();
-	scene.get()->update();	
+		if (argc == 2) {
+			xmlSceneBuilder.reset( new XMLSceneBuilder(argv[1]) );
+		} else {
+			xmlSceneBuilder.reset( new XMLSceneBuilder("twopa10.scene") );
+		}	
 	
-	scene.get()->setMutableValue("q_src_1", M_PI/5);
-	scene.get()->update();
+		sceneDirector.SetSceneBuilder( xmlSceneBuilder.get() );
+		sceneDirector.ConstructScene();
 
-	delete xmlSceneBuilder;
+		scene = sceneDirector.GetScene();
+		scene.get()->update();	
+	
+		scene.get()->setMutableValue("q_src_1", M_PI/5);
+		scene.get()->update();
+		
+		float *leak = new float;
+	}
 	return EXIT_SUCCESS;	
 }
