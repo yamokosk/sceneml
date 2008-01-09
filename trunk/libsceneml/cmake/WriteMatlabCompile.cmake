@@ -35,7 +35,7 @@ else ( WROTE_COMPILE_M )
 		file( APPEND ${COMPILE_M}	"mexflags = '-g';\n")
 		file( APPEND ${COMPILE_M}	"mexflags = [mexflags ' -Iinclude -I${ODE_HOME}/include -I${Boost_INCLUDE_DIRS} -I${XERCES_HOME}/include -I${NEWMAT_HOME}/newmat'];\n")
 		file( APPEND ${COMPILE_M}	"mexflags = [mexflags ' -Llib -L${ODE_HOME}/lib -L${MUPARSER_HOME}/lib -L${XERCES_HOME}/lib -L${NEWMAT_HOME}/lib'];\n")
-		file( APPEND ${COMPILE_M}	"mexflags = [mexflags sprintf(' -l%s -lodegim -lxerces-c -lmuparser -lnewmat', libname)];\n")
+		file( APPEND ${COMPILE_M}	"mexflags = [mexflags sprintf(' -l%s -lode -lxerces-c -lmuparser -lnewmat', libname)];\n")
 	endif (WIN32)
 	
 	file( APPEND ${COMPILE_M}	"for file = files\n")

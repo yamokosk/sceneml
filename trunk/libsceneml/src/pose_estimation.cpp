@@ -81,7 +81,7 @@ void SVDEstimator::estimate(const dReal *pX1, const dReal *pX2, int nMarkers)
 	// Copy estimate into class variable
 	dTFromRAndPos(tmatrix_, R_1_2, P1_1o_2o);
 */
-	//std::cout << "Entering alternate SVD method" << std::endl;
+//	std::cout << "Entering alternate SVD method" << std::endl;
 	
 	Tracer et("Pose Estimator Algorithm");
 	
@@ -95,8 +95,8 @@ void SVDEstimator::estimate(const dReal *pX1, const dReal *pX2, int nMarkers)
 				X2(r+1,c+1) = pX2[c*3 + r];
 			}
 		}
-		//std::cout << "X1:" << std::endl << X1 << std::endl;
-		//std::cout << "X2:" << std::endl << X2 << std::endl;
+//		std::cout << "X1:" << std::endl << X1 << std::endl;
+//		std::cout << "X2:" << std::endl << X2 << std::endl;
 		
 		// Normally to compute the rotation matrix from a set of marker data, you
 		// would have 12 unknowns (9 for the rotation matrix and 3 for the location
@@ -138,18 +138,20 @@ void SVDEstimator::estimate(const dReal *pX1, const dReal *pX2, int nMarkers)
 		// the desired rotation matrix. To solve this problem define W,	
 		et.ReName("Block E");
 		W = IdentityMatrix(3);
-		W(3,3) = (U * V.t()).determinant();
+		//W(3,3) = (U * V.t()).determinant();
 		
 		// Finally the rotation matrix R is,
 		et.ReName("Block F");
-		Matrix R_1_2 = U * W * V.t();
+		Matrix R_2_1 = U * W * V.t();
+		Matrix R_1_2 = R_2_1.t();
+		//Matrix R_1_2 = U * V.t();
 		
 		// And translation
 		et.ReName("Block G");
 		ColumnVector P1_1o_2o = P1_1o_mo - R_1_2 * P2_2o_mo;
 		
-		//std::cout << "R_1_2" << std::endl << R_1_2 << std::endl;
-		//std::cout << "P1_1o_2o: " << P1_1o_2o.t() << std::endl;
+//		std::cout << "R_1_2" << std::endl << R_1_2 << std::endl;
+//		std::cout << "P1_1o_2o: " << P1_1o_2o.t() << std::endl;
 		
 		// Convert answer into tmatrix_
 		et.ReName("Block H");
@@ -168,9 +170,9 @@ void SVDEstimator::estimate(const dReal *pX1, const dReal *pX2, int nMarkers)
 			}
 			j = 1;
 		}
-		//std::cout << "tmatrix_: " << std::endl;
-		//dTPrint(this->tmatrix_);
-		//std::cout << std::endl;
+//		std::cout << "tmatrix_: " << std::endl;
+//		dTPrint(this->tmatrix_);
+		std::cout << std::endl;
 	} CatchAll { throw std::runtime_error( BaseException::what() ); }
 		
 	return;
