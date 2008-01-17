@@ -56,7 +56,7 @@ typedef boost::shared_ptr<dReal> dRealPtr;
 
 XERCES_CPP_NAMESPACE_USE
 
-class Attributes
+class SCENEML_API Attributes
 {
 public:
 	typedef std::map<std::string, std::string> properties_t;
@@ -100,7 +100,7 @@ private:
 typedef std::auto_ptr<Attributes> AttributesPtr;
 
 // Abstract Builder
-class AttributesBuilder
+class SCENEML_API AttributesBuilder
 {
 protected:
 	AttributesPtr attrib_;
@@ -121,7 +121,7 @@ public:
 };
  
 // Director
-class AttributesDirector
+class SCENEML_API AttributesDirector
 {
 	AttributesBuilder* attribBuilder;
 public:
@@ -140,7 +140,7 @@ public:
 };
 
 // Space attributes
-class SpaceAttributesBuilder : public AttributesBuilder
+class SCENEML_API SpaceAttributesBuilder : public AttributesBuilder
 {
 public:
 	SpaceAttributesBuilder(const DOMNode* node);
@@ -152,7 +152,7 @@ public:
 };
 
 // Body attributes
-class BodyAttributesBuilder : public AttributesBuilder
+class SCENEML_API BodyAttributesBuilder : public AttributesBuilder
 {
 public:
 	BodyAttributesBuilder(const DOMNode* node);
@@ -164,7 +164,7 @@ public:
 };
 
 // Geom attributes
-class GeomAttributesBuilder : public AttributesBuilder
+class SCENEML_API GeomAttributesBuilder : public AttributesBuilder
 {
 public:
 	GeomAttributesBuilder(const DOMNode* node);
@@ -176,7 +176,7 @@ public:
 };
 
 // Translation attributes
-class TranslationAttributesBuilder : public AttributesBuilder
+class SCENEML_API TranslationAttributesBuilder : public AttributesBuilder
 {
 public:
 	TranslationAttributesBuilder(const DOMNode* node);
@@ -188,7 +188,7 @@ public:
 };
 
 // Rotation attributes
-class RotationAttributesBuilder : public AttributesBuilder
+class SCENEML_API RotationAttributesBuilder : public AttributesBuilder
 {
 public:
 	RotationAttributesBuilder(const DOMNode* node);
@@ -200,7 +200,7 @@ public:
 };
 
 // Pair attributes
-class PairAttributesBuilder : public AttributesBuilder
+class SCENEML_API PairAttributesBuilder : public AttributesBuilder
 {
 public:
 	PairAttributesBuilder(const DOMNode* node);
@@ -212,7 +212,7 @@ public:
 };
 
 // Rotation attributes
-class MarkerAttributesBuilder : public AttributesBuilder
+class SCENEML_API MarkerAttributesBuilder : public AttributesBuilder
 {
 public:
 	MarkerAttributesBuilder(const DOMNode* node);
@@ -224,7 +224,7 @@ public:
 };
 
 // Transform attributes
-class TransformAttributesBuilder : public AttributesBuilder
+class SCENEML_API TransformAttributesBuilder : public AttributesBuilder
 {
 public:
 	TransformAttributesBuilder(const DOMNode* node);

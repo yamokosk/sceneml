@@ -21,7 +21,7 @@ using namespace NEWMAT;              // access NEWMAT namespace
 
 namespace sceneml {
 
-class PoseEstimatorBase
+class SCENEML_API PoseEstimatorBase
 {
 public:
 	virtual void estimate(const dReal *X1, const dReal *X2, int nMarkers) = 0;
@@ -36,7 +36,7 @@ protected:
 	dMatrix4 tmatrix_;
 };
 
-class SVDEstimator : public PoseEstimatorBase
+class SCENEML_API SVDEstimator : public PoseEstimatorBase
 {
 public:
 	SVDEstimator() : PoseEstimatorBase() {};

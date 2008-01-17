@@ -8,7 +8,7 @@
 SET( NEWMAT_FOUND 0 CACHE BOOL "Do we have Newmat?" )
 
 FIND_PATH( NEWMAT_HOME_INCLUDE newmat.h
-  $ENV{NEWMAT_HOME}/newmat
+  $ENV{NEWMAT_HOME}/include
   # Test standard installation points
   /opt/roboop-1.31.0/newmat
   c:/roboop-1.31.0/newmat

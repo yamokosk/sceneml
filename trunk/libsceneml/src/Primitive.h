@@ -27,7 +27,7 @@
 typedef boost::shared_ptr<float> VERTEX3D;
 typedef boost::shared_ptr<unsigned int> INDEX;
  
-struct POLYHEDRON {
+struct SCENEML_API POLYHEDRON {
 	long vertex_count, index_count;
 	short vertex_stride;
 	VERTEX3D vertices;

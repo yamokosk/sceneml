@@ -1,3 +1,4 @@
+
 # Gather all *.cpp and *.h files into their respective variables
 file(GLOB SRCS "*.cpp")
 file(GLOB HEADERS "*.h")
@@ -7,7 +8,7 @@ include_directories( ${ODE_HOME}/include
 					 ${XERCES_HOME}/include
 					 ${MUPARSER_HOME}/include
 					 ${Boost_INCLUDE_DIRS}
-					 ${NEWMAT_HOME}/newmat
+					 ${NEWMAT_HOME}/include
 					 ${PROJECT_SOURCE_DIR}/src )
 link_directories( ${XERCES_HOME}/lib
  			   ${ODE_HOME}/lib
@@ -15,16 +16,20 @@ link_directories( ${XERCES_HOME}/lib
  			   ${NEWMAT_HOME}/lib	)
 
 # Create target
-add_library( ${TARGET_NAME} SHARED ${SRCS})
+if (BUILD_STATIC_LIB)
+	add_library( ${TARGET_NAME} STATIC ${SRCS})
+else (BUILD_STATIC_LIB)
+	add_library( ${TARGET_NAME} STATIC ${SRCS})
+endif (BUILD_STATIC_LIB)
+
 set_target_properties(${TARGET_NAME} PROPERTIES INSTALL_NAME_DIR "${PROJECT_BASE_DIR}/mex/lib")
+target_link_libraries( ${TARGET_NAME} ${REQUIRED_LIBS})
 
-if (WIN32)
-	#add_definitions (-DXML_LIBRARY)
-	target_link_libraries( ${TARGET_NAME} odeD xerces-c_2D muparser_static newmat)
-else (WIN32)
-	target_link_libraries( ${TARGET_NAME} ode xerces-c muparser newmat)
-endif (WIN32)
+if (BUILD_STATIC_LIB)
+	install(TARGETS ${TARGET_NAME} ARCHIVE DESTINATION ${PROJECT_BASE_DIR}/mex/lib)
+else (BUILD_STATIC_LIB)
+	install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION ${PROJECT_BASE_DIR}/mex/lib)
+endif (BUILD_STATIC_LIB)
 
-install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION ${PROJECT_BASE_DIR}/mex/lib)
 install(FILES ${HEADERS} DESTINATION ${PROJECT_BASE_DIR}/mex/include)
 install(FILES ${HEADERS} DESTINATION ${PROJECT_BASE_DIR}/mex/include)
