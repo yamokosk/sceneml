@@ -270,6 +270,7 @@
 		
 	</space>
 	
+	<!-- Source robot (no payload) -->
 	<space name="pa10_source" type="simple">
 		<body name="src0" parent="world">
 			<transform>
@@ -468,63 +469,9 @@
 			</geometry>
 		</body>
 		
-		<!--<body name="emitter" parent="src6">
-			<transform>
-				<rotation type="x" value="pi"/>
-			</transform>
-			<geometry type="cylinder" name="emitter_01">
-				<parameter type="length" value="185.5"/>
-				<parameter type="radius" value="40"/>
-				<parameter type="color" value="100 100 100" />
-				<transform>
-					<translation value="0 0 -185.5/2"/>
-				</transform>
-			</geometry>
-		</body>-->
-		
-		<!--<body name="camera" parent="src6">
-			<transform>
-				<rotation type="x" value="pi"/>
-			</transform>
-			<geometry type="cylinder" name="mounting_plate">
-				<parameter type="length" value="12.7"/>
-				<parameter type="radius" value="107.95/2"/>
-				<parameter type="color" value="200 200 200" />
-				<transform>
-					<translation value="0 0 -12.7/2"/>
-				</transform>
-			</geometry>
-			<geometry type="box" name="camera_plate">
-				<parameter type="length" value="12.7"/>
-				<parameter type="width" value="63.5"/>
-				<parameter type="height" value="152.4"/>
-				<parameter type="color" value="200 200 200" />
-				<transform>
-					<translation value="50.8-12.7/2 0 -152.4/2-12.7"/>
-				</transform>
-			</geometry>
-			<geometry type="box" name="camera_body">
-				<parameter type="length" value="50.8"/>
-				<parameter type="width" value="44.45"/>
-				<parameter type="height" value="50.8"/>
-				<parameter type="color" value="0 0 0" />
-				<transform>
-					<translation value="12.7 0 -139.7"/>
-				</transform>
-			</geometry>
-			<geometry type="cylinder" name="camera_lense">
-				<parameter type="length" value="44.45"/>
-				<parameter type="radius" value="34.925/2"/>
-				<parameter type="color" value="0 0 0" />
-				<transform>
-					<translation value="6.35 0 -165.1-44.45/2"/>
-				</transform>
-			</geometry>
-		</body>-->
-		
 	</space>
 	
-	
+	<!-- Sensor robot (no payload) -->
 	<space name="pa10_sensor" type="simple">
 		<body name="sen0" parent="world">
 			<transform>
@@ -721,21 +668,10 @@
 				</transform>
 			</geometry>
 		</body>
-		
-		<!--<body name="detector" parent="sen6">
-			<geometry type="box" name="detector_01" >
-				<parameter type="length" value="225.425"/>
-				<parameter type="width" value="295.275"/>
-				<parameter type="height" value="19.05"/>
-				<parameter type="color" value="255 255 255" />
-				<transform>
-					<translation value="0 0 19.05/2"  />
-				</transform>
-			</geometry>
-		</body>-->
-		
+
 	</space>
 	
+	<!-- Payloads for both robots. These are put in a separate space so we can collision check them against the robot's spaces -->
 	<space name="payloads" type="simple">
 		<body name="camera" parent="src6">
 			<transform>
@@ -791,10 +727,10 @@
 					<translation value="0 0 19.05/2"  />
 				</transform>
 			</geometry>
-		</body>
-		
+		</body>	
 	</space>
 	
+	<!-- The human definition -->
 	<space name="human" type="simple">
 		<body name="OSMI_FIX" parent="world">
 			<transform>
@@ -939,11 +875,16 @@
 		</body>
 	</space>
 	
+	<!-- All possible collision pairs which we care about -->
 	<collisionpairs>
 		<pair space1="payloads" space2="pa10_sensor"/>
 		<pair space1="payloads" space2="pa10_source"/>
+		<pair space1="environment" space2="payloads"/>
 		<pair space1="environment" space2="pa10_sensor"/>
-		<pair space1="environment" space2="pa10_sensor"/>
+		<pair space1="environment" space2="pa10_source"/>
+		<pair space1="human" space2="pa10_sensor"/>
+		<pair space1="human" space2="pa10_source"/>
+		<pair space1="human" space2="payloads"/>
 	</collisionpairs>
 	
 </scene>
