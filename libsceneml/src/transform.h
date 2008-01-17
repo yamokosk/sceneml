@@ -45,7 +45,7 @@ typedef boost::shared_ptr<dReal> dRealPtr;
 typedef std::vector< dRealPtr > dRealVector_t;
 
 // Class definitions
-class CoordinateTransform
+class SCENEML_API CoordinateTransform
 {
 public:
 	virtual const dReal* compute() = 0;
@@ -71,7 +71,7 @@ private:
 };
 
 
-class MarkerTransform : public CoordinateTransform
+class SCENEML_API MarkerTransform : public CoordinateTransform
 {
 public:
 	virtual ~MarkerTransform();
@@ -90,7 +90,7 @@ private:
 };
 
 
-class CompositeTransform : public CoordinateTransform
+class SCENEML_API CompositeTransform : public CoordinateTransform
 {
 public:
 	virtual ~CompositeTransform();

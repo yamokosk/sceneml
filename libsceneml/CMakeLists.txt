@@ -16,6 +16,7 @@ set(TARGET_NAME "sceneml")
 # ---------------------------------------------------------------------------------------------------------------------------
 option( BUILD_TESTS "Try to build the tests of the library." OFF )
 option( BUILD_MATLAB "Build the mex interface to the SceneML library." ON )
+option( BUILD_STATIC_LIB "Build static library?" ON)
 
 # ------------------------------------------------------------------------------
 # Project directories
@@ -37,19 +38,6 @@ if( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
 		add_definitions(-march=pentium4)
 	endif ( CMAKE_COMPILER_IS_GNUCXX )
 endif( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
-
-# Build options based on OS
-if (WIN32)
-	add_definitions(-D_STANDARD_)
-endif (WIN32)
-
-if (APPLE)
-	# Nothing for now
-endif (APPLE)
-
-if ( UNIX AND NOT APPLE )
-	# Nothing for now
-endif ( UNIX AND NOT APPLE )
 
 # ------------------------------------------------------------------------------
 # Require packages
@@ -84,7 +72,6 @@ if (NOT NEWMAT_FOUND)
 	message( WARNING " Newmat is missing.")
 	set(DEPENDENCY_CHECK 0)
 endif (NOT NEWMAT_FOUND)
-	
 
 # ------------------------------------------------------------------------------
 # Finally, recurse in the sub directories
@@ -92,6 +79,15 @@ endif (NOT NEWMAT_FOUND)
 if (NOT DEPENDENCY_CHECK)
 	message( ERROR " ${TARGET_NAME} is missing a required dependency. Skipping it." )
 else (NOT DEPENDENCY_CHECK)
+	# Set variable which contains all the libraries we need
+	if (WIN32)
+		add_definitions(-D_STANDARD_)
+		add_definitions (-DXML_LIBRARY)
+		set(REQUIRED_LIBS ode_static xerces-c_static_2 muparser_static newmat)
+	else (WIN32)
+		set(REQUIRED_LIBS ode xerces-c muparser newmat)
+	endif (WIN32)
+
 	# We have all of our dependencies... so build it!
 	subdirs( src )
 	

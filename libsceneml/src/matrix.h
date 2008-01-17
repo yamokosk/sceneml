@@ -38,18 +38,18 @@ do { \
   (A)[10] op B[2]*C[2]; \
 } while(0)
 
-void dTSetIdentity(dMatrix4 T);
-void dTFromTrans(dMatrix4 T, dReal x, dReal y, dReal z);
-void dTFromAxisAndAngle (dMatrix4 T, dReal ax, dReal ay, dReal az, dReal angle);
-void dTfromQ (dMatrix4 T, const dQuaternion q);
-void dTFromEuler123(dReal* T, dReal x, dReal y, dReal z);
-void dTFromRAndPos(dMatrix4 T, const dMatrix3 rot, const dVector3 pos);
-void dRFromT(dMatrix3 R, const dMatrix4 T);
-dReal dDeterminant3(const dMatrix3 R);
-void dSVD(dMatrix4 U, dMatrix4 V, dVector4 D, const dMatrix4 C);
-void dTPrint(dMatrix4 T);
-void dRPrint(dMatrix3 T);
-void dVPrint(dVector3 V);
+void SCENEML_API dTSetIdentity(dMatrix4 T);
+void SCENEML_API dTFromTrans(dMatrix4 T, dReal x, dReal y, dReal z);
+void SCENEML_API dTFromAxisAndAngle (dMatrix4 T, dReal ax, dReal ay, dReal az, dReal angle);
+void SCENEML_API dTfromQ (dMatrix4 T, const dQuaternion q);
+void SCENEML_API dTFromEuler123(dReal* T, dReal x, dReal y, dReal z);
+void SCENEML_API dTFromRAndPos(dMatrix4 T, const dMatrix3 rot, const dVector3 pos);
+void SCENEML_API dRFromT(dMatrix3 R, const dMatrix4 T);
+dReal SCENEML_API dDeterminant3(const dMatrix3 R);
+void SCENEML_API dSVD(dMatrix4 U, dMatrix4 V, dVector4 D, const dMatrix4 C);
+void SCENEML_API dTPrint(dMatrix4 T);
+void SCENEML_API dRPrint(dMatrix3 T);
+void SCENEML_API dVPrint(dVector3 V);
 
 };
 
