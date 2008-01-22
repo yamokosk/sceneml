@@ -16,7 +16,7 @@ While some binaries of SceneML, compiling from source is always a good choice if
 
 == Windows ==
 
-1. First make sure to install the prerequisites listed above.
+1. Install the prerequisites listed above.
 
 2. Set the following environmental variables:
   * ODE_HOME - Point to root directory of your ODE installation
@@ -24,4 +24,31 @@ While some binaries of SceneML, compiling from source is always a good choice if
   * XERCES_HOME - Points to the root directory of your Xerces-C installation
 
 3. Point CMake to the lib directory. Hit Configure then OK.
-4. 
+
+4. Assuming you use Visual Studio on Windows, CMake will have generated a VS solution file. Open it up, set build type to Release and build the library project. Once this completes select the "INSTALL" project and build it.
+
+5. Close VS, and open Matlab. Point your working directory to the base scememl directory. Then in Matlab type:
+
+{{{cd mex
+compile
+cd ..}}}
+
+6. Assuming you had no errors, the sceneml library is ready to use in Matlab.
+
+== Mac and Linux ==
+
+1. Install the prerequisites listed above.
+
+2. In a terminal window, navigate to the sceneml/libsceneml directory. Issue the following commands:
+
+{{{cmake .
+make
+make install}}}
+
+3. Now open Matlab and point your working directory to the base sceneml directory. Then in Matlab type:
+
+{{{cd mex
+compile
+cd ..}}}
+
+4. Assuming you had no errors, the sceneml library is ready to use in Matlab.
