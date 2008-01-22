@@ -29,9 +29,11 @@ While some binaries of SceneML, compiling from source is always a good choice if
 
 5. Close VS, and open Matlab. Point your working directory to the base scememl directory. Then in Matlab type:
 
-{{{cd mex
+{{{
+cd mex
 compile
-cd ..}}}
+cd ..
+}}}
 
 6. Assuming you had no errors, the sceneml library is ready to use in Matlab.
 
@@ -41,14 +43,18 @@ cd ..}}}
 
 2. In a terminal window, navigate to the sceneml/libsceneml directory. Issue the following commands:
 
-{{{cmake .
+{{{
+cmake .
 make
-make install}}}
+make install
+}}}
 
 3. Now open Matlab and point your working directory to the base sceneml directory. Then in Matlab type:
 
-{{{cd mex
+{{{
+cd mex
 compile
-cd ..}}}
+cd ..
+}}}
 
 4. Assuming you had no errors, the sceneml library is ready to use in Matlab.
