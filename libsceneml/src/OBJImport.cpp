@@ -18,7 +18,7 @@
 
 #include "MeshImport.h"
 
-int sceneml::importOBJ(POLYHEDRON* mesh)
+int sceneml::importOBJ(POLYHEDRON* mesh, float scale)
 {
 	// Open the file 
 	std::fstream file;
@@ -75,7 +75,7 @@ int sceneml::importOBJ(POLYHEDRON* mesh)
 				if(buf[1] == ' '){  
 					sscanf( (buf+2), "%lf %lf %lf", v, v+1, v+2);
 					for (int n=0; n < 3; ++n) {
-						mesh->vertices.get()[vp] = (float)v[n];
+						mesh->vertices.get()[vp] = scale * (float)v[n];
 						vp++;
 					}
 					if (vp > (mesh->vertex_count*3)) throw std::runtime_error("Encountered more vertices than I counted!");

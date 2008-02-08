@@ -622,34 +622,42 @@
 			<geometry type="mesh" name="sen5_01">
 				<parameter type="filename" value="models/b5_01.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_02">
 				<parameter type="filename" value="models/b5_02.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_03">
 				<parameter type="filename" value="models/b5_03.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_04">
 				<parameter type="filename" value="models/b5_04.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_05">
 				<parameter type="filename" value="models/b5_05.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_06">
 				<parameter type="filename" value="models/b5_06.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_07">
 				<parameter type="filename" value="models/b5_07.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_08">
 				<parameter type="filename" value="models/b5_08.obj"/>
 				<parameter type="color" value="73 185 255" />
+				<parameter type="scale" value="0.5" />
 			</geometry>
 		</body>
 		
@@ -673,7 +681,7 @@
 	
 	<!-- Payloads for both robots. These are put in a separate space so we can collision check them against the robot's spaces -->
 	<space name="payloads" type="simple">
-		<body name="camera" parent="src6">
+		<!--<body name="camera" parent="src6">
 			<transform>
 				<translation value="0 0 1.27"/>
 				<rotation type="x" value="pi"/>
@@ -712,7 +720,21 @@
 					<translation value="6.35 0 -165.1-44.45/2"/>
 				</transform>
 			</geometry>
-		</body>
+		</body>-->
+        <body name="xray_tube" parent="src6">
+			<transform>
+				<translation value="0 0 1.27"/>
+				<rotation type="x" value="pi"/>
+			</transform>
+			<geometry type="cylinder" name="xray_tube_01">
+				<parameter type="length" value="200"/>
+				<parameter type="radius" value="130/2"/>
+				<parameter type="color" value="200 200 200" />
+				<transform>
+					<translation value="0 0 -200/2"/>
+				</transform>
+			</geometry>
+        </body>
 		
 		<body name="detector" parent="sen6">
 			<transform>
@@ -722,7 +744,7 @@
 				<parameter type="length" value="225.425"/>
 				<parameter type="width" value="295.275"/>
 				<parameter type="height" value="19.05"/>
-				<parameter type="color" value="255 255 255" />
+				<parameter type="color" value="200 200 200" />
 				<transform>
 					<translation value="0 0 19.05/2"  />
 				</transform>
@@ -752,7 +774,7 @@
 				<parameter type="length" value="200" />
 				<parameter type="width" value="400" />
 				<parameter type="height" value="100" />
-				<parameter type="color" value="96 41 21" />
+				<parameter type="color" value="221 119 17" />
 			</geometry>
 		</body>
 		<body name="rthigh" parent="OSMI_FIX">
@@ -769,7 +791,7 @@
 			<geometry type="cylinder" name="rthigh_01">
 				<parameter type="length" value="415"/>
 				<parameter type="radius" value="83.5"/>
-				<parameter type="color" value="255 0 0" />
+				<parameter type="color" value="221 119 17" />
 				<transform>
 					<translation value="0 0 415/2" />
 				</transform>
@@ -789,7 +811,7 @@
 			<geometry type="cylinder" name="rshank_01">
 				<parameter type="length" value="391"/>
 				<parameter type="radius" value="62.7"/>
-				<parameter type="color" value="255 0 0" />
+				<parameter type="color" value="221 119 17" />
 				<transform>
 					<translation value="0 0 391/2" />
 				</transform>
@@ -808,7 +830,7 @@
 				<parameter type="length" value="68.8"/>
 				<parameter type="width" value="273"/>
 				<parameter type="height" value="99"/>
-				<parameter type="color" value="255 0 0" />
+				<parameter type="color" value="221 119 17" />
 				<transform>
 					<translation value="68.8/2 273/2 0" />
 				</transform>
@@ -828,7 +850,7 @@
 			<geometry type="cylinder" name="lthigh_01">
 				<parameter type="length" value="415"/>
 				<parameter type="radius" value="83.5"/>
-				<parameter type="color" value="0 0 255" />
+				<parameter type="color" value="221 119 17" />
 				<transform>
 					<translation value="0 0 415/2" />
 				</transform>
@@ -848,12 +870,21 @@
 			<geometry type="cylinder" name="lshank_01">
 				<parameter type="length" value="391"/>
 				<parameter type="radius" value="62.7"/>
-				<parameter type="color" value="0 0 255" />
+				<parameter type="color" value="221 119 17" />
 				<transform>
 					<translation value="0 0 391/2" />
 				</transform>
 			</geometry>
 		</body>
+        <body name="target" parent="lshank">
+            <transform>
+                <rotation type="x" value="-pi/2"/>
+            </transform>
+            <!--<geometry type="cylinder" name="target_01">
+                <parameter type="length" value="200"/>
+                <parameter type="radius" value="50"/>
+            </geometry>-->
+        </body>
 		<body name="lfoot" parent="OSMI_FIX">
 			<transform type="marker">
 				<marker type="local"  value="0 0 0" mutable="1" name="lLFT1" />
@@ -867,7 +898,7 @@
 				<parameter type="length" value="68.8"/>
 				<parameter type="width" value="273"/>
 				<parameter type="height" value="99"/>
-				<parameter type="color" value="0 0 255" />
+				<parameter type="color" value="221 119 17" />
 				<transform>
 					<translation value="-68.8/2 273/2 0" />
 				</transform>

@@ -1,8 +1,8 @@
 function [localMarkers, globalMarkers] = buildModel()
 
-% [FileName,PathName] = uigetfile('*.c3d','Select the static cal file');
-% calData = loadC3DFile(fullfile(PathName, FileName));
-calData = loadC3DFile('/home/yamokosk/research/1218/Processed/TPose4.c3d');
+[FileName,PathName] = uigetfile('*.c3d','Select the static cal file');
+calData = loadC3DFile(fullfile(PathName, FileName));
+%calData = loadC3DFile('/home/yamokosk/research/1218/Processed/TPose4.c3d');
 
 mData_bar = [mean(calData.mData(:,:,1)); ...
              mean(calData.mData(:,:,2)); ...
@@ -132,8 +132,8 @@ v = T_Pelvis_Lab * [LPP; 1]; LPP_b = v(1:3,1);
 
 GM = [RPP, LPP, RAS, LAS];
 LM = [RPP_b, LPP_b, RAS_b, LAS_b];
-T = rotEstimate(GM, LM);
-drawCoordinateSystem(fig, T, 'Pelvis_{estimate}');
+%T = rotEstimate(GM, LM);
+%drawCoordinateSystem(fig, T, 'Pelvis_{estimate}');
 
 % -------------------------------------------------------------------------
 %   Right thigh coordinate system
@@ -157,8 +157,8 @@ v = T_RThigh_Lab * [RTH4; 1]; RTH4_b = v(1:3,1);
 
 GM = [RTH1, RTH2, RTH3, RTH4];
 LM = [RTH1_b, RTH2_b, RTH3_b, RTH4_b];
-T = rotEstimate(GM, LM);
-drawCoordinateSystem(fig, T, 'RThigh_{estimate}');
+%T = rotEstimate(GM, LM);
+%drawCoordinateSystem(fig, T, 'RThigh_{estimate}');
 
 % -------------------------------------------------------------------------
 %   Right shank coordinate system
@@ -182,8 +182,8 @@ v = T_RShank_Lab * [RSK4; 1]; RSK4_b = v(1:3,1);
 
 GM = [RSK1, RSK2, RSK3, RSK4];
 LM = [RSK1_b, RSK2_b, RSK3_b, RSK4_b];
-T = rotEstimate(GM, LM);
-drawCoordinateSystem(fig, T, 'RShank_{estimate}');
+%T = rotEstimate(GM, LM);
+%drawCoordinateSystem(fig, T, 'RShank_{estimate}');
 
 % -------------------------------------------------------------------------
 %   Right foot coordinate system
@@ -204,8 +204,8 @@ v = T_RFoot_Lab * [RFT3; 1]; RFT3_b = v(1:3,1);
 
 GM = [RFT1, RFT2, RFT3];
 LM = [RFT1_b, RFT2_b, RFT3_b];
-T = rotEstimate(GM, LM);
-drawCoordinateSystem(fig, T, 'RFoot_{estimate}');
+%T = rotEstimate(GM, LM);
+%drawCoordinateSystem(fig, T, 'RFoot_{estimate}');
 
 % -------------------------------------------------------------------------
 %   Left thigh coordinate system
@@ -229,8 +229,8 @@ v = T_LThigh_Lab * [LTH4; 1]; LTH4_b = v(1:3,1);
 
 GM = [LTH1, LTH2, LTH3, LTH4];
 LM = [LTH1_b, LTH2_b, LTH3_b, LTH4_b];
-T = rotEstimate(GM, LM);
-drawCoordinateSystem(fig, T, 'LThigh_{estimate}');
+%T = rotEstimate(GM, LM);
+%drawCoordinateSystem(fig, T, 'LThigh_{estimate}');
 
 % -------------------------------------------------------------------------
 %   Left shank coordinate system
@@ -254,8 +254,8 @@ v = T_LShank_Lab * [LSK4; 1]; LSK4_b = v(1:3,1);
 
 GM = [LSK1, LSK2, LSK3, LSK4];
 LM = [LSK1_b, LSK2_b, LSK3_b, LSK4_b];
-T = rotEstimate(GM, LM);
-drawCoordinateSystem(fig, T, 'LShank_{estimate}');
+%T = rotEstimate(GM, LM);
+%drawCoordinateSystem(fig, T, 'LShank_{estimate}');
 
 % -------------------------------------------------------------------------
 %   Left foot coordinate system
@@ -276,8 +276,8 @@ v = T_LFoot_Lab * [LFT3; 1]; LFT3_b = v(1:3,1);
 
 GM = [LFT1, LFT2, LFT3];
 LM = [LFT1_b, LFT2_b, LFT3_b];
-T = rotEstimate(GM, LM);
-drawCoordinateSystem(fig, T, 'LFoot_{estimate}');
+%T = rotEstimate(GM, LM);
+%drawCoordinateSystem(fig, T, 'LFoot_{estimate}');
 
 transMarkers = [RPP_b, LPP_b, RAS_b, LAS_b, ...
                 RTH1_b, RTH2_b, RTH3_b, RTH4_b, RSK1_b, RSK2_b, RSK3_b, RSK4_b, RFT1_b, RFT2_b, RFT3_b, ...

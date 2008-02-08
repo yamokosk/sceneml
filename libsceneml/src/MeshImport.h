@@ -23,8 +23,8 @@
 #include <Primitive.h>
 
 namespace sceneml {
-	int SCENEML_API importOBJ(POLYHEDRON* mesh);
-	int SCENEML_API importSTL(POLYHEDRON* mesh);
+	int SCENEML_API importOBJ(POLYHEDRON* mesh, float scale);
+	int SCENEML_API importSTL(POLYHEDRON* mesh, float scale);
 };
 
 #endif

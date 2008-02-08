@@ -357,11 +357,12 @@ void XMLSceneBuilder::buildGeoms()
 				std::string filename = geomAttrib->getValAsStr("filename");
 				int pos = filename.find_last_of(".");
 				std::string extension = filename.substr(pos+1);
+				float scale = geomAttrib->getValAsReal("scale");
 				
 				if (!extension.compare("obj")) {
 					mesh.reset(new POLYHEDRON());
 					mesh->filename = filename;
-					if ( importOBJ(mesh.get()) != 0 )
+					if ( importOBJ(mesh.get(), scale) != 0 )
 					{
 						std::ostringstream msg;
 						msg << "importOBJ(): Returned an error!" << std::endl;
@@ -370,7 +371,7 @@ void XMLSceneBuilder::buildGeoms()
 				} else if (!extension.compare("stl")) {
 					mesh.reset(new POLYHEDRON());
 					mesh->filename = filename;
-					if ( importSTL(mesh.get()) != 0 )
+					if ( importSTL(mesh.get(), scale) != 0 )
 					{
 						std::ostringstream msg;
 						msg << "importOBJ(): Returned an error!" << std::endl;
