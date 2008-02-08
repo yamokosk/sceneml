@@ -359,6 +359,7 @@ void GeomAttributesBuilder::createNewAttributes()
 	attrib_->add("parent", "_NODATA_");
 	attrib_->add("type", "_NODATA_");
 	attrib_->add("color", "1.0 1.0 1.0");
+	attrib_->add("scale", "1.0");
 }
 
 void GeomAttributesBuilder::getAttributes()

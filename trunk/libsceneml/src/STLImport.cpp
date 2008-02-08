@@ -20,10 +20,10 @@
 
 namespace sceneml {
 
-int importBinarySTL(POLYHEDRON* mesh);
-int importAsciiSTL(POLYHEDRON* mesh);
+int importBinarySTL(POLYHEDRON* mesh, float scale);
+int importAsciiSTL(POLYHEDRON* mesh, float scale);
 
-int importSTL(POLYHEDRON* mesh)
+int importSTL(POLYHEDRON* mesh, float scale)
 {
 	// Open the file 
 	std::fstream file;
@@ -41,12 +41,12 @@ int importSTL(POLYHEDRON* mesh)
 	file.close();
 	
 	if ( strcmp(tok, "solid") == 0 )
-		return importAsciiSTL( mesh );
+		return importAsciiSTL( mesh, scale );
 	else
-		return importBinarySTL( mesh );
+		return importBinarySTL( mesh, scale );
 }
 
-int importBinarySTL(POLYHEDRON* mesh)
+int importBinarySTL(POLYHEDRON* mesh, float scale)
 {
 	// Open the file 
 	std::fstream file;
@@ -85,9 +85,13 @@ int importBinarySTL(POLYHEDRON* mesh)
 			file.read((char *)&normal[0], sizeof(float));
 			file.read((char *)&normal[1], sizeof(float));
 			file.read((char *)&normal[2], sizeof(float));
-
-			for (long n=0; n < 9; ++n)
-				file.read((char *)&mesh->vertices.get()[i*9 + n], sizeof(float));
+			float vertex = 0.0;
+			
+			for (long n=0; n < 9; ++n) {
+				//file.read((char *)&mesh->vertices.get()[i*9 + n], sizeof(float));
+				file.read((char *)&vertex, sizeof(float));
+				mesh->vertices.get()[i*9 + n] = scale * vertex;
+			}
 			
 			for (int n=0; n < 3; ++n)
 				mesh->indices.get()[i*3 + n] = i*3 + n;
@@ -103,7 +107,7 @@ int importBinarySTL(POLYHEDRON* mesh)
 	return 0;
 }
 
-int importAsciiSTL(POLYHEDRON* mesh)
+int importAsciiSTL(POLYHEDRON* mesh, float scale)
 {
 	std::fstream file;
 	file.open (mesh->filename.c_str(), std::ios_base::in);
@@ -158,7 +162,7 @@ int importAsciiSTL(POLYHEDRON* mesh)
 					memcpy(tmp, buf+len+7, sizeof(tmp));
 					sscanf( tmp, "%lf %lf %lf", v, v+1, v+2);
 					for (int n=0; n < 3; ++n) {
-						mesh->vertices.get()[vp] = (float)v[n];
+						mesh->vertices.get()[vp] = scale * (float)v[n];
 						vp++;
 					}
 					if (vp > (mesh->vertex_count*3)) throw std::runtime_error("Encountered more vertices than I counted!");
