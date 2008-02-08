@@ -278,27 +278,27 @@
 				<rotation type="z" value="pi" />
 			</transform>
 			<geometry type="mesh" name="src0_01">
-				<parameter type="filename" value="models/b0_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_01.obj"/>
 				<parameter type="color" value="200 200 200" />
 			</geometry>
 			<geometry type="mesh" name="src0_02">
-				<parameter type="filename" value="models/b0_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src0_03">
-				<parameter type="filename" value="models/b0_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_03.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src0_04">
-				<parameter type="filename" value="models/b0_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_04.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src0_05">
-				<parameter type="filename" value="models/b0_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_05.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src0_06">
-				<parameter type="filename" value="models/b0_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_06.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 		</body>
@@ -309,15 +309,15 @@
 				<rotation type="z" value="0" mutable="1" name="q_src_1"/>
 			</transform>
 			<geometry type="mesh" name="src1_01">
-				<parameter type="filename" value="models/b1_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b1_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src1_02">
-				<parameter type="filename" value="models/b1_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b1_02.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 			<geometry type="mesh" name="src1_03">
-				<parameter type="filename" value="models/b1_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b1_03.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 		</body>
@@ -329,31 +329,31 @@
 				<rotation type="z" value="-pi/2"/>
 			</transform>
 			<geometry type="mesh" name="src2_01">
-				<parameter type="filename" value="models/b2_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src2_02">
-				<parameter type="filename" value="models/b2_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src2_03">
-				<parameter type="filename" value="models/b2_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_03.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src2_04">
-				<parameter type="filename" value="models/b2_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_04.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src2_05">
-				<parameter type="filename" value="models/b2_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_05.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src2_06">
-				<parameter type="filename" value="models/b2_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_06.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 			<geometry type="mesh" name="src2_07">
-				<parameter type="filename" value="models/b2_07.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_07.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 		</body>
@@ -365,27 +365,27 @@
 				<rotation type="z" value="pi/2"/>
 			</transform>
 			<geometry type="mesh" name="src3_01">
-				<parameter type="filename" value="models/b3_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src3_02">
-				<parameter type="filename" value="models/b3_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src3_03">
-				<parameter type="filename" value="models/b3_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_03.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src3_04">
-				<parameter type="filename" value="models/b3_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_04.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src3_05">
-				<parameter type="filename" value="models/b3_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_05.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src3_06">
-				<parameter type="filename" value="models/b3_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_06.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 		</body>
@@ -397,19 +397,19 @@
 				<rotation type="z" value="0" mutable="1" name="q_src_4"/>
 			</transform>
 			<geometry type="mesh" name="src4_01">
-				<parameter type="filename" value="models/b4_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src4_02">
-				<parameter type="filename" value="models/b4_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src4_03">
-				<parameter type="filename" value="models/b4_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_03.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 			<geometry type="mesh" name="src4_04">
-				<parameter type="filename" value="models/b4_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_04.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 		</body>
@@ -420,35 +420,35 @@
 				<rotation type="z" value="0" mutable="1" name="q_src_5"/>
 			</transform>
 			<geometry type="mesh" name="src5_01">
-				<parameter type="filename" value="models/b5_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src5_02">
-				<parameter type="filename" value="models/b5_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src5_03">
-				<parameter type="filename" value="models/b5_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_03.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src5_04">
-				<parameter type="filename" value="models/b5_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_04.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src5_05">
-				<parameter type="filename" value="models/b5_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_05.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src5_06">
-				<parameter type="filename" value="models/b5_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_06.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src5_07">
-				<parameter type="filename" value="models/b5_07.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_07.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="src5_08">
-				<parameter type="filename" value="models/b5_08.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_08.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 		</body>
@@ -478,27 +478,27 @@
 				<translation value="-1139.8 0 601.345"/>
 			</transform>
 			<geometry type="mesh" name="sen0_01">
-				<parameter type="filename" value="models/b0_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_01.obj"/>
 				<parameter type="color" value="200 200 200" />
 			</geometry>
 			<geometry type="mesh" name="sen0_02">
-				<parameter type="filename" value="models/b0_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen0_03">
-				<parameter type="filename" value="models/b0_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_03.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen0_04">
-				<parameter type="filename" value="models/b0_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_04.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen0_05">
-				<parameter type="filename" value="models/b0_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_05.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen0_06">
-				<parameter type="filename" value="models/b0_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b0_06.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 		</body>
@@ -509,15 +509,15 @@
 				<rotation type="z" value="0" mutable="1" name="q_sen_1"/>
 			</transform>
 			<geometry type="mesh" name="sen1_01">
-				<parameter type="filename" value="models/b1_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b1_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen1_02">
-				<parameter type="filename" value="models/b1_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b1_02.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 			<geometry type="mesh" name="sen1_03">
-				<parameter type="filename" value="models/b1_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b1_03.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 		</body>
@@ -529,31 +529,31 @@
 				<rotation type="z" value="-pi/2"/>
 			</transform>
 			<geometry type="mesh" name="sen2_01">
-				<parameter type="filename" value="models/b2_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen2_02">
-				<parameter type="filename" value="models/b2_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen2_03">
-				<parameter type="filename" value="models/b2_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_03.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen2_04">
-				<parameter type="filename" value="models/b2_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_04.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen2_05">
-				<parameter type="filename" value="models/b2_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_05.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen2_06">
-				<parameter type="filename" value="models/b2_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_06.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 			<geometry type="mesh" name="sen2_07">
-				<parameter type="filename" value="models/b2_07.obj"/>
+				<parameter type="filename" value="models/pa10_model/b2_07.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 		</body>
@@ -565,27 +565,27 @@
 				<rotation type="z" value="pi/2"/>
 			</transform>
 			<geometry type="mesh" name="sen3_01">
-				<parameter type="filename" value="models/b3_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen3_02">
-				<parameter type="filename" value="models/b3_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen3_03">
-				<parameter type="filename" value="models/b3_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_03.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen3_04">
-				<parameter type="filename" value="models/b3_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_04.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen3_05">
-				<parameter type="filename" value="models/b3_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_05.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen3_06">
-				<parameter type="filename" value="models/b3_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b3_06.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 		</body>
@@ -597,19 +597,19 @@
 				<rotation type="z" value="0" mutable="1" name="q_sen_4"/>
 			</transform>
 			<geometry type="mesh" name="sen4_01">
-				<parameter type="filename" value="models/b4_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_01.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen4_02">
-				<parameter type="filename" value="models/b4_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_02.obj"/>
 				<parameter type="color" value="73 185 255" />
 			</geometry>
 			<geometry type="mesh" name="sen4_03">
-				<parameter type="filename" value="models/b4_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_03.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 			<geometry type="mesh" name="sen4_04">
-				<parameter type="filename" value="models/b4_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b4_04.obj"/>
 				<parameter type="color" value="255 255 255" />
 			</geometry>
 		</body>
@@ -620,44 +620,36 @@
 				<rotation type="z" value="-pi/4" mutable="1" name="q_sen_5"/>
 			</transform>
 			<geometry type="mesh" name="sen5_01">
-				<parameter type="filename" value="models/b5_01.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_01.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_02">
-				<parameter type="filename" value="models/b5_02.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_02.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_03">
-				<parameter type="filename" value="models/b5_03.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_03.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_04">
-				<parameter type="filename" value="models/b5_04.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_04.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_05">
-				<parameter type="filename" value="models/b5_05.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_05.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_06">
-				<parameter type="filename" value="models/b5_06.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_06.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_07">
-				<parameter type="filename" value="models/b5_07.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_07.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 			<geometry type="mesh" name="sen5_08">
-				<parameter type="filename" value="models/b5_08.obj"/>
+				<parameter type="filename" value="models/pa10_model/b5_08.obj"/>
 				<parameter type="color" value="73 185 255" />
-				<parameter type="scale" value="0.5" />
 			</geometry>
 		</body>
 		
