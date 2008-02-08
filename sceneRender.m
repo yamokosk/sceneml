@@ -1,4 +1,37 @@
 function fig = sceneRender(varargin)
+% sceneRender - Renders a scene loaded by SceneML
+%
+%   fig = sceneRender() renders the scene currently stored in the SceneML
+%   library and then returns the figure handle associated with the Matlab
+%   window.
+%
+%   fig = sceneRender('paramName1', paramValue1, ...) passes additional
+%   parameters to the Matlab figure window when its created for the first
+%   time. Consult Matlab's documentation for more information on the
+%   various figure properties.
+%
+%   Subsequent calls to sceneRender will reuse the same figure window.
+%
+%   Example:
+%       sceneInit('demo/twopa10.scene');
+%       h = sceneRender();
+%
+%   See also sceneInit
+
+% SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+% All rights reserved.
+% Email: yamokosk at gmail dot com
+%
+% This library is free software; you can redistribute it and/or
+% modify it under the terms of the GNU Lesser General Public License as
+% published by the Free Software Foundation; either version 2.1 of the License, 
+% or (at your option) any later version. The text of the GNU Lesser General 
+% Public License is included with this library in the file LICENSE.TXT.
+%
+% This library is distributed in the hope that it will be useful, but WITHOUT 
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+% or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+% more details.
 
 fig = gcf;
 if ( ~strcmp('xode', get(fig, 'UserData')) )
@@ -16,8 +49,6 @@ if (isempty(patches))
        set(h, 'FaceLighting', 'flat');
        set(h, 'EdgeColor', 'none');
        set(h, 'UserData', geomData{n}.name);
-        
-%        drawCoordinateSystem(fig, geomData{n}.T_world_geom, geomData{n}.name);
     end
 else
     % otherwise just update vertex data
@@ -27,8 +58,6 @@ else
         [fv,color] = createGeom(geomData);
         set(patches(n), 'Vertices', fv.vertices);
         set(patches(n), 'FaceColor', color);
-        
-%        drawCoordinateSystem(fig, geomData.T_world_geom, geomData.name);
     end
 end
 
@@ -79,11 +108,6 @@ switch (geom.type)
     case 3  % cylinder
         fv = createCylinder(geom.T_world_geom, geom.params.length, geom.params.radius);
     case 8 % trimesh
-        %T = geom.T_world_geom;
-        %nv = size(geom.fv.vertices, 1);
-        %vtemp = [geom.fv.vertices'; ones(1, nv)];
-        %vtemp = T * vtemp;
-        %fv.vertices = vtemp(1:3,:)';
         fv.vertices = geom.fv.vertices;
         fv.faces = geom.fv.faces;        
     otherwise
@@ -110,11 +134,6 @@ set(gca, 'DataAspectRatio',   [1, 1, 1], ...
          'CameraTarget',      [0,0,200], ...
          'CameraUpVector',    [0,0,1], ...
          'Visible',           'off');
-         %'XLimMode',          'manual', ...
-         %'YLimMode',          'manual', ...
-         %'ZLimMode',          'manual', ...
-         %'XLim',              [-400 400], ...
-         %'YLim',              [-400 400], ...
-         %'ZLim',              [-400 400]);
+
 light('Position',[0 0 2000],'Style','infinite');
 end % End createWindow()
