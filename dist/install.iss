@@ -14,7 +14,7 @@ DefaultGroupName=SceneML
 AllowNoIcons=yes
 LicenseFile=license.txt
 OutputDir=dist
-OutputBaseFilename=SceneML_Setup
+OutputBaseFilename=SceneML_Setup_v_1_0
 Compression=lzma
 SolidCompression=yes
 
@@ -33,10 +33,12 @@ Name: "{app}\libsceneml"
 Name: "{app}\mex"
 Name: "{app}\models"
 Name: "{app}\demo"
+Name: "{app}\util"
 
 [Files]
 Source: "*.m";                      DestDir: "{app}";                   Components: main;     Flags: ignoreversion
 Source: "demo/*.scene";             DestDir: "{app}/demo";              Components: main;     Flags: ignoreversion
+Source: "demo/*.m";                 DestDir: "{app}/demo";              Components: main;     Flags: ignoreversion
 Source: "libsceneml/CMakeLists.txt"; DestDir: "{app}/libsceneml";        Components: src;      Flags: ignoreversion
 Source: "libsceneml/cmake/*.cmake"; DestDir: "{app}/libsceneml/cmake";  Components: src;      Flags: ignoreversion
 Source: "libsceneml/src/*.h";       DestDir: "{app}/libsceneml/src";    Components: src;      Flags: ignoreversion
@@ -47,6 +49,7 @@ Source: "mex/*.h";                  DestDir: "{app}/mex";               Componen
 Source: "mex/*.cpp";                DestDir: "{app}/mex";               Components: src;      Flags: ignoreversion
 Source: "mex/*.mexw32";             DestDir: "{app}/mex";               Components: binary;   Flags: ignoreversion
 Source: "models/pa10_model/*.obj";  DestDir: "{app}/models/pa10_model"; Components: main;     Flags: ignoreversion
+Source: "util/*.m";                 DestDir: "{app}/util";              Components: main;     Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Languages]
