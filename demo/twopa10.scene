@@ -873,9 +873,9 @@
                 <rotation type="x" value="-pi/2"/>
             </transform>
             <!--<geometry type="cylinder" name="target_01">
-                <parameter type="length" value="200"/>
-                <parameter type="radius" value="50"/>
-            </geometry>-->
+					<parameter type="length" value="200"/>
+					<parameter type="radius" value="50"/>
+			</geometry>-->
         </body>
 		<body name="lfoot" parent="OSMI_FIX">
 			<transform type="marker">

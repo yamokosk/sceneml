@@ -92,6 +92,6 @@ else
     error('Incorrect number of arguments.');
 end
 
-libinput = [libnames, libvalues]
+libinput = [libnames, libvalues];
 % Update the library
 sceneml('Update', libinput);

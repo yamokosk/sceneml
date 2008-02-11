@@ -41,8 +41,8 @@ class SCENEML_API Body;
 typedef boost::shared_ptr<Geom> GeomPtr;
 typedef boost::shared_ptr<Body> BodyPtr;
 
-typedef std::list< Body* > BodyList_t;
-typedef std::list< Geom* > GeomList_t;
+typedef std::vector< Body* > BodyList_t;
+typedef std::vector< Geom* > GeomList_t;
 
 typedef std::list< BodyPtr > BodyPtrList_t;
 typedef std::list< GeomPtr > GeomPtrList_t;
