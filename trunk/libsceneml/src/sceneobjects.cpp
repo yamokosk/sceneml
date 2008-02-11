@@ -338,14 +338,30 @@ void Body::validate()
 
 Body* Body::getDistBody(int n)
 {
-	BodyList_t::iterator it = distBodies_.begin();
-	for (int i=0; i < n; ++n) it++;
-	return (*it);
+	//BodyList_t::iterator it = distBodies_.begin();
+	//for (int i=0; i < n; ++n) it++;
+	//return (*it);
+
+	if (n < distBodies_.size()) {
+		return distBodies_[n];
+	} else {
+		std::ostringstream msg;
+		msg << __FUNCTION__ << "(): Index exceeded number of dist bodies associated with this body.";
+		throw std::runtime_error(msg.str());
+	}
 }
 
 Geom* Body::getGeom(int n)
 {
-	GeomList_t::iterator it = geomList_.begin();
-	for (int i=0; i < n; ++n) it++;
-	return (*it);
+	//GeomList_t::iterator it = geomList_.begin();
+	//for (int i=0; i < n; ++n) it++;
+	//return (*it);
+
+	if (n < geomList_.size()) {
+		return geomList_[n];
+	} else {
+		std::ostringstream msg;
+		msg << __FUNCTION__ << "(): Index exceeded number of geoms associated with this body.";
+		throw std::runtime_error(msg.str());
+	}
 }

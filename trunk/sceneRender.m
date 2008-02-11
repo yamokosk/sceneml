@@ -37,6 +37,8 @@ fig = gcf;
 if ( ~strcmp('xode', get(fig, 'UserData')) )
     close(fig);
     fig = createWindow(varargin);
+    % Draw the world coordinate system, for reference
+    drawCoordinateSystem(fig, eye(4), 'world')
 end
 
 patches = findobj(gca,'Type','patch');
