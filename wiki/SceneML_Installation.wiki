@@ -1,7 +1,13 @@
 #summary How-to install SceneML.
 #labels Featured
 
-= Prerequisites =
+= Pre-compile binaries =
+
+Pre-compiled binaries are only available for the Windows platform currently. However, use at your own risk! Depending on your version of Matlab, you may have problems using these binaries. You can obtain the easy-to-use installer here.
+
+= Compiling from source =
+
+== Prerequisites ==
 
 Like all good open source projects, SceneML stands on the shoulders of giants. It depends on a few other open-source libraries so before installing SceneML go install the following. Installation of these will obviously depend on your platform but all are available for Windows, Mac, and Linux.
 
@@ -10,12 +16,11 @@ Like all good open source projects, SceneML stands on the shoulders of giants. I
   * [http://xerces.apache.org/xerces-c/ Xerces-C] - XML parsing library
   * [http://www.cmake.org/HTML/Index.html CMake] - Cross-platform build utility
 
-
-= Compiling from source =
+== On with the compiling! ==
 
 While some binaries of SceneML, compiling from source is always a good choice if you want to make absolutely sure the library will run on your machine/OS with no problems.
 
-== Windows ==
+=== Windows ===
 
 1. Install the prerequisites listed above.
 
@@ -38,7 +43,7 @@ cd ..
 
 6. Assuming you had no errors, the sceneml library is ready to use in Matlab.
 
-== Mac and Linux ==
+=== Mac and Linux ===
 
 1. Install the prerequisites listed above.
 
