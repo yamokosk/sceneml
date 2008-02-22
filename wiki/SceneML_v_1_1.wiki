@@ -1,0 +1,6 @@
+#summary SceneML v.1.1 Notes
+
+= SceneML 1.1 Notes =
+
+== Change Log ==
+  * obj and stl files listed in the scene XML file must now be specified relative to the location of the scene file.
