@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=SceneML
-AppVerName=SceneML 1.0
+AppVerName=SceneML 1.1
 AppPublisher=UF Orthopedic Biomechanics Laboratory
 AppPublisherURL=http://www.mae.uf.edu/~banks
 AppSupportURL=http://code.google.com/p/sceneml/
