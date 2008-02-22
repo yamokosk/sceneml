@@ -14,7 +14,7 @@ DefaultGroupName=SceneML
 AllowNoIcons=yes
 LicenseFile=license.txt
 OutputDir=dist
-OutputBaseFilename=SceneML_Setup_v_1_0
+OutputBaseFilename=SceneML_Setup_v_1_1
 Compression=lzma
 SolidCompression=yes
 
