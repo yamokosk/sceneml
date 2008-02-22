@@ -43,7 +43,17 @@ for n = 1:length(fh)
 end
 
 % Now load the new scene description
-sceneml('Init', filename);
+[pathstr,name,ext] = fileparts(filename);
+% If the scene file is locate in another directory, cd to it, load the
+% file, and the cd back to the original directory.
+if ( ~isempty(pathstr) ) 
+    currPath = pwd; % Record the current path
+    cd(pathstr);
+    sceneml('Init', [name, ext]);
+    cd(currPath);
+else
+    sceneml('Init', [name, ext]);
+end
 
 % If the user had a render window open before, lets be nice and re-render
 % this one.
