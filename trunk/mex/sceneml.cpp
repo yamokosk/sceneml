@@ -399,9 +399,23 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 					
 					for (int n=0; n < NUM_CONTACT_FIELDS; ++n)
 						mxSetField(plhs[0], row, fnames_contact[n], tmp[n]);	
-				}	
-					
+				}
+			case evChangeProxBody:
+			{
+				// Get body
+				char* name = mxArrayToString(prhs[1]);
+				sceneml::Body *obj = g_scene->getBody(name);
+				mxFree(name);
 				
+				name = mxArrayToString(prhs[2]);
+				sceneml::Body *newproxbody = g_scene->getBody(name);
+				mxFree(name);
+				
+				// Set new parent
+				obj->setProxObj(newproxbody);
+				obj->invalidate();
+				
+				g_scene->update();
 				break;
 			}
 		}
