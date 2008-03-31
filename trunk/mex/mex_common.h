@@ -11,7 +11,7 @@
 #define	MEX_LIBRARY_NAME	"SCENEML"
 #define	SSWITCH( STRING )	switch( g_MapStringValues[STRING] )
 
-enum StringValue { evNotDefined, evInit, evUpdate, evGetBody, evGetGeom, evGetAllGeoms, evInCollision, evGetContactData, evEnd };
+enum StringValue { evNotDefined, evInit, evUpdate, evGetBody, evGetGeom, evGetAllGeoms, evInCollision, evGetContactData, evChangeProxBody, evEnd };
 
 void InitializeStringValueMap();
 void InitLibrary(void);
