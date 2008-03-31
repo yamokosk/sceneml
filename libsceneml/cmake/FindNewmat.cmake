@@ -7,12 +7,25 @@
 # start with 'not found'
 SET( NEWMAT_FOUND 0 CACHE BOOL "Do we have Newmat?" )
 
+IF ( OSX )
+
+FIND_PATH( NEWMAT_HOME_INCLUDE newmat.h
+  $ENV{NEWMAT_HOME}/newmat
+  # Test standard installation points
+  /opt/roboop-1.31.0/newmat
+  c:/roboop-1.31.0/newmat
+)
+
+ELSE ( OSX )
+
 FIND_PATH( NEWMAT_HOME_INCLUDE newmat.h
   $ENV{NEWMAT_HOME}/include
   # Test standard installation points
   /opt/roboop-1.31.0/newmat
   c:/roboop-1.31.0/newmat
 )
+
+ENDIF (OSX)
 
 IF ( NEWMAT_HOME_INCLUDE )
 	SET( NEWMAT_FOUND 1 CACHE BOOL "Do we have Newmat?" FORCE )

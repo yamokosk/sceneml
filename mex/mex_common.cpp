@@ -21,6 +21,7 @@ void InitializeStringValueMap()
 	g_MapStringValues["GetAllGeoms"] = evGetAllGeoms;
 	g_MapStringValues["InCollision"] = evInCollision;
 	g_MapStringValues["GetContactData"] = evGetContactData;
+	g_MapStringValues["ChangeProxBody"] = evChangeProxBody;
 	g_MapStringValues["End"] = evEnd;
 }
 

@@ -4,11 +4,16 @@ file(GLOB SRCS "*.cpp")
 file(GLOB HEADERS "*.h")
 
 # Set paths to dependencies
+if (APPLE)
+    include_directories( ${NEWMAT_HOME}/newmat )
+else (APPLE)
+    include_directories( ${NEWMAT_HOME}/include )
+endif (APPLE)
+
 include_directories( ${ODE_HOME}/include
 					 ${XERCES_HOME}/include
 					 ${MUPARSER_HOME}/include
 					 ${Boost_INCLUDE_DIRS}
-					 ${NEWMAT_HOME}/include
 					 ${PROJECT_SOURCE_DIR}/src )
 link_directories( ${XERCES_HOME}/lib
  			   ${ODE_HOME}/lib
