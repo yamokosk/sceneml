@@ -400,6 +400,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 					for (int n=0; n < NUM_CONTACT_FIELDS; ++n)
 						mxSetField(plhs[0], row, fnames_contact[n], tmp[n]);	
 				}
+			}
 			case evChangeProxBody:
 			{
 				// Get body
