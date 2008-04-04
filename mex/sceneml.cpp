@@ -130,24 +130,6 @@ void dGeomToMxArray(mxArray *array[], sceneml::Geom *obj)
 			// And create storage for face/vertex data
 			mxArray *tmp[2];
 			
-			// Get mesh data directly from POLYHEDRON object
-/*			tmp[0] = mxCreateDoubleMatrix(nfaces, 3, mxREAL); // Face index storage
-			tmp[1] = mxCreateDoubleMatrix(nverts, 3, mxREAL); // Vertex storage
-			double *pFace = mxGetPr(tmp[0]);
-			double *pVertex = mxGetPr(tmp[1]);
-
-			for (int r=0; r < nfaces; ++r) {
-				for (int c=0; c < 3; ++c) {
-					pFace[r + c*nfaces] = (double)obj->getMesh()->indices[c + r*3] + 1;
-				}	
-			}
-			
-			for (int r=0; r < nverts; ++r) {
-				for (int c=0; c < 3; ++c) {
-					pVertex[r + c*nverts] = (double)obj->getMesh()->vertices[c + r*3];
-				}	
-			}
-*/			
 			// Get mesh data using dGeomTriMeshGetTriangle()
 			tmp[0] = mxCreateDoubleMatrix(nfaces, 3, mxREAL); // Face index storage
 			tmp[1] = mxCreateDoubleMatrix(nfaces*3, 3, mxREAL); // Vertex storage
@@ -417,6 +399,26 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 				obj->invalidate();
 				
 				g_scene->update();
+				break;
+			}
+			case evSetProxBody:
+			{
+				// Get body
+				char* name = mxArrayToString(prhs[1]);
+				sceneml::Body *body = g_scene->getBody(name);
+				mxFree(name);
+				
+				// Get new parent
+				char* parent = mxArrayToString(prhs[1]);
+				sceneml::Body *new_parent = g_scene->getBody(parent);
+				mxFree(parent);
+				
+				// Set new parent
+				body->setProxObj(new_parent);
+				
+				// Last step.. instruct the library to update all objects global transformations
+				g_scene->update();
+				
 				break;
 			}
 		}
