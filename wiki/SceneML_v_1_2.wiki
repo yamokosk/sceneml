@@ -3,6 +3,13 @@
 = SceneML 1.2 Notes =
 
 == Change Log ==
+  * SceneML C++ library
+    * Can now change a body's parent on the fly.
+    * Scale parameter for geometries now works.
+  * Matlab interface
+    * sceneRender plays nicely with other figure windows now.
+    * New Matlab function, sceneSetParent, to allow changing a parent's body on the fly.
+    * sceneSetVars completely re-written. Now accepts both structures and cell matrices. Type 'help sceneSetVars' in Matlab for more information.
 
 == Porting notes ==
 
