@@ -33,13 +33,30 @@ function fig = sceneRender(varargin)
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-fig = gcf;
-if ( ~strcmp('xode', get(fig, 'UserData')) )
-    close(fig);
+fh = get(0,'Children');     % Get handles to all figure windows
+% Now loop through and check to see if a SceneML figure window is open. If
+% so, its a good idea to close it since problems can occur if we load a
+% different scene description file.
+oldFigNumber = -1;
+for n = 1:length(fh)
+    fig = fh(n);
+    figUserData = get(fig, 'UserData');
+    if ( ischar(figUserData) )
+        if ( strcmp('xode', figUserData) )
+            oldFigNumber = fig;
+            break;
+        end
+    end
+end
+
+if (oldFigNumber < 0)
     fig = createWindow(varargin);
     % Draw the world coordinate system, for reference
     drawCoordinateSystem(fig, eye(4), 'world')
+else
+    figure(oldFigNumber);
 end
+
 
 patches = findobj(gca,'Type','patch');
 if (isempty(patches))
