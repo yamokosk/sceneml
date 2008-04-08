@@ -169,7 +169,6 @@ void handler_GETGEOM (int nlhs, mxArray *plhs[], int rhs, const mxArray *prhs[])
 	
 	// Create tmp mxArray to collect all the outputs
 	mxArray *tmp[NUM_GEOM_FIELDS];
-	mexPrintf("NUM_GEOM_FIELDS = %d\n", NUM_GEOM_FIELDS);
 	dGeomToMxArray(tmp, obj);				
 	
 	// Create output structure for Matlab and populate
