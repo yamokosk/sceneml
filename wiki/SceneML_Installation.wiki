@@ -3,7 +3,7 @@
 
 = Pre-compile binaries =
 
-Pre-compiled binaries are only available for the Windows platform currently. However, use at your own risk! Depending on your version of Matlab, you may have problems using these binaries. You can obtain the easy-to-use installer here.
+Pre-compiled binaries are only available for the Windows platform currently. However, use at your own risk! Depending on your version of Matlab, you may have problems using these binaries. You can obtain the easy-to-use installer in the downloads area.
 
 Once you have run the installer, in Matlab set your working directory to the SceneML installation directory. Once there run the startup.m script which will set the paths for SceneML.
 
