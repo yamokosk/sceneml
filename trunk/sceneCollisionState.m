@@ -16,4 +16,4 @@ function state = sceneCollisionState()
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-state = sceneml('InCollision');
+state = sceneml('incollision');

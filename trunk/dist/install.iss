@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=SceneML
-AppVerName=SceneML 1.2
+AppVerName=SceneML 1.3
 AppPublisher=UF Orthopedic Biomechanics Laboratory
 AppPublisherURL=http://www.mae.uf.edu/~banks
 AppSupportURL=http://code.google.com/p/sceneml/
@@ -14,7 +14,7 @@ DefaultGroupName=SceneML
 AllowNoIcons=yes
 LicenseFile=license.txt
 OutputDir=dist
-OutputBaseFilename=SceneML_Setup_v_1_1
+OutputBaseFilename=SceneML_Setup_v_1_3
 Compression=lzma
 SolidCompression=yes
 

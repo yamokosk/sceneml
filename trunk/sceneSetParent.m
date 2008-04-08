@@ -30,9 +30,9 @@ if ( ~ischar(newParent) )
     error(['Second argument must be the new parent body name']);
 end
 
-b_old = sceneml('GetBody', body);
-sceneml('ChangeProxBody', body, newParent);
-b_new = sceneml('GetBody', body);
+b_old = sceneGetBody(body);
+sceneml('setproxbody', body, newParent);
+b_new = sceneGetBody(body);
 disp(['Old parent: ' b_old.proxBody]);
 disp(['New parent: ' b_new.proxBody]);
 

@@ -16,5 +16,4 @@ function b = sceneGetBody(name)
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-%b = sceneml('GetBody', name);
-b = sceneml('GetBody', char(name));
+b = sceneml('getbody', char(name));
