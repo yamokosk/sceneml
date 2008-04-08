@@ -94,4 +94,4 @@ end
 
 libinput = [libnames, libvalues];
 % Update the library
-sceneml('Update', libinput);
+sceneml('update', libinput);

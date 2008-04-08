@@ -5,7 +5,7 @@
 #INCLUDE( ${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake )
 
 set( COMPILE_M ${PROJECT_BASE_DIR}/mex/compile.m )
-set( SRCS	sceneml.cpp mex_common.cpp )
+set( SRCS	sceneml.cpp mex_command.cpp )
 
 # Only write config.h once
 if ( WROTE_COMPILE_M )
@@ -27,7 +27,7 @@ else ( WROTE_COMPILE_M )
 	file( APPEND ${COMPILE_M}	"libname = '${TARGET_NAME}';\n")
 	if (WIN32)
 		file( APPEND ${COMPILE_M}	"% must change /MD to /ML in mexopts.bat\n")
-		file( APPEND ${COMPILE_M}	"mexflags = '-g -DWIN32';\n")
+		file( APPEND ${COMPILE_M}	"mexflags = '-DWIN32';\n")
 		file( APPEND ${COMPILE_M}	"mexflags = [mexflags ' -Iinclude -I${ODE_HOME}/include -I${Boost_INCLUDE_DIRS} -I${XERCES_HOME}/include -I${NEWMAT_HOME}/include -I${MUPARSER_HOME}/include'];\n")
 		file( APPEND ${COMPILE_M}	"mexflags = [mexflags ' -Llib -L${ODE_HOME}/lib -L${MUPARSER_HOME}/lib -L${XERCES_HOME}/lib -L${NEWMAT_HOME}/lib'];\n")
 	else (WIN32)
