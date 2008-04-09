@@ -16,4 +16,4 @@ function g = sceneGetGeom(name)
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-g = sceneml('getgeom', char(name));
+g = sceneml('GetGeom', char(name));

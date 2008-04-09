@@ -16,4 +16,4 @@ function g = sceneGetAllGeoms()
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-g = sceneml('getallgeoms');
+g = sceneml('GetAllGeoms');
