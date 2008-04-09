@@ -31,7 +31,7 @@ if ( ~ischar(newParent) )
 end
 
 b_old = sceneGetBody(body);
-sceneml('setproxbody', body, newParent);
+sceneml('SetProxBody', body, newParent);
 b_new = sceneGetBody(body);
 disp(['Old parent: ' b_old.proxBody]);
 disp(['New parent: ' b_new.proxBody]);

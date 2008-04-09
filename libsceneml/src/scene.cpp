@@ -218,6 +218,18 @@ void Scene::setMutableValue(const std::string &name, dReal x, dReal y, dReal z)
 	}
 }
 
+std::list< std::string > Scene::getVarNames()
+{
+	std::list< std::string > varnames;
+	
+	StringVariableMap_t::iterator it = variableMap_.begin();
+	
+	for (; it != variableMap_.end(); ++it)
+		varnames.push_back( it->first );
+	
+	return varnames;
+}
+
 void Scene::update()
 {
 	//std::cout << "In update()" << std::endl;

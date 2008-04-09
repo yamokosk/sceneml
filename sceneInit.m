@@ -49,10 +49,10 @@ end
 if ( ~isempty(pathstr) ) 
     currPath = pwd; % Record the current path
     cd(pathstr);
-    sceneml('loadscene', [name, ext]);
+    sceneml('LoadScene', [name, ext]);
     cd(currPath);
 else
-    sceneml('loadscene', [name, ext]);
+    sceneml('LoadScene', [name, ext]);
 end
 
 % If the user had a render window open before, lets be nice and re-render

@@ -68,7 +68,7 @@ void handler_UPDATE (int nlhs, mxArray *plhs[], int rhs, const mxArray *prhs[])
 	}
 	
 	int subs[2], ind;
-	for (int r=0; r < mxGetM( RHS_ARG_1 ); ++r) {
+	for (int r=0; r < mxGetM( RHS_ARG_2 ); ++r) {
 		// Get var name
 		subs[0] = r; subs[1] = 0;
 		ind = mxCalcSingleSubscript(prhs[1], 2, subs);
@@ -262,6 +262,16 @@ void handler_SETPROXBODY (int nlhs, mxArray *plhs[], int rhs, const mxArray *prh
 	
 	// Last step.. instruct the library to update all objects global transformations
 	g_scene->update();
+}
+
+void handler_GETVARNAMES (int, mxArray *plhs[], int, const mxArray *prhs[])
+{
+	std::list< std::string > varnames = g_scene->getVarNames();
+	LHS_ARG_1 = mxCreateCellMatrix(varnames.size(), 1);
+	
+	std::list< std::string >::iterator it; int index = 0;
+	for (it = varnames.begin(); it != varnames.end(); ++it, ++index)
+		mxSetCell(LHS_ARG_1, index, mxCreateString( (*it).c_str() ));
 }
 
 int getCommandID( const mxArray *arg )

@@ -16,4 +16,4 @@ function c = sceneGetContactData()
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-c = sceneml('getcontactdata');
+c = sceneml('GetContactData');

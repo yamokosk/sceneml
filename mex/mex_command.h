@@ -22,14 +22,15 @@
 /*
  *	The following defines commands available via the mex interface.
  */
-#define COMMANDS_DEF COMMAND(LOADSCENE, "loadscene")			\
-                     COMMAND(UPDATE, "update")					\
-                     COMMAND(GETBODY, "getbody")				\
-					 COMMAND(GETGEOM, "getgeom")				\
-					 COMMAND(GETALLGEOMS, "getallgeoms")		\
-					 COMMAND(INCOLLISION, "incollision")		\
-					 COMMAND(GETCONTACTDATA, "getcontactdata")	\
-					 COMMAND(SETPROXBODY, "setproxbody")
+#define COMMANDS_DEF COMMAND(LOADSCENE, "LoadScene")			\
+                     COMMAND(UPDATE, "Update")					\
+                     COMMAND(GETBODY, "GetBody")				\
+					 COMMAND(GETGEOM, "GetGeom")				\
+					 COMMAND(GETALLGEOMS, "GetAllGeoms")		\
+					 COMMAND(INCOLLISION, "InCollision")		\
+					 COMMAND(GETCONTACTDATA, "GetContactData")	\
+					 COMMAND(SETPROXBODY, "SetProxBody")		\
+					 COMMAND(GETVARNAMES, "GetVarNames")
 					 
 enum command_indices {
 #define	COMMAND(ID, name) COMMAND_##ID,
@@ -50,6 +51,7 @@ void handler_GETALLGEOMS (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_INCOLLISION (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_GETCONTACTDATA (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_SETPROXBODY (int, mxArray *plhs[], int, const mxArray *prhs[]);
+void handler_GETVARNAMES (int, mxArray *plhs[], int, const mxArray *prhs[]);
 
 typedef void (*command_handler_t)(int, mxArray *plhs[], int, const mxArray *prhs[]);
 
