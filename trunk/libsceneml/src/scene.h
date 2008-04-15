@@ -83,6 +83,9 @@ public:
 	
 	//! Get ODE world pointer
 	dWorldID getWorld() const {return worldID_;}
+	
+	void computeSceneAABB(dReal aabb[6]);
+
 private:
 	void collisionQuery();
 	

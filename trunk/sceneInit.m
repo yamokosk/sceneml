@@ -34,7 +34,7 @@ for n = 1:length(fh)
     fig = fh(n);
     figUserData = get(fig, 'UserData');
     if ( ischar(figUserData) )
-        if ( strcmp('xode', figUserData) )
+        if ( strcmp('sceneml', figUserData) )
             warning('Found a SceneML render window. Closing the old one but will re-render once the new scene is loaded.');
             oldFigNumber = fig;
             close(fig);

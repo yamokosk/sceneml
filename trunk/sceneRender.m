@@ -42,7 +42,7 @@ for n = 1:length(fh)
     fig = fh(n);
     figUserData = get(fig, 'UserData');
     if ( ischar(figUserData) )
-        if ( strcmp('xode', figUserData) )
+        if ( strcmp('sceneml', figUserData) )
             oldFigNumber = fig;
             break;
         end
@@ -52,7 +52,10 @@ end
 if (oldFigNumber < 0)
     fig = createWindow(varargin);
     % Draw the world coordinate system, for reference
-    drawCoordinateSystem(fig, eye(4), 'world')
+    aabb = sceneGetAABB();
+    d = [aabb(2)-aabb(1), aabb(4)-aabb(3), aabb(6)-aabb(5)];
+    scale = max(d);
+    drawCoordinateSystem(fig, eye(4), 'world', scale)
 else
     figure(oldFigNumber);
 end
@@ -138,9 +141,10 @@ end % End of drawGeom()
 
 
 function fig = createWindow(varargin)
+
 fig = figure('Position', [50, 50, 1024, 768], ...
              'Renderer', 'OpenGL', ...
-             'UserData', 'xode');
+             'UserData', 'sceneml');
 nopts = size(varargin{1},2);
 for n = 1:2:nopts
     set(fig, varargin{1}(n), varargin{1}(n+1));
@@ -148,11 +152,17 @@ end
 
 
 % Scene axes
+aabb = sceneGetAABB();
+view(130,30);
+
+% set(gca, 'DataAspectRatio',   [1, 1, 1], ...
+%          'CameraPosition',    cpos, ...
+%          'CameraTarget',      centroid, ...
+%          'CameraViewAngle',   fov, ...
+%          'CameraUpVector',    [0,0,1], ...
+%          'Visible',           'off');
 set(gca, 'DataAspectRatio',   [1, 1, 1], ...
-         'CameraPosition',    [1000,1000,500], ...
-         'CameraTarget',      [0,0,200], ...
-         'CameraUpVector',    [0,0,1], ...
          'Visible',           'off');
 
-light('Position',[0 0 2000],'Style','infinite');
+light('Position',[0 0 aabb(6)*20],'Style','infinite');
 end % End createWindow()

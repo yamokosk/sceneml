@@ -1,4 +1,4 @@
-function drawCoordinateSystem(h, T, str)
+function drawCoordinateSystem(h, T, str, scale)
 % TODO: Write help for this function
 
 % SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
@@ -16,14 +16,18 @@ function drawCoordinateSystem(h, T, str)
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
+if nargin < 4
+    scale = 100;
+end
+
 origin = T(1:3,4);
-v = T * [100,0,0,1]'; xpt = v(1:3,1); 
+v = T * [scale,0,0,1]'; xpt = v(1:3,1); 
 xaxis = [origin'; xpt'];
 
-v = T * [0,100,0,1]'; ypt = v(1:3,1);
+v = T * [0,scale,0,1]'; ypt = v(1:3,1);
 yaxis = [origin'; ypt'];
 
-v = T * [0,0,100,1]'; zpt = v(1:3,1);
+v = T * [0,0,scale,1]'; zpt = v(1:3,1);
 zaxis = [origin'; zpt'];
 
 figure(h);
