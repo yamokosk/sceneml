@@ -247,6 +247,25 @@ void Scene::update()
 	this->collisionQuery();
 }
 
+void Scene::computeSceneAABB(dReal aabb[6])
+{
+	StringSpaceMap_t::iterator it = spaceMap_.begin();
+	dGeomGetAABB ((dGeomID)(it->second), aabb); it++;
+	for(; it != spaceMap_.end(); ++it)
+	{
+		dReal spaceAABB[6];
+		dGeomGetAABB ((dGeomID)(it->second), spaceAABB);
+		
+		// The aabb array has elements (minx, maxx, miny, maxy, minz, maxz).
+		if ( spaceAABB[0] < aabb[0] ) aabb[0] = spaceAABB[0];	// minx
+		if ( spaceAABB[1] > aabb[1] ) aabb[1] = spaceAABB[1];	// maxx
+		if ( spaceAABB[2] < aabb[2] ) aabb[2] = spaceAABB[2];	// miny
+		if ( spaceAABB[3] > aabb[3] ) aabb[3] = spaceAABB[3];	// maxy
+		if ( spaceAABB[4] < aabb[4] ) aabb[4] = spaceAABB[4];	// minz
+		if ( spaceAABB[5] > aabb[5] ) aabb[5] = spaceAABB[5];	// maxz
+	}
+}
+
 void Scene::addCollisionPair(const std::string& space1, const std::string& space2)
 {
 	try {

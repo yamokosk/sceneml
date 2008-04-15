@@ -30,7 +30,8 @@
 					 COMMAND(INCOLLISION, "InCollision")		\
 					 COMMAND(GETCONTACTDATA, "GetContactData")	\
 					 COMMAND(SETPROXBODY, "SetProxBody")		\
-					 COMMAND(GETVARNAMES, "GetVarNames")
+					 COMMAND(GETVARNAMES, "GetVarNames")		\
+					 COMMAND(GETSCENEAABB, "GetSceneAABB")
 					 
 enum command_indices {
 #define	COMMAND(ID, name) COMMAND_##ID,
@@ -52,6 +53,7 @@ void handler_INCOLLISION (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_GETCONTACTDATA (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_SETPROXBODY (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_GETVARNAMES (int, mxArray *plhs[], int, const mxArray *prhs[]);
+void handler_GETSCENEAABB (int, mxArray *plhs[], int, const mxArray *prhs[]);
 
 typedef void (*command_handler_t)(int, mxArray *plhs[], int, const mxArray *prhs[]);
 

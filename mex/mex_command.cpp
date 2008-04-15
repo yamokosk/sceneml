@@ -59,6 +59,17 @@ void handler_LOADSCENE (int nlhs, mxArray *plhs[], int rhs, const mxArray *prhs[
 	g_scene = sceneDirector.GetScene();
 	g_scene->update();
 	mxFree(cfname);
+	
+	if ( nlhs > 1 )
+	{
+		dReal aabb[6] = {0};
+		g_scene->computeSceneAABB(aabb);
+	
+		LHS_ARG_2 = mxCreateDoubleMatrix( 1, 6, mxREAL );
+		double *ptr = mxGetPr(LHS_ARG_2);
+	
+		for (int n=0; n < 6; ++n) ptr[n] = aabb[n];
+	}
 }
 
 void handler_UPDATE (int nlhs, mxArray *plhs[], int rhs, const mxArray *prhs[])
@@ -273,6 +284,18 @@ void handler_GETVARNAMES (int, mxArray *plhs[], int, const mxArray *prhs[])
 	for (it = varnames.begin(); it != varnames.end(); ++it, ++index)
 		mxSetCell(LHS_ARG_1, index, mxCreateString( (*it).c_str() ));
 }
+
+void handler_GETSCENEAABB (int, mxArray *plhs[], int, const mxArray *prhs[])
+{
+	dReal aabb[6] = {0};
+	g_scene->computeSceneAABB(aabb);
+	
+	LHS_ARG_1 = mxCreateDoubleMatrix( 1, 6, mxREAL );
+	double *ptr = mxGetPr(LHS_ARG_1);
+	
+	for (int n=0; n < 6; ++n) ptr[n] = aabb[n];
+}
+
 
 int getCommandID( const mxArray *arg )
 {
