@@ -340,7 +340,7 @@ void handler_GETSCENEAABB (int, mxArray *plhs[], int, const mxArray *prhs[])
 	LHS_ARG_1 = mxCreateDoubleMatrix( 1, 6, mxREAL );
 	double *ptr = mxGetPr(LHS_ARG_1);
 	
-	for (int n=0; n < 6; ++n) ptr[n] = (double)aabb[n];
+	for (int n=0; n < 6; ++n) ptr[n] = (mxREAL)aabb[n];
 }
 
 
