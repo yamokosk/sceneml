@@ -285,6 +285,53 @@ void handler_GETVARNAMES (int, mxArray *plhs[], int, const mxArray *prhs[])
 		mxSetCell(LHS_ARG_1, index, mxCreateString( (*it).c_str() ));
 }
 
+void handler_GETVARVALUES (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+	if ( !mxIsChar( RHS_ARG_2 ) ) {
+		ERROR_MSG(INVALID_ARG, "Second argument must be the variable name.");
+	}
+	
+	char* name = mxArrayToString(RHS_ARG_2);
+
+	dReal x=0.0, y=0.0, z=0.0;
+	g_scene->getMutableValue(name, x, y, z);
+	mxFree(name);
+	
+	LHS_ARG_1 = mxCreateDoubleScalar( (double)x );
+	if (nlhs > 1) {
+		LHS_ARG_2 = mxCreateDoubleScalar( (double)y );
+		if (nlhs > 2) {
+			LHS_ARG_3 = mxCreateDoubleScalar( (double)z );
+		}
+	}
+}
+
+void handler_SETGEOMALPHA (int, mxArray *plhs[], int, const mxArray *prhs[])
+{
+	// Get sceneml object
+	char* name = mxArrayToString( RHS_ARG_2 );
+	sceneml::Geom *obj = g_scene->getGeom(name);
+	mxFree(name);
+
+	float alpha = (float)mxGetScalar(RHS_ARG_3);
+	
+	obj->setAlpha(alpha);
+}
+
+void handler_SETGEOMCFLAG (int, mxArray *plhs[], int, const mxArray *prhs[])
+{
+	// Get sceneml object
+	char* name = mxArrayToString( RHS_ARG_2 );
+	sceneml::Geom *obj = g_scene->getGeom(name);
+	mxFree(name);
+
+	int collisioncheck = (int)mxGetScalar(RHS_ARG_3);
+	
+	obj->setCollisionCheck(collisioncheck);
+	
+	g_scene->update();
+}
+
 void handler_GETSCENEAABB (int, mxArray *plhs[], int, const mxArray *prhs[])
 {
 	dReal aabb[6] = {0};
@@ -293,7 +340,7 @@ void handler_GETSCENEAABB (int, mxArray *plhs[], int, const mxArray *prhs[])
 	LHS_ARG_1 = mxCreateDoubleMatrix( 1, 6, mxREAL );
 	double *ptr = mxGetPr(LHS_ARG_1);
 	
-	for (int n=0; n < 6; ++n) ptr[n] = aabb[n];
+	for (int n=0; n < 6; ++n) ptr[n] = (double)aabb[n];
 }
 
 
@@ -452,10 +499,15 @@ void dGeomToMxArray(mxArray *array[], sceneml::Geom *obj)
 		}					
 	}
 	
-	// Color info
+	// Color and alpha info
 	array[GEOM_COLOR] = mxCreateDoubleMatrix( 1, 3, mxREAL );
 	const dReal *rgb = obj->getColor();
 	dVector3ToMxArray(mxGetPr(array[8]), rgb);
+	
+	array[GEOM_ALPHA] = mxCreateDoubleScalar( obj->getAlpha() );
+	
+	// Get collision flag
+	array[GEOM_COLLISIONFLAG] = mxCreateDoubleScalar( (double)obj->getCollisionCheck() );
 	
 	// Copy the matrix data from ODE into Matlab arrays
 	dMatrix4 T; double *pMatrix = NULL; 

@@ -54,7 +54,9 @@ const char *fnames_body[] = {
 					FIELD(GHANDLE, "ghandle")			\
 					FIELD(PARAMS, "params")				\
 					FIELD(FV, "fv")						\
-					FIELD(COLOR, "color")
+					FIELD(COLOR, "color")				\
+					FIELD(ALPHA, "alpha")				\
+					FIELD(COLLISIONFLAG, "collisioncheck")
 
 enum geom_indices {
 #define	FIELD(ID, name) GEOM_##ID,

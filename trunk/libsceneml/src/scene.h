@@ -73,6 +73,7 @@ public:
 	//void addVariable(const std::string& varname, const std::string& bodyname, Transform* transform);
 	void addMutableValue(const std::string &name, dRealPtr v, Body* b);
 	void setMutableValue(const std::string &name, dReal x, dReal y=0.0, dReal z=0.0);
+	void getMutableValue(const std::string &name, dReal& x, dReal& y, dReal& z);
 	std::list< std::string > getVarNames();
 	void update();
 	

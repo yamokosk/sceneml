@@ -75,6 +75,11 @@ public:
 		return val;
 	}
 	
+	int getValAsInt(const std::string& name)
+	{
+		return (int)getValAsReal(name);
+	}
+	
 	dRealPtr getValAsVec(const std::string& name, int length)
 	{
 		dRealPtr val( this->get(name, length) );

@@ -52,24 +52,29 @@ end
 if (oldFigNumber < 0)
     fig = createWindow(varargin);
     % Draw the world coordinate system, for reference
-    aabb = sceneGetAABB();
-    d = [aabb(2)-aabb(1), aabb(4)-aabb(3), aabb(6)-aabb(5)];
-    scale = max(d);
-    drawCoordinateSystem(fig, eye(4), 'world', scale)
+    if (ismac)
+        drawCoordinateSystem(fig, eye(4), 'world', 10);
+    else
+        aabb = sceneGetAABB();
+        d = [aabb(2)-aabb(1), aabb(4)-aabb(3), aabb(6)-aabb(5)];
+        scale = max(d);
+        drawCoordinateSystem(fig, eye(4), 'world', scale);
+    end
 else
     figure(oldFigNumber);
 end
-
 
 patches = findobj(gca,'Type','patch');
 if (isempty(patches))
     % if the patches don't already exist, create them
     geomData = sceneGetAllGeoms();
     for n=1:length(geomData)
-       [fv,color] = createGeom(geomData{n});
+       [fv,color,alpha] = createGeom(geomData{n});
        h = patch(fv, 'FaceColor', color);
        set(h, 'FaceLighting', 'flat');
        set(h, 'EdgeColor', 'none');
+       set(h, 'EdgeAlpha', alpha);
+       set(h, 'FaceAlpha', alpha);
        set(h, 'UserData', geomData{n}.name);
     end
 else
@@ -77,9 +82,11 @@ else
     names = get(patches, 'UserData');
     for n=1:length(patches)
         geomData = sceneGetGeom(names{n});
-        [fv,color] = createGeom(geomData);
+        [fv,color,alpha] = createGeom(geomData);
         set(patches(n), 'Vertices', fv.vertices);
         set(patches(n), 'FaceColor', color);
+        set(patches(n), 'EdgeAlpha', alpha);
+        set(patches(n), 'FaceAlpha', alpha);
     end
 end
 
@@ -102,7 +109,7 @@ drawnow;
 end % End drawScene()
 
 
-function [fv, c] = createGeom(geom)
+function [fv, c, alpha] = createGeom(geom)
 % dSphereClass          0   Sphere
 % dBoxClass             1   Box
 % dCapsuleClass         2 	Capsule (i.e. cylinder with half-sphere caps at its ends)
@@ -117,6 +124,7 @@ function [fv, c] = createGeom(geom)
 if ( geom.type == 4 )
     fv = createPlane([-2000, 2000, -4000, 4000], [geom.params.normal_x,geom.params.normal_y,geom.params.normal_z,geom.params.d]);
     c = geom.color/255;
+    alpha = geom.alpha;
     return;
 end
 
@@ -136,6 +144,7 @@ switch (geom.type)
         warning([geom.type ' is an unrecognized geometry type']);
 end
 c = geom.color/255;
+alpha = geom.alpha;
 
 end % End of drawGeom()
 
@@ -152,17 +161,28 @@ end
 
 
 % Scene axes
-aabb = sceneGetAABB();
-view(130,30);
+if (ismac())
+    set(gca, 'DataAspectRatio', [1,1,1], ...
+             'Visible', 'off');
+	view(130,30);
+    light('Position',[0 0 400],'Style','infinite');
+else
+    aabb = sceneGetAABB();
 
-% set(gca, 'DataAspectRatio',   [1, 1, 1], ...
-%          'CameraPosition',    cpos, ...
-%          'CameraTarget',      centroid, ...
-%          'CameraViewAngle',   fov, ...
-%          'CameraUpVector',    [0,0,1], ...
-%          'Visible',           'off');
-set(gca, 'DataAspectRatio',   [1, 1, 1], ...
-         'Visible',           'off');
+    cpos = [aabb(2), aabb(4), aabb(6)];
+    centroid = [aabb(1), aabb(3), aabb(5)];
+    fov = pi/3;
 
-light('Position',[0 0 aabb(6)*20],'Style','infinite');
+    set(gca, 'DataAspectRatio',   [1, 1, 1], ...
+             'CameraPosition',    cpos, ...
+             'CameraTarget',      centroid, ...
+             'CameraViewAngle',   fov, ...
+             'CameraUpVector',    [0,0,1], ...
+             'Visible',           'off');
+         
+    light('Position',[0 0 aabb(6)*20],'Style','infinite');
+end
+
+
+
 end % End createWindow()

@@ -109,6 +109,9 @@ protected:
 	SceneObjectBase* proxObj_;
 };
 
+#define GEOM_COLLIDE_OFF	0
+#define GEOM_COLLIDE_ON		1
+
 //! Geometry class
 /** @ingroup xode 
  *  The geometry class is used for any scene object has some non-zero volume. Notice that this class is not
@@ -146,6 +149,20 @@ public:
 	void setColor(dReal r, dReal g, dReal b) {rgb_[0] = r; rgb_[0] = g; rgb_[0] = b;}
 	void setColor(dVector3 rgb) { for(int n=0; n<3; ++n) rgb_[n] = rgb[n]; }
 	const dReal* getColor() const {return rgb_;}
+	void setAlpha(const dReal alpha) {alpha_ = alpha;}
+	dReal getAlpha() const {return alpha_;}
+	void setCollisionCheck( const int check ) { 
+		dGeomID gid = NULL;
+		if (tid() != NULL) gid = tid();
+		else gid = id();
+		dGeomSetCategoryBits(gid, check); dGeomSetCollideBits(gid, check); 
+	}
+	int getCollisionCheck() const {
+		dGeomID gid = NULL;
+		if (tid() != NULL) gid = tid();
+		else gid = id();
+		return (int)dGeomGetCollideBits(gid);
+	}
 			
 protected:
 	Geom(dGeomID g, dGeomID t = NULL);
@@ -159,6 +176,8 @@ protected:
 	PolyhedronPtr mesh_; // Owner of this pointer
 	//! Geom color
 	dVector3 rgb_;
+	//! Geom alpha (transperancy)
+	dReal alpha_;
 };
 
 //! Body class
