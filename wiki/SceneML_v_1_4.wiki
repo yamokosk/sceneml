@@ -1,43 +1,28 @@
-#summary One-sentence summary of this page.
+#summary SceneML v.1.4 Notes
 
-= Introduction =
+= SceneML 1.4 Notes =
 
-Add your content here.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
-1. Transparent rendering can be done in two ways.
-a. Either through the XML file with a new parameter for geoms. If not specified, default = 1
-<geometry>
+== Change Log ==
+  * Transparent rendering can be done in two ways.
+    * Either through the XML file with a new parameter for geoms. If not specified, default = 1
+{{{<geometry>
 <parameter type="alpha" value="0" /> <!-- any value between 0 (invisible) and 1 (transparent) -->
-</geometry>
-
-b. Or real-time with the matlab function:
-sceneSetGeomAlpha('geom_name', alpha); % alpha is between 0 (invisible) and 1 (opaque)
-
-2. Turn collision checking off/on for a particular geom can also be done in one of two ways:
-a. Either through the XML file with a new parameter for geoms. If not specified, default = 1
-<geometry>
+</geometry>}}}
+    * Or real-time with the matlab function:
+{{{sceneSetGeomAlpha('geom_name', alpha); % alpha is between 0 (invisible) and 1 (opaque)}}}
+  * Turn collision checking off/on for a particular geom can also be done in one of two ways:
+    * Either through the XML file with a new parameter for geoms. If not specified, default = 1
+{{{<geometry>
 <parameter type="checkcollision" value="0" /> <!-- 0 for no checking, 1 for checking -->
-</geometry>
-
-b. Or real-time in Matlab with the following function:
-sceneSetGeomCFlag('geom_name', 0); % turns collision checking off for this geom
-sceneSetGeomCFlag('geom_name', 1); % turns collision checking back on for this geom
-
-3. Get the value of a mutable variable in Matlab:
-[x,y,z] = sceneGetVarValue('variable_name'); % for vector-valued mutable variables
-or
-x = sceneGetVarValue('variable_name'); % for scalar mutable variables
-
-4. The geometry structure returned in Matlab now reports the new transparent and collision flag:
-
-g = sceneGetGeom('src_stand_top')
+</geometry>}}}
+    * Or real-time in Matlab with the following function:
+{{{sceneSetGeomCFlag('geom_name', 0); % turns collision checking off for this geom
+sceneSetGeomCFlag('geom_name', 1); % turns collision checking back on for this geom}}}
+    * Get the value of a mutable variable in Matlab:
+{{{[x,y,z] = sceneGetVarValue('variable_name'); % for vector-valued mutable variables
+x = sceneGetVarValue('variable_name'); % for scalar mutable variables}}}
+  * The geometry structure returned in Matlab now reports the new transparent and collision flag:
+{{{g = sceneGetGeom('src_stand_top')
 
 g =
 
@@ -51,4 +36,8 @@ g =
                 fv: 0
              color: [190 190 190]
              alpha: 1
-    collisioncheck: 0
+    collisioncheck: 0}}}
+
+== Porting notes ==
+
+== Annotated roadmap ==
