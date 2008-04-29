@@ -1,5 +1,4 @@
 #summary SceneML v.1.1 Notes
-#labels Featured
 
 = SceneML 1.1 Notes =
 
