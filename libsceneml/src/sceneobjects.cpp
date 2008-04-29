@@ -77,6 +77,11 @@ Geom::Geom(dGeomID g, dGeomID t) :
 	transID_(t)
 {
 	for (int n=0; n<3; ++n) rgb_[n] = 1.0;
+	dGeomID gid = NULL;
+	if (t != NULL) gid = t;
+	else gid = g;
+	dGeomSetCategoryBits(gid, 1);
+	dGeomSetCollideBits(gid, 1);
 }
 
 //! Basic destructor

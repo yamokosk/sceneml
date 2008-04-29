@@ -218,6 +218,19 @@ void Scene::setMutableValue(const std::string &name, dReal x, dReal y, dReal z)
 	}
 }
 
+void Scene::getMutableValue(const std::string &name, dReal& x, dReal& y, dReal& z)
+{
+	StringVariableMap_t::iterator it = variableMap_.find(name);
+	if (it != variableMap_.end()) {
+		x = (it->second).get()[0];
+		y = (it->second).get()[1];
+		z = (it->second).get()[2];
+	} else {
+		std::cerr << __FUNCTION__ << "(): Mutable value " << name << " does not exist! Skipping it." << std::endl;
+		return;
+	}
+}
+
 std::list< std::string > Scene::getVarNames()
 {
 	std::list< std::string > varnames;
@@ -249,11 +262,18 @@ void Scene::update()
 
 void Scene::computeSceneAABB(dReal aabb[6])
 {
+	aabb[0] = FLT_MAX;	// minx
+	aabb[1] = FLT_MIN;	// maxx
+	aabb[2] = FLT_MAX;	// miny
+	aabb[3] = FLT_MIN;	// maxy
+	aabb[4] = FLT_MAX;	// minz
+	aabb[5] = FLT_MIN;	// maxz
+	
 	StringSpaceMap_t::iterator it = spaceMap_.begin();
 	dGeomGetAABB ((dGeomID)(it->second), aabb); it++;
 	for(; it != spaceMap_.end(); ++it)
 	{
-		dReal spaceAABB[6];
+		dReal spaceAABB[6] = {0};
 		dGeomGetAABB ((dGeomID)(it->second), spaceAABB);
 		
 		// The aabb array has elements (minx, maxx, miny, maxy, minz, maxz).
@@ -286,7 +306,10 @@ void collisionCallback(void* data, dGeomID o1, dGeomID o2)
 	// transform with calls to void dGeomTriMeshSetLastTransform( dGeomID g, dMatrix4 last_trans )
 	// and dReal* dGeomTriMeshGetLastTransform( dGeomID g )
 	//bool* bVal = (bool*)data;
-		
+	
+	unsigned long col1 = dGeomGetCollideBits(o1);
+	unsigned long col2 = dGeomGetCollideBits(o2);
+	
 	int flags = 0;
 	mBitsOn(flags, NUM_CONTACT_POINTS);
 	dContactGeom dContactPts[NUM_CONTACT_POINTS];

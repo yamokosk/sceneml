@@ -420,9 +420,12 @@ void XMLSceneBuilder::buildGeoms()
 			geom->setCompositeTransform(pTransform);
 			body->addGeom(geom);
 			
-			// Get color info
+			// Get color/alpha/collision info
 			dRealPtr rgb = geomAttrib->getValAsVec("color", 3);
 			geom->setColor(rgb.get());
+			geom->setAlpha( geomAttrib->getValAsReal("alpha") );
+			geom->setCollisionCheck( geomAttrib->getValAsInt("checkcollision") );
+			
 			
 			// Invalidate and move on to next geom
 			geom->invalidate();

@@ -31,6 +31,9 @@
 					 COMMAND(GETCONTACTDATA, "GetContactData")	\
 					 COMMAND(SETPROXBODY, "SetProxBody")		\
 					 COMMAND(GETVARNAMES, "GetVarNames")		\
+					 COMMAND(GETVARVALUES, "GetVarValues")		\
+					 COMMAND(SETGEOMALPHA, "SetGeomAlpha")		\
+					 COMMAND(SETGEOMCFLAG, "SetGeomCFlag")		\
 					 COMMAND(GETSCENEAABB, "GetSceneAABB")
 					 
 enum command_indices {
@@ -53,6 +56,9 @@ void handler_INCOLLISION (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_GETCONTACTDATA (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_SETPROXBODY (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_GETVARNAMES (int, mxArray *plhs[], int, const mxArray *prhs[]);
+void handler_GETVARVALUES (int, mxArray *plhs[], int, const mxArray *prhs[]);
+void handler_SETGEOMALPHA (int, mxArray *plhs[], int, const mxArray *prhs[]);
+void handler_SETGEOMCFLAG (int, mxArray *plhs[], int, const mxArray *prhs[]);
 void handler_GETSCENEAABB (int, mxArray *plhs[], int, const mxArray *prhs[]);
 
 typedef void (*command_handler_t)(int, mxArray *plhs[], int, const mxArray *prhs[]);
