@@ -51,15 +51,15 @@ end
 
 if (oldFigNumber < 0)
     fig = createWindow(varargin);
-    % Draw the world coordinate system, for reference
-    if (ismac)
+%     % Draw the world coordinate system, for reference
+%     if (isunix())
         drawCoordinateSystem(fig, eye(4), 'world', 10);
-    else
-        aabb = sceneGetAABB();
-        d = [aabb(2)-aabb(1), aabb(4)-aabb(3), aabb(6)-aabb(5)];
-        scale = max(d);
-        drawCoordinateSystem(fig, eye(4), 'world', scale);
-    end
+%     else
+%         aabb = sceneGetAABB();
+%         d = [aabb(2)-aabb(1), aabb(4)-aabb(3), aabb(6)-aabb(5)];
+%         scale = max(d);
+%         drawCoordinateSystem(fig, eye(4), 'world', scale);
+%     end
 else
     figure(oldFigNumber);
 end
@@ -159,29 +159,32 @@ for n = 1:2:nopts
     set(fig, varargin{1}(n), varargin{1}(n+1));
 end
 
+% --- Problem! ---
+% sceneGetAABB seems to be broken... can't use it to set up view volume.
+% --- Problem! ---
 
-% Scene axes
-if (ismac())
+% % Scene axes
+% if (isunix())
     set(gca, 'DataAspectRatio', [1,1,1], ...
              'Visible', 'off');
 	view(130,30);
     light('Position',[0 0 400],'Style','infinite');
-else
-    aabb = sceneGetAABB();
-
-    cpos = [aabb(2), aabb(4), aabb(6)];
-    centroid = [aabb(1), aabb(3), aabb(5)];
-    fov = pi/3;
-
-    set(gca, 'DataAspectRatio',   [1, 1, 1], ...
-             'CameraPosition',    cpos, ...
-             'CameraTarget',      centroid, ...
-             'CameraViewAngle',   fov, ...
-             'CameraUpVector',    [0,0,1], ...
-             'Visible',           'off');
-         
-    light('Position',[0 0 aabb(6)*20],'Style','infinite');
-end
+% else
+%     aabb = sceneGetAABB();
+% 
+%     cpos = [aabb(2), aabb(4), aabb(6)];
+%     centroid = [aabb(1), aabb(3), aabb(5)];
+%     fov = pi/3;
+% 
+%     set(gca, 'DataAspectRatio',   [1, 1, 1], ...
+%              'CameraPosition',    cpos, ...
+%              'CameraTarget',      centroid, ...
+%              'CameraViewAngle',   fov, ...
+%              'CameraUpVector',    [0,0,1], ...
+%              'Visible',           'off');
+%          
+%     light('Position',[0 0 aabb(6)*20],'Style','infinite');
+% end
 
 
 

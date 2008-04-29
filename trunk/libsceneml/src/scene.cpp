@@ -262,19 +262,20 @@ void Scene::update()
 
 void Scene::computeSceneAABB(dReal aabb[6])
 {
-	aabb[0] = FLT_MAX;	// minx
-	aabb[1] = FLT_MIN;	// maxx
-	aabb[2] = FLT_MAX;	// miny
-	aabb[3] = FLT_MIN;	// maxy
-	aabb[4] = FLT_MAX;	// minz
-	aabb[5] = FLT_MIN;	// maxz
+	aabb[0] = 1e6;	// minx
+	aabb[1] = -1e6;	// maxx
+	aabb[2] = 1e6;	// miny
+	aabb[3] = -1e6;	// maxy
+	aabb[4] = 1e6;	// minz
+	aabb[5] = -1e6;	// maxz
 	
+	dReal spaceAABB[6] = {0};
+	dGeomID gid = NULL;
 	StringSpaceMap_t::iterator it = spaceMap_.begin();
-	dGeomGetAABB ((dGeomID)(it->second), aabb); it++;
-	for(; it != spaceMap_.end(); ++it)
-	{
-		dReal spaceAABB[6] = {0};
-		dGeomGetAABB ((dGeomID)(it->second), spaceAABB);
+	
+	for (; it != spaceMap_.end(); ++it) {
+		gid = (dGeomID)(it->second);
+		dGeomGetAABB(gid, spaceAABB);
 		
 		// The aabb array has elements (minx, maxx, miny, maxy, minz, maxz).
 		if ( spaceAABB[0] < aabb[0] ) aabb[0] = spaceAABB[0];	// minx

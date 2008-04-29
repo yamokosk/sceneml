@@ -124,7 +124,6 @@
 				<parameter type="width" value="609.6"/>
 				<parameter type="height" value="28.575"/>
 				<parameter type="color" value="190 190 190" />
-                <parameter type="checkcollision" value="0" />
 				<transform>
 					<translation value="0 0 300.0375"/>
 				</transform>
@@ -275,7 +274,7 @@
 	<space name="pa10_source" type="simple">
 		<body name="src0" parent="world">
 			<transform>
-				<translation value="1139.8 0 401.345"/>
+				<translation value="1139.8 0 601.345"/>
 				<rotation type="z" value="pi" />
 			</transform>
 			<geometry type="mesh" name="src0_01">
