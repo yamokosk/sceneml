@@ -8,7 +8,7 @@
     * Either through the XML file with a new parameter for geoms. If not specified, default = 1
 {{{
 <geometry>
-<parameter type="alpha" value="0" /> <!-- any value between 0 (invisible) and 1 (transparent) -->
+<parameter type="alpha" value="0" /> <!-- any value between 0 (invisible) and 1 (opaque) -->
 </geometry>
 }}}
     * Or real-time with the matlab function:
