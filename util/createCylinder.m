@@ -1,4 +1,4 @@
-function fv = createCylinder(T, len, r)
+function fvout = createCylinder(T, len, r)
 % TODO: Write help for this function
 % T - Transformation matrix
 % len - length of the cylinder
@@ -60,3 +60,6 @@ F = eye(4); F(3,4) = -0.5*len;
 % Transformed vertices
 hv = T*F*S*hv;
 fv.vertices = hv(1:3,:)';
+
+fvout.vertices = fv.vertices;
+fvout.faces = fv.faces;

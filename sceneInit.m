@@ -25,21 +25,12 @@ function sceneInit(filename)
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-fh = get(0,'Children');     % Get handles to all figure windows
-% Now loop through and check to see if a SceneML figure window is open. If
-% so, its a good idea to close it since problems can occur if we load a
-% different scene description file.
-oldFigNumber = -1;
-for n = 1:length(fh)
-    fig = fh(n);
-    figUserData = get(fig, 'UserData');
-    if ( ischar(figUserData) )
-        if ( strcmp('sceneml', figUserData) )
-            warning('Found a SceneML render window. Closing the old one but will re-render once the new scene is loaded.');
-            oldFigNumber = fig;
-            close(fig);
-        end
-    end
+% Found a better to determine if a sceneml window is already open
+figHandle = findobj('UserData', 'sceneml');
+
+if ( ~isempty(figHandle) )
+    warning('Found a SceneML render window. Closing the old one but will re-render once the new scene is loaded.');
+    close(figHandle);
 end
 
 % Now load the new scene description
@@ -57,7 +48,7 @@ end
 
 % If the user had a render window open before, lets be nice and re-render
 % this one.
-if (oldFigNumber > 0)
-    figure(oldFigNumber);
+if ( ~isempty(figHandle) )
+    figure(figHandle);
     sceneRender;
 end

@@ -422,6 +422,7 @@ void XMLSceneBuilder::buildGeoms()
 			
 			// Get color/alpha/collision info
 			dRealPtr rgb = geomAttrib->getValAsVec("color", 3);
+			for (int n=0; n < 3; ++n) (rgb.get())[n] *= (1/255.0);
 			geom->setColor(rgb.get());
 			geom->setAlpha( geomAttrib->getValAsReal("alpha") );
 			geom->setCollisionCheck( geomAttrib->getValAsInt("checkcollision") );
