@@ -196,7 +196,7 @@ void handler_GETALLGEOMS (int nlhs, mxArray *plhs[], int rhs, const mxArray *prh
 	sceneml::GeomPtrList_t::iterator it = allGeoms.begin();
 	
 	// Create output structure for Matlab and populate
-	LHS_ARG_1 = mxCreateCellMatrix( allGeoms.size(), 1 );
+	/*LHS_ARG_1 = mxCreateCellMatrix( allGeoms.size(), 1 );
 	
 	for (int row=0; it != allGeoms.end(); ++row, ++it) {
 		// Create tmp mxArray to collect all the outputs
@@ -208,6 +208,20 @@ void handler_GETALLGEOMS (int nlhs, mxArray *plhs[], int rhs, const mxArray *prh
 		mxSetField(structure, 0, fnames_geom[n], tmp[n]);
 		
 		mxSetCell(LHS_ARG_1, row, structure);	
+	}*/
+	int ngeoms = allGeoms.size();
+	LHS_ARG_1 = mxCreateStructMatrix(ngeoms, 1, NUM_GEOM_FIELDS, fnames_geom);
+	
+	for (int row=0; it != allGeoms.end(); ++row, ++it) {
+		// Create tmp mxArray to collect all the outputs
+		mxArray *tmp[NUM_GEOM_FIELDS];
+		dGeomToMxArray(tmp, (*it).get());
+		
+		//mxArray *structure = mxCreateStructMatrix(1, 1, NUM_GEOM_FIELDS, fnames_geom);
+		for (int n=0; n < NUM_GEOM_FIELDS; ++n)
+			mxSetField(LHS_ARG_1, row, fnames_geom[n], tmp[n]);
+		
+		//mxSetCell(LHS_ARG_1, row, structure);	
 	}
 }
 
@@ -340,7 +354,7 @@ void handler_GETSCENEAABB (int, mxArray *plhs[], int, const mxArray *prhs[])
 	LHS_ARG_1 = mxCreateDoubleMatrix( 1, 6, mxREAL );
 	double *ptr = mxGetPr(LHS_ARG_1);
 	
-	for (int n=0; n < 6; ++n) ptr[n] = (mxREAL)aabb[n];
+	for (int n=0; n < 6; ++n) ptr[n] = (float)aabb[n];
 }
 
 

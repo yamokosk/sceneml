@@ -33,83 +33,70 @@ function fig = sceneRender(varargin)
 % or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
 % more details.
 
-fh = get(0,'Children');     % Get handles to all figure windows
-% Now loop through and check to see if a SceneML figure window is open. If
-% so, its a good idea to close it since problems can occur if we load a
-% different scene description file.
-oldFigNumber = -1;
-for n = 1:length(fh)
-    fig = fh(n);
-    figUserData = get(fig, 'UserData');
-    if ( ischar(figUserData) )
-        if ( strcmp('sceneml', figUserData) )
-            oldFigNumber = fig;
-            break;
-        end
-    end
-end
-
-if (oldFigNumber < 0)
-    fig = createWindow(varargin);
-%     % Draw the world coordinate system, for reference
-%     if (isunix())
-        drawCoordinateSystem(fig, eye(4), 'world', 10);
-%     else
-%         aabb = sceneGetAABB();
-%         d = [aabb(2)-aabb(1), aabb(4)-aabb(3), aabb(6)-aabb(5)];
-%         scale = max(d);
-%         drawCoordinateSystem(fig, eye(4), 'world', scale);
-%     end
-else
-    figure(oldFigNumber);
-end
-
-patches = findobj(gca,'Type','patch');
-if (isempty(patches))
-    % if the patches don't already exist, create them
-    geomData = sceneGetAllGeoms();
-    for n=1:length(geomData)
-       [fv,color,alpha] = createGeom(geomData{n});
-       h = patch(fv, 'FaceColor', color);
-       set(h, 'FaceLighting', 'flat');
-       set(h, 'EdgeColor', 'none');
-       set(h, 'EdgeAlpha', alpha);
-       set(h, 'FaceAlpha', alpha);
-       set(h, 'UserData', geomData{n}.name);
-    end
-else
-    % otherwise just update vertex data
-    names = get(patches, 'UserData');
-    for n=1:length(patches)
-        geomData = sceneGetGeom(names{n});
-        [fv,color,alpha] = createGeom(geomData);
-        set(patches(n), 'Vertices', fv.vertices);
-        set(patches(n), 'FaceColor', color);
-        set(patches(n), 'EdgeAlpha', alpha);
-        set(patches(n), 'FaceAlpha', alpha);
-    end
-end
-
-% Now check if any geoms are in collision.. if so color them differently
-if ( sceneCollisionState() )
-    c = sceneGetContactData();
+% Get geom data from the scene and compute face/vertex data if necessary
+% TODO: Replace createGeomFV in Matlab and do this inside the mex
+% file!
+allGeomData = sceneGetAllGeoms();
+allGeomData = createGeomFV(allGeomData);
+ngeoms = length(allGeomData);
     
-    patches = findobj(gca,'Type','patch');
-    names = get(patches, 'UserData');
-    for n = 1:length(c)
-        h = patches( find( strcmp(c(n).geom1, names) ) );
-        set(h, 'FaceColor', [1, 0, 0]);
-        h = patches( find( strcmp(c(n).geom2, names) ) );
-        set(h, 'FaceColor', [1, 0, 0]);     
+% Found a better to determine if a sceneml window is already open
+figHandle = findobj('UserData', 'sceneml');
+
+if ( isempty(figHandle) )
+    % No existing render window. Create a new one.
+    fig = createWindow(varargin);
+    drawCoordinateSystem(fig, eye(4), 'world', 10);
+    
+    % And then create all the new 3D objects 
+    %   NOTE: Pathces are created in reverse order.. later when we call
+    %       patches = findobj(gca, 'Type', 'patch');
+    %   the patches will be ordered correctly.
+    for n=ngeoms:-1:1
+        patch('Faces', allGeomData(n).fv.faces, ...
+              'Vertices', allGeomData(n).fv.vertices, ...
+              'FaceColor', allGeomData(n).color, ...
+              'FaceLighting', 'flat', ...
+              'EdgeColor', 'none', ...
+              'FaceAlpha', allGeomData(n).alpha, ...
+              'UserData', allGeomData(n).name);
     end
+else
+    % Use the existing render window.
+    figure(figHandle);
+    
+    % Get handles to all the 3D objects and then update their data
+    patches = findobj(gca, 'Type', 'patch');
+    
+    % Get ready to set a bunch of properties all at once
+    propNames = {'Vertices'; 'FaceAlpha'};
+    fv = [allGeomData.fv];
+    propValues = {fv.vertices; allGeomData.alpha}';
+    set(patches, propNames, propValues);
 end
 
-drawnow;
+% NO LONGER RESPONSIBLE FOR COLORING OBJECTS BASED ON COLLISION STATUS...
+% THIS IS UP TO THE USER
+% % Now check if any geoms are in collision.. if so color them differently
+% if ( sceneCollisionState() )
+%     c = sceneGetContactData();
+%     
+%     patches = findobj(gca,'Type','patch');
+%     names = get(patches, 'UserData');
+%     for n = 1:length(c)
+%         h = patches( find( strcmp(c(n).geom1, names) ) );
+%         set(h, 'FaceColor', [1, 0, 0]);
+%         h = patches( find( strcmp(c(n).geom2, names) ) );
+%         set(h, 'FaceColor', [1, 0, 0]);     
+%     end
+% end
+
+% drawnow;
 
 end % End drawScene()
 
 
-function [fv, c, alpha] = createGeom(geom)
+function geoms = createGeomFV(geoms)
 % dSphereClass          0   Sphere
 % dBoxClass             1   Box
 % dCapsuleClass         2 	Capsule (i.e. cylinder with half-sphere caps at its ends)
@@ -120,31 +107,22 @@ function [fv, c, alpha] = createGeom(geom)
 % dGeomTransformClass   7	Geometry transform
 % dTrimeshClass         8	Triangle mesh
 
-% Quickly handle if it is a plane
-if ( geom.type == 4 )
-    fv = createPlane([-2000, 2000, -4000, 4000], [geom.params.normal_x,geom.params.normal_y,geom.params.normal_z,geom.params.d]);
-    c = geom.color/255;
-    alpha = geom.alpha;
-    return;
-end
+ngeoms = length(geoms);
 
-switch (geom.type)
-    case 0  % sphere
-        fv = createSphere(geom.T_world_geom, geom.params.radius);
-    case 1  % box
-        fv = createBox(geom.T_world_geom, [geom.params.length, geom.params.width, geom.params.height]);
-    case 2  % capsule
-        fv = createCapsule(geom.T_world_geom, geom.params.length, geom.params.radius);
-    case 3  % cylinder
-        fv = createCylinder(geom.T_world_geom, geom.params.length, geom.params.radius);
-    case 8 % trimesh
-        fv.vertices = geom.fv.vertices;
-        fv.faces = geom.fv.faces;        
-    otherwise
-        warning([geom.type ' is an unrecognized geometry type']);
+for n = 1:ngeoms
+    switch ( geoms(n).type )
+        case 0  % sphere
+            geoms(n).fv = createSphere(geoms(n).T_world_geom, geoms(n).params.radius);
+        case 1  % box
+            geoms(n).fv = createBox(geoms(n).T_world_geom, [geoms(n).params.length, geoms(n).params.width, geoms(n).params.height]);
+        case 2  % capsule
+            geoms(n).fv = createCapsule(geoms(n).T_world_geom, geoms(n).params.length, geoms(n).params.radius);
+        case 3  % cylinder
+            geoms(n).fv = createCylinder(geoms(n).T_world_geom, geoms(n).params.length, geoms(n).params.radius);
+        case 4  % plane
+            geoms(n).fv = createPlane([-2000, 2000, -4000, 4000], [geoms(n).params.normal_x,geoms(n).params.normal_y,geoms(n).params.normal_z,geoms(n).params.d]);
+	end
 end
-c = geom.color/255;
-alpha = geom.alpha;
 
 end % End of drawGeom()
 
