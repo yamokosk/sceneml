@@ -22,15 +22,36 @@
 
 using namespace sceneml;
 
-SimpleTransform::~SimpleTransform()
-{
-	//delete [] data_;
-}
+CoordinateTransform::CoordinateTransform() :
+	pos_(3),
+	ori_(0,0,0,0)
+{ }
 
+SimpleTransform::~SimpleTransform()
+{ }
+
+//const dReal* SimpleTransform::compute()
 const dReal* SimpleTransform::compute()
 {
-	// Compute transform
+	using boost::numeric::ublas;
+	
+	identity_matrix<double> tmatrix(4);
+	
+	// Compute transform - using pos and quaternion
 	if ( !type_.compare("translation") ) {
+		subrange(tmatrix, 0, 2, 3, 3) = pos_;
+	} else if ( !type_.compare("rotation") ) {
+		if ( !subtype_.compare("x") ) 		dTFromAxisAndAngle(tmatrix_, REAL(1.0), REAL(0.0), REAL(0.0), (data_.get())[0]); 
+		else if ( !subtype_.compare("y") ) 	dTFromAxisAndAngle(tmatrix_, REAL(0.0), REAL(1.0), REAL(0.0), (data_.get())[0]); 
+		else if ( !subtype_.compare("z") ) 	dTFromAxisAndAngle(tmatrix_, REAL(0.0), REAL(0.0), REAL(1.0), (data_.get())[0]);
+		else if ( !subtype_.compare("e123") )	dTFromEuler123(tmatrix_, (data_.get())[0], (data_.get())[1], (data_.get())[2]);
+		else if ( !subtype_.compare("t123") )	dTFromEuler123(tmatrix_, -(data_.get())[0], -(data_.get())[1], -(data_.get())[2]);
+		else throw std::runtime_error("");
+	} else {
+	
+	}
+	
+	/*if ( !type_.compare("translation") ) {
 		dTFromTrans(tmatrix_, (data_.get())[0], (data_.get())[1], (data_.get())[2]);
 	} else if ( !type_.compare("rotation") ) {
 		if ( !subtype_.compare("x") ) 		dTFromAxisAndAngle(tmatrix_, REAL(1.0), REAL(0.0), REAL(0.0), (data_.get())[0]); 
@@ -43,7 +64,7 @@ const dReal* SimpleTransform::compute()
 		throw std::runtime_error("");
 	}
 	
-	return tmatrix_;
+	return tmatrix_;*/
 }
 
 

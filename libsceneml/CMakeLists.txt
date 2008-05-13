@@ -17,6 +17,7 @@ set(TARGET_NAME "sceneml")
 option( BUILD_TESTS "Try to build the tests of the library." OFF )
 option( BUILD_MATLAB "Build the mex interface to the SceneML library." ON )
 option( BUILD_STATIC_LIB "Build static library?" ON)
+option( PERFORM_UNIT_TESTS "Perform unit tests." ON)
 
 # ------------------------------------------------------------------------------
 # Project directories

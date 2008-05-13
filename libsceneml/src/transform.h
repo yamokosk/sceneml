@@ -26,7 +26,10 @@
 #include <string>
 #include <list>
 #include <stdexcept>
+
 #include <boost/shared_ptr.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/math/quaternion.hpp>
 
 namespace sceneml {
 
@@ -45,12 +48,16 @@ typedef boost::shared_ptr<dReal> dRealPtr;
 typedef std::vector< dRealPtr > dRealVector_t;
 
 // Class definitions
-class SCENEML_API CoordinateTransform
+class CoordinateTransform
 {
 public:
 	virtual const dReal* compute() = 0;
 protected:
-	dMatrix4 tmatrix_;
+	CoordinateTransform();
+	
+	boost::numeric::ublas::vector<double> pos_;
+	boost::math::quaternion<double> ori_;
+	dMatrix4 tmatrix_;	
 };
 
 class SimpleTransform : public CoordinateTransform
@@ -71,7 +78,7 @@ private:
 };
 
 
-class SCENEML_API MarkerTransform : public CoordinateTransform
+class MarkerTransform : public CoordinateTransform
 {
 public:
 	virtual ~MarkerTransform();
@@ -90,7 +97,7 @@ private:
 };
 
 
-class SCENEML_API CompositeTransform : public CoordinateTransform
+class CompositeTransform : public CoordinateTransform
 {
 public:
 	virtual ~CompositeTransform();

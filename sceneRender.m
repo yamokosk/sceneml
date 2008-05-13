@@ -78,18 +78,16 @@ end
 % NO LONGER RESPONSIBLE FOR COLORING OBJECTS BASED ON COLLISION STATUS...
 % THIS IS UP TO THE USER
 % % Now check if any geoms are in collision.. if so color them differently
-% if ( sceneCollisionState() )
-%     c = sceneGetContactData();
-%     
-%     patches = findobj(gca,'Type','patch');
-%     names = get(patches, 'UserData');
-%     for n = 1:length(c)
-%         h = patches( find( strcmp(c(n).geom1, names) ) );
-%         set(h, 'FaceColor', [1, 0, 0]);
-%         h = patches( find( strcmp(c(n).geom2, names) ) );
-%         set(h, 'FaceColor', [1, 0, 0]);     
-%     end
-% end
+if ( sceneCollisionState() )
+	c = sceneGetContactData();
+	
+	for n = 1:length(c)
+        h = sceneGetGeomHandle( c(n).geom1 );
+        set(h, 'FaceColor', [1, 0, 0]); % Set geom1 face color to red
+        h = sceneGetGeomHandle( c(n).geom2 );
+        set(h, 'FaceColor', [1, 0, 0]); % Set geom2 face color to red
+    end
+end
 
 % drawnow;
 

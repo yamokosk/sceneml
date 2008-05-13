@@ -1,3 +1,6 @@
+if (PERFORM_UNIT_TESTS)
+	subdirs(tests)
+endif (PERFORM_UNIT_TESTS)
 
 # Gather all *.cpp and *.h files into their respective variables
 file(GLOB SRCS "*.cpp")
