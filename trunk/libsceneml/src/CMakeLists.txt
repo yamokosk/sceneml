@@ -3,8 +3,31 @@ if (PERFORM_UNIT_TESTS)
 endif (PERFORM_UNIT_TESTS)
 
 # Gather all *.cpp and *.h files into their respective variables
-file(GLOB SRCS "*.cpp")
-file(GLOB HEADERS "*.h")
+#file(GLOB SRCS "*.cpp")
+set(SRCS xml_scene_builder.cpp
+		 xml_attributes.cpp
+		 transform.cpp
+		 STLImport.cpp
+		 sceneobjects.cpp
+		 scene.cpp
+		 Primitive.cpp
+		 pose_estimation.cpp
+		 OBJImport.cpp
+		 matrix.cpp)
+#file(GLOB HEADERS "*.h")
+set(HEADERS sceneml.h
+		 sceneobjects.h
+		 scene_builder.h
+		 scene.h
+		 Primitive.h
+		 pose_estimation.h
+		 MeshImport.h
+		 matrix.h
+		 config.h
+		 common.h
+		 transform.h
+		 xml_scene_builder.h
+		 xml_attributes.h)
 
 # Set paths to dependencies
 if (APPLE)

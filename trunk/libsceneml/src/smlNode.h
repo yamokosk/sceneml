@@ -21,32 +21,35 @@
  
 namespace sceneml {
 
-namespace ublas = boost::numeric::ublas;
-
-typedef ublas::vector<double> uVector;
-typedef boost::math::quaternion<double> dQuaternion;
-
-class smlNode
+class SceneNode
 {
 public:
-	virtual void validate() = 0;
+	SceneNode();
+	virtual ~SceneNode();
+	
+	SceneNode* getParent();
+	SceneNode* createChildSceneNode();
+	void attachObject(Entity* obj);
+	
+	virtual const Quaternion & 	getOrientation () const
+	// Returns a quaternion representing the nodes orientation.
+	virtual void 	setOrientation (const Quaternion &q)
+	// Sets the orientation of this node via a quaternion.
+	virtual void 	setOrientation (Real w, Real x, Real y, Real z)
+	// Sets the orientation of this node via quaternion parameters.
+	virtual void 	resetOrientation (void)
+	// Resets the nodes orientation (local axes as world axes, no rotation).
+	virtual void 	setPosition (const Vector3 &pos)
+	// Sets the position of the node relative to it's parent.
+	virtual void 	setPosition (Real x, Real y, Real z)
+	// Sets the position of the node relative to it's parent.
+	virtual const Vector3 & 	getPosition (void) const
+	// Gets the position of the node relative to it's parent. 
+	
+private:
+	std::list<SceneNode*> childNodes_;
 };
  
-class smlMoveableNode : public smlNode
-{
-public:
-	virtual void validate();
-	
-	void		setPosition();
-	uVector		getPosition() const;
-	
-	void		setOrientation();
-	dQuaternion	getOrientation() const;
-	
-protected:
-	uVector pos_;
-	dQuaternion ori_;
-};
  
 };
  

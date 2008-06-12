@@ -27,16 +27,21 @@ namespace sceneml {
 class Variable : public Subject
 {
 public:
-	Variable(unsigned int n) : Subject(), store_(n) {}
-	Variable(Vector& data) : Subject(), store_(data) {}
+	Variable(unsigned int n) : Subject(), storage_(n) {}
+	Variable(const ColumnVector& data) : Subject(), storage_(data) {}
 	
 	// Set value
-	void setValue(Vector& data) {store_ = data; Subject::notify();}
+	void setValue(const ColumnVector& data) {storage_ = data; Subject::notify();}
 	// Get value
-	Vector getValue() {return store_;}
+	ReturnMatrix getValue() const 
+	{
+		ColumnVector ret(storage_);
+		ret.release();
+		return ret;
+	} 
 	
 private:
-	Vector store_;
+	ColumnVector storage_;
 };
 
 };

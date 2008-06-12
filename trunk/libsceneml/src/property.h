@@ -16,17 +16,41 @@
  *
  *************************************************************************/
  
-#ifndef _SCENEML_MATH_H_FILE_
-#define _SCENEML_MATH_H_FILE_
+#include <string>
+#include <map>
 
-#include <newmatap.h>                // need matrix applications
-#include <newmatio.h>
+namespace sml {
 
-namespace sceneml {
+struct PropertyPair
+{
+	PropertyPair(const char* prop, const char* value) :
+		propertyName_(prop), value_(value) {}
+	~PropertyPair() {}
+	
+	std::string getPropertyName() const {return propertyName_;}
+	std::string getPropertyValue() const {return value_;}
 
-
-
+private:
+	std::string propertyName_;
+	std::string value_;
 };
 
+class PropertyCollection
+{
+public:
+	typedef std::map<std::string, PropertyPair>::const_iterator PropertyIterator;
+	
+	PropertyCollection() {}
+	~PropertyCollection() {}
 
-#endif
+	void addPair(const PropertyPair& pair);
+	PropertyPair getPair(size_t index) const throw (SMLError);
+   
+	size_t size() const {return pairs_.size();}
+	std::string getValue(const char* key) const throw (SMLError);
+ 
+private:
+	std::map<std::string, PropertyPair> pairs_;
+};
+
+} // Namespace

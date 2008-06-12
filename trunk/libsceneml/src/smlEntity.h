@@ -16,15 +16,22 @@
  *
  *************************************************************************/
  
-#ifndef _SCENEML_MATH_H_FILE_
-#define _SCENEML_MATH_H_FILE_
+#ifndef _SCENEML_ENTITY_H_FILE_
+#define _SCENEML_ENTITY_H_FILE_
 
-#include <newmatap.h>                // need matrix applications
-#include <newmatio.h>
+#include "smlSignals.h"
 
 namespace sceneml {
 
+class Entity : public Listener
+{
+public:
+	Entity();
+	virtual ~Entity();
+	
+private:
 
+};
 
 };
 

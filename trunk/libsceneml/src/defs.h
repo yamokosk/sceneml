@@ -16,17 +16,10 @@
  *
  *************************************************************************/
  
-#ifndef _SCENEML_MATH_H_FILE_
-#define _SCENEML_MATH_H_FILE_
-
-#include <newmatap.h>                // need matrix applications
-#include <newmatio.h>
-
-namespace sceneml {
+#ifndef _SCENEML_DEFS_H_FILE_
+#define _SCENEML_DEFS_H_FILE_
 
 
-
-};
 
 
 #endif

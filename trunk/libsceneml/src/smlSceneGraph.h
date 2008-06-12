@@ -16,8 +16,8 @@
  *
  *************************************************************************/
  
-#ifndef _SCENEML_SCENEGRAPH_H_FILE_
-#define _SCENEML_SCENEGRAPH_H_FILE_
+#ifndef _SCENEML_SCENEMGR_H_FILE_
+#define _SCENEML_SCENEMGR_H_FILE_
 
 #include "smlMath.h"
 #include "smlSignals.h"

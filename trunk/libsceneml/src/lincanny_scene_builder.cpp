@@ -16,15 +16,15 @@
  *
  *************************************************************************/
 
-#include "xml_scene_builder.h"
-#include "xml_attributes.h"
+#include "lincanny_scene_builder.h"
+#include "lincanny_attributes.h"
 #include "MeshImport.h"
 
 #include <fstream>
 
-namespace sceneml {
+namespace lincanny {
 
-XMLSceneBuilder::XMLSceneBuilder() :
+SceneBuilder::SceneBuilder() :
 	SceneBuilder()
 {
 	try {
@@ -40,7 +40,7 @@ XMLSceneBuilder::XMLSceneBuilder() :
 	memset(filename_, '\0', sizeof(filename_));
 }
 
-XMLSceneBuilder::XMLSceneBuilder(const char* filename) :
+SceneBuilder::SceneBuilder(const char* filename) :
 	SceneBuilder()
 {
 	memset(filename_, '\0', sizeof(filename_));
@@ -60,13 +60,13 @@ XMLSceneBuilder::XMLSceneBuilder(const char* filename) :
 	this->readXMLDescription();
 }
 
-XMLSceneBuilder::~XMLSceneBuilder()
+SceneBuilder::~SceneBuilder()
 {
 	parser_->release();
 	XMLPlatformUtils::Terminate();
 }
 
-void XMLSceneBuilder::isFileValid()
+void SceneBuilder::isFileValid()
 {
 	std::fstream fp(filename_, std::fstream::in);  // declarations of streams fp_in and fp_out
 	if (!fp.good()) {
@@ -77,7 +77,7 @@ void XMLSceneBuilder::isFileValid()
 	fp.close();
 }
 
-void XMLSceneBuilder::readXMLDescription( )
+void SceneBuilder::readXMLDescription( )
 {
 	// Initialize DOM parser and set properties
 	XMLCh tempStr[100];
@@ -124,7 +124,7 @@ void XMLSceneBuilder::readXMLDescription( )
 	return;
 }
 
-void XMLSceneBuilder::buildSpaces()
+void SceneBuilder::buildSpaces()
 {
 	try {
 		// With a valid DOMDocument, its time to populate the Scene structure.
@@ -225,7 +225,7 @@ void XMLSceneBuilder::buildSpaces()
 	//std::cout << "Finished building spaces." << std::endl;
 }
 
-void XMLSceneBuilder::buildBodies()
+void SceneBuilder::buildBodies()
 {
 	try {
 		// With a valid DOMDocument, its time to populate the Scene structure.
@@ -246,8 +246,8 @@ void XMLSceneBuilder::buildBodies()
 
 			AttributesPtr attrib = attribDirector.GetAttributes();
 			
-			//dBodyID b = dBodyCreate(scene_->getWorld());
-			Body* body = scene_->createBody( attrib );
+			dBodyID b = dBodyCreate(scene_->getWorld());
+			Body* body = scene_->createBody(attrib->getValAsStr("name"), b);
 			Body* prox = scene_->getBody(attrib->getValAsStr("parent"));
 			body->setProxObj(prox);
 			prox->addDistBody(body);
@@ -287,7 +287,7 @@ void XMLSceneBuilder::buildBodies()
 	//std::cout << "Finished building bodies." << std::endl;
 }
 
-void XMLSceneBuilder::buildGeoms()
+void SceneBuilder::buildGeoms()
 {
 	try {
 		// With a valid DOMDocument, its time to populate the Scene structure.
@@ -326,16 +326,108 @@ void XMLSceneBuilder::buildGeoms()
 			dSpaceID spaceID = scene_->getSpace(spaceAttrib->getValAsStr("name"));
 			
 			// Construct the ODE object - based on type of course
-			Geom* geom = scene_->createGeom(geomAttrib);
+			std::string type = geomAttrib->getValAsStr("type");
+			dGeomID g = NULL, t = NULL;
+			PolyhedronPtr mesh;
+			
+			if (!type.compare("box")) {
+				float length = geomAttrib->getValAsReal("length");
+				float width = geomAttrib->getValAsReal("width");
+				float height = geomAttrib->getValAsReal("height");
+				g = dCreateBox(NULL, length, width, height);
+			} else if (!type.compare("ccylinder")) {
+				float length = geomAttrib->getValAsReal("length");
+				float radius = geomAttrib->getValAsReal("radius");
+				g = dCreateCCylinder(NULL, radius, length);
+			} else if (!type.compare("cylinder")) {
+				float length = geomAttrib->getValAsReal("length");
+				float radius = geomAttrib->getValAsReal("radius");
+				g = dCreateCylinder(NULL, radius, length);
+			} else if (!type.compare("sphere")) {
+				float radius = geomAttrib->getValAsReal("radius");
+				g = dCreateSphere(NULL, radius);
+			} else if (!type.compare("plane")) {
+				float nx = geomAttrib->getValAsReal("normal_x");
+				float ny = geomAttrib->getValAsReal("normal_y");
+				float nz = geomAttrib->getValAsReal("normal_z");
+				float d = geomAttrib->getValAsReal("d");
+				g = dCreatePlane(NULL, nx, ny, nz, d);
+			} else if (!type.compare("mesh")) {				
+				// Got to make a TriMeshObj!.. tough one.
+				std::string filename = geomAttrib->getValAsStr("filename");
+				int pos = filename.find_last_of(".");
+				std::string extension = filename.substr(pos+1);
+				float scale = geomAttrib->getValAsReal("scale");
+				
+				if (!extension.compare("obj")) {
+					mesh.reset(new POLYHEDRON());
+					mesh->filename = filename;
+					if ( importOBJ(mesh.get(), scale) != 0 )
+					{
+						std::ostringstream msg;
+						msg << "importOBJ(): Returned an error!" << std::endl;
+						throw std::runtime_error(msg.str());
+					}
+				} else if (!extension.compare("stl")) {
+					mesh.reset(new POLYHEDRON());
+					mesh->filename = filename;
+					if ( importSTL(mesh.get(), scale) != 0 )
+					{
+						std::ostringstream msg;
+						msg << "importOBJ(): Returned an error!" << std::endl;
+						throw std::runtime_error(msg.str());
+					}
+				} else {
+					std::ostringstream msg;
+					msg << extension << " is an unrecognized 3D model type. Currently only stl and obj files are supported." << std::endl;
+					throw std::runtime_error(msg.str());
+				}
+				
+				dTriMeshDataID Data = dGeomTriMeshDataCreate();
+				dGeomTriMeshDataBuildSingle(Data,
+                                 (void*)mesh->vertices.get(), mesh->vertex_stride, mesh->vertex_count,
+                                 (void*)mesh->indices.get(),mesh->index_count,mesh->index_stride);
+				g = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);
+			} else {
+				std::ostringstream msg;
+				msg << type << " is an unrecognized geom type. Currently only stl and obj files are supported." << std::endl;
+				throw std::runtime_error(msg.str());
+			}
+			
+			// At this point the geom has NOT been added to the correct space. First
+			// we need to check if there is a transform between this geom and its body.
+			// That effects who is added to what space.
+			//TransformList_t tlist = parseTransform(thisGeomItem);
+			CompositeTransformPtr pTransform(new CompositeTransform());
+			parseTransform(thisGeomItem, pTransform.get());
+			
+			//if (tlist.size() > 0) {
+			if (pTransform->size() > 0) {
+				// There exists a transform between the body and geom.. therefore
+				// we need a transform geom in ODE to accurately represent this.
+				t = dCreateGeomTransform(NULL);
+				dGeomTransformSetGeom(t, g);
+				if (type.compare("plane")) dGeomSetBody(t, body->id());
+				dSpaceAdd(spaceID, t);
+			} else {
+				if (type.compare("plane")) dGeomSetBody(g, body->id());
+				dSpaceAdd(spaceID, g);
+			}
+			
+			Geom* geom = scene_->createGeom(geomAttrib->getValAsStr("name"), g, t);
 			geom->setProxObj(body);
+			geom->setMesh(mesh);
 			geom->setCompositeTransform(pTransform);
 			body->addGeom(geom);
 			
-			// Set other properties
-			geom->setProperty( "Color", geomAttrib->getValAsStr("color") );
-			geom->setProperty( "Alpha", geomAttrib->getValAsStr("alpha") );
-			geom->setProperty( "CollisionCheck", geomAttrib->getValAsStr("checkcollision") );
-						
+			// Get color/alpha/collision info
+			dRealPtr rgb = geomAttrib->getValAsVec("color", 3);
+			for (int n=0; n < 3; ++n) (rgb.get())[n] *= (1/255.0);
+			geom->setColor(rgb.get());
+			geom->setAlpha( geomAttrib->getValAsReal("alpha") );
+			geom->setCollisionCheck( geomAttrib->getValAsInt("checkcollision") );
+			
+			
 			// Invalidate and move on to next geom
 			geom->invalidate();
 		}
@@ -368,8 +460,8 @@ void XMLSceneBuilder::buildGeoms()
 	//std::cout << "Finished building geoms." << std::endl;
 }
 
-//TransformList_t XMLSceneBuilder::parseTransform(DOMNode *node)
-void XMLSceneBuilder::parseTransform(DOMNode *node, CompositeTransform* pRootTransform, Body *b)
+//TransformList_t SceneBuilder::parseTransform(DOMNode *node)
+void SceneBuilder::parseTransform(DOMNode *node, CompositeTransform* pRootTransform, Body *b)
 {
 	DOMNodeList *allChildItems = node->getChildNodes();
 		
@@ -406,7 +498,7 @@ void XMLSceneBuilder::parseTransform(DOMNode *node, CompositeTransform* pRootTra
 	return;
 }
 
-CoordinateTransformPtr XMLSceneBuilder::parseSimpleTransform(DOMNode *node, Body *b) 
+CoordinateTransformPtr SceneBuilder::parseSimpleTransform(DOMNode *node, Body *b) 
 {
 	//CompositeTransform* pSimpleTransform = new CompositeTransform();
 	CoordinateTransformPtr pSimpleTransform( new CompositeTransform() );
@@ -474,7 +566,7 @@ CoordinateTransformPtr XMLSceneBuilder::parseSimpleTransform(DOMNode *node, Body
 	return pSimpleTransform;
 }
 
-CoordinateTransformPtr XMLSceneBuilder::parseMarkerTransform(DOMNode *node, Body *b) 
+CoordinateTransformPtr SceneBuilder::parseMarkerTransform(DOMNode *node, Body *b) 
 {
 	//MarkerTransform* pMarkerTransform = new MarkerTransform();
 	CoordinateTransformPtr pMarkerTransform( new MarkerTransform() );
