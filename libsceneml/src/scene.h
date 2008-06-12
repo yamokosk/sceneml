@@ -88,6 +88,10 @@ public:
 	void computeSceneAABB(dReal aabb[6]);
 
 private:
+	// make object non-copyable
+   //CMMCore(const CMMCore& /*c*/) {}
+   //CMMCore& operator=(const CMMCore& /*rhs*/);
+   
 	void collisionQuery();
 	
 	//! List of bodies

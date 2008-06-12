@@ -1,21 +1,39 @@
-// Boost.Test
-#include "../smlVariable.h"
+#include <iostream>
+#include "smlMath.h"
+#include "smlVariable.h"
 
-#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
-
-BOOST_AUTO_TEST_CASE( test1 )
+class VarObs : public sceneml::Observer
 {
-	// reports 'error in "test1": test 2 == 1 failed'
-	BOOST_CHECK( 2 == 1 );
-}
+public:
+	VarObs(sceneml::Subject& s) : sceneml::Observer(s) {};
 
-BOOST_AUTO_TEST_CASE( test2 )
+	virtual void notify(bool bExtended) const
+	{
+		std::cout << "Variable changed! Value = " << ((sceneml::Variable&)subject_).getValue() << std::endl;
+	}
+};
+
+void main(void)
 {
-	int i = 0;
+	ColumnVector x(3), y(3);
+	x << 1.0 << 2.0 << 3.0;
+	
+	sceneml::Variable avar(x);
+	
+	y = avar.getValue();
+	
+	if (x == y) {std::cout << "x and y are equal!" << std::endl;}
+	else {std::cout << "x and y are not equal!" << std::endl;}
 
-	// reports 'error in "test2": check i == 2 failed [0 != 2]'
-	BOOST_CHECK_EQUAL( i, 2 );
 
-	BOOST_CHECK_EQUAL( i, 0 );
+	// Create a variable
+	sceneml::Variable var(3);
+	
+	// Create a variable observer
+	VarObs obs(var);
+	
+	// Change the variable data
+	ColumnVector a(3);
+	a << 1.0 << 2.0 << 3.0;
+	var.setValue(a);
 }

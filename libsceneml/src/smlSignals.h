@@ -53,15 +53,15 @@ private:
 };
 
 
-class Observer
+class Listener
 {
 public:
-	Observer(Subject& m) : subject_(m)
+	Listener(Subject& m) : subject_(m)
 	{
 		connection_ = subject_.connect( boost::bind(&Observer::notify, this, _1) );
     }
 
-    virtual ~Observer()
+    virtual ~Listener()
 	{
 		subject_.disconnect(connection_);
 	}

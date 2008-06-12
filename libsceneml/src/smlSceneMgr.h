@@ -16,17 +16,27 @@
  *
  *************************************************************************/
  
-#ifndef _SCENEML_MATH_H_FILE_
-#define _SCENEML_MATH_H_FILE_
+#ifndef _SCENEML_SCENEMGR_H_FILE_
+#define _SCENEML_SCENEMGR_H_FILE_
 
-#include <newmatap.h>                // need matrix applications
-#include <newmatio.h>
+#include "smlNode.h"
 
 namespace sceneml {
 
+class SceneMgr
+{
+public:
+	SceneMgr() :
+		rootNode(NULL)
+	{}
+	virtual ~SceneMgr() {};
+	
+	SceneNode* getSceneRootNode() const {return rootNode_;}
 
-
+private:
+	SceneNode *rootNode_;
 };
 
+};
 
 #endif

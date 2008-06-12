@@ -322,6 +322,27 @@ void collisionCallback(void* data, dGeomID o1, dGeomID o2)
 	}
 }
 
+// TODO: This needs to be made more general.. idea: Implement execution engine to hide details of collision query
+//	http://en.wikipedia.org/wiki/Command_pattern
+/*
+class ODEQuery : public sml::collisionquery 
+{
+public:
+	ODEQuery(const SpacePairs& spacePairs);
+	void execute(void) {
+		int nChecks = spacePairs_.size();
+	
+		// Reset contactData vector
+		contactData_.clear();
+		
+		// Now perform space to space collision checks
+		// HOW TO ACCESS dGeomID from generic space object??
+		for (unsigned int n=0; n < spacePairs_.size(); ++n)
+			dSpaceCollide2((dGeomID)spacePairs_[n].first, (dGeomID)spacePairs_[n].second, (void*)&contactData_, collisionCallback);
+		}
+	}
+};
+*/
 void Scene::collisionQuery()
 {
 	int nChecks = spacePairs_.size();
