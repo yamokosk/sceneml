@@ -16,6 +16,8 @@
  *
  *************************************************************************/
 
+// TODO: Rename xml_scene_builder to ode_scene_builder or lc_scene_builder
+
 #ifndef _SCENEML_XML_SCENE_BUILDER_H_FILE_
 #define _SCENEML_XML_SCENE_BUILDER_H_FILE_
 

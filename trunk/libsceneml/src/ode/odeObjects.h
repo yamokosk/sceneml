@@ -38,7 +38,6 @@ class Geom : public SceneObjectBase
 {
 	friend class Scene;
 public:
-	// Constructor??? How to do this?
 	virtual ~Geom() { if (pImpl_) delete pImpl_; }
 	
 	// The following come from SceneObjectBase and must be defined
@@ -79,7 +78,6 @@ class Body : public SceneObjectBase
 {
 	friend class Scene;
 public:
-	// Constructor??? How to do this?
 	virtual ~Body() { if (pImpl_) delete pImpl_; }
 	
 	// The following come from SceneObjectBase and must be defined
@@ -97,7 +95,7 @@ public:
 	//! Notify this object that its world pose is invalid
 	void invalidate() {pImpl_->invalidate();}
 	//! Instruct object to re-validate its world pose
-	void validate() {pImpl_->validate();}
+	void validate();
 
 private:
 	Body(const sml::PropertyCollection& props);

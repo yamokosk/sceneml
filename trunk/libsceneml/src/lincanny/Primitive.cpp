@@ -240,3 +240,240 @@ POLYHEDRON::~POLYHEDRON(){
 	delete [] faces;
 }
 
+
+/***************
+    Primitives
+****************/
+static void createBox()
+{
+	lx = dim(1)*0.5;
+	ly = dim(2)*0.5;
+	lz = dim(3)*0.5;
+
+	// Homogeneous vertices
+	hv = [-lx,  lx,  lx, -lx, -lx,  lx, lx, -lx; ...
+	      -ly, -ly,  ly,  ly, -ly, -ly, ly,  ly; ...
+	      -lz, -lz, -lz, -lz,  lz,  lz, lz,  lz; ...
+	        1,   1,   1,   1,   1,   1,  1,   1];
+	v = T*hv; % Transformed
+
+	// Non-homogeneous vertices
+	fv.vertices = v(1:3,:)';
+
+	// Create a new patch object
+	fv.faces = [1, 2, 6, 5; ...
+	            2, 3, 7, 6; ...
+	            3, 4, 8, 7; ...
+	            4, 1, 5, 8; ...
+	            1, 2, 3, 4; ...
+	            5, 6, 7, 8];
+}
+
+static void createSphere()
+{
+  // icosahedron data for an icosahedron of radius 1.0
+# define ICX 0.525731112119133606f
+# define ICZ 0.850650808352039932f
+  static GLfloat idata[12][3] = {
+    {-ICX, 0, ICZ},
+    {ICX, 0, ICZ},
+    {-ICX, 0, -ICZ},
+    {ICX, 0, -ICZ},
+    {0, ICZ, ICX},
+    {0, ICZ, -ICX},
+    {0, -ICZ, ICX},
+    {0, -ICZ, -ICX},
+    {ICZ, ICX, 0},
+    {-ICZ, ICX, 0},
+    {ICZ, -ICX, 0},
+    {-ICZ, -ICX, 0}
+  };
+
+  static int index[20][3] = {
+    {0, 4, 1},	  {0, 9, 4},
+    {9, 5, 4},	  {4, 5, 8},
+    {4, 8, 1},	  {8, 10, 1},
+    {8, 3, 10},   {5, 3, 8},
+    {5, 2, 3},	  {2, 7, 3},
+    {7, 10, 3},   {7, 6, 10},
+    {7, 11, 6},   {11, 0, 6},
+    {0, 1, 6},	  {6, 1, 10},
+    {9, 0, 11},   {9, 11, 2},
+    {9, 2, 5},	  {7, 2, 11},
+  };
+
+  static GLuint listnum = 0;
+  if (listnum==0) {
+    listnum = glGenLists (1);
+    glNewList (listnum,GL_COMPILE);
+    glBegin (GL_TRIANGLES);
+    for (int i=0; i<20; i++) {
+      drawPatch (&idata[index[i][2]][0],&idata[index[i][1]][0],
+		 &idata[index[i][0]][0],sphere_quality);
+    }
+    glEnd();
+    glEndList();
+  }
+  glCallList (listnum);
+}
+
+static void createCapsule(float l, float r)
+{
+  int i,j;
+  float tmp,nx,ny,nz,start_nx,start_ny,a,ca,sa;
+  // number of sides to the cylinder (divisible by 4):
+  const int n = capped_cylinder_quality*4;
+
+  l *= 0.5;
+  a = float(M_PI*2.0)/float(n);
+  sa = (float) sin(a);
+  ca = (float) cos(a);
+
+  // draw cylinder body
+  ny=1; nz=0;		  // normal vector = (0,ny,nz)
+  glBegin (GL_TRIANGLE_STRIP);
+  for (i=0; i<=n; i++) {
+    glNormal3d (ny,nz,0);
+    glVertex3d (ny*r,nz*r,l);
+    glNormal3d (ny,nz,0);
+    glVertex3d (ny*r,nz*r,-l);
+    // rotate ny,nz
+    tmp = ca*ny - sa*nz;
+    nz = sa*ny + ca*nz;
+    ny = tmp;
+  }
+  glEnd();
+
+  // draw first cylinder cap
+  start_nx = 0;
+  start_ny = 1;
+  for (j=0; j<(n/4); j++) {
+    // get start_n2 = rotated start_n
+    float start_nx2 =  ca*start_nx + sa*start_ny;
+    float start_ny2 = -sa*start_nx + ca*start_ny;
+    // get n=start_n and n2=start_n2
+    nx = start_nx; ny = start_ny; nz = 0;
+    float nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
+    glBegin (GL_TRIANGLE_STRIP);
+    for (i=0; i<=n; i++) {
+      glNormal3d (ny2,nz2,nx2);
+      glVertex3d (ny2*r,nz2*r,l+nx2*r);
+      glNormal3d (ny,nz,nx);
+      glVertex3d (ny*r,nz*r,l+nx*r);
+      // rotate n,n2
+      tmp = ca*ny - sa*nz;
+      nz = sa*ny + ca*nz;
+      ny = tmp;
+      tmp = ca*ny2- sa*nz2;
+      nz2 = sa*ny2 + ca*nz2;
+      ny2 = tmp;
+    }
+    glEnd();
+    start_nx = start_nx2;
+    start_ny = start_ny2;
+  }
+
+  // draw second cylinder cap
+  start_nx = 0;
+  start_ny = 1;
+  for (j=0; j<(n/4); j++) {
+    // get start_n2 = rotated start_n
+    float start_nx2 = ca*start_nx - sa*start_ny;
+    float start_ny2 = sa*start_nx + ca*start_ny;
+    // get n=start_n and n2=start_n2
+    nx = start_nx; ny = start_ny; nz = 0;
+    float nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
+    glBegin (GL_TRIANGLE_STRIP);
+    for (i=0; i<=n; i++) {
+      glNormal3d (ny,nz,nx);
+      glVertex3d (ny*r,nz*r,-l+nx*r);
+      glNormal3d (ny2,nz2,nx2);
+      glVertex3d (ny2*r,nz2*r,-l+nx2*r);
+      // rotate n,n2
+      tmp = ca*ny - sa*nz;
+      nz = sa*ny + ca*nz;
+      ny = tmp;
+      tmp = ca*ny2- sa*nz2;
+      nz2 = sa*ny2 + ca*nz2;
+      ny2 = tmp;
+    }
+    glEnd();
+    start_nx = start_nx2;
+    start_ny = start_ny2;
+  }
+
+  glPopMatrix();
+}
+
+
+// draw a cylinder of length l and radius r, aligned along the z axis
+static void createCylinder (float l, float r, float zoffset)
+{
+  int i;
+  float tmp,ny,nz,a,ca,sa;
+  const int n = 24;	// number of sides to the cylinder (divisible by 4)
+
+  l *= 0.5;
+  a = float(M_PI*2.0)/float(n);
+  sa = (float) sin(a);
+  ca = (float) cos(a);
+
+  // draw cylinder body
+  ny=1; nz=0;		  // normal vector = (0,ny,nz)
+  glBegin (GL_TRIANGLE_STRIP);
+  for (i=0; i<=n; i++) {
+    glNormal3d (ny,nz,0);
+    glVertex3d (ny*r,nz*r,l+zoffset);
+    glNormal3d (ny,nz,0);
+    glVertex3d (ny*r,nz*r,-l+zoffset);
+    // rotate ny,nz
+    tmp = ca*ny - sa*nz;
+    nz = sa*ny + ca*nz;
+    ny = tmp;
+  }
+  glEnd();
+
+  // draw top cap
+  glShadeModel (GL_FLAT);
+  ny=1; nz=0;		  // normal vector = (0,ny,nz)
+  glBegin (GL_TRIANGLE_FAN);
+  glNormal3d (0,0,1);
+  glVertex3d (0,0,l+zoffset);
+  for (i=0; i<=n; i++) {
+    if (i==1 || i==n/2+1)
+      setColor (color[0]*0.75f,color[1]*0.75f,color[2]*0.75f,color[3]);
+    glNormal3d (0,0,1);
+    glVertex3d (ny*r,nz*r,l+zoffset);
+    if (i==1 || i==n/2+1)
+      setColor (color[0],color[1],color[2],color[3]);
+
+    // rotate ny,nz
+    tmp = ca*ny - sa*nz;
+    nz = sa*ny + ca*nz;
+    ny = tmp;
+  }
+  glEnd();
+
+  // draw bottom cap
+  ny=1; nz=0;		  // normal vector = (0,ny,nz)
+  glBegin (GL_TRIANGLE_FAN);
+  glNormal3d (0,0,-1);
+  glVertex3d (0,0,-l+zoffset);
+  for (i=0; i<=n; i++) {
+    if (i==1 || i==n/2+1)
+      setColor (color[0]*0.75f,color[1]*0.75f,color[2]*0.75f,color[3]);
+    glNormal3d (0,0,-1);
+    glVertex3d (ny*r,nz*r,-l+zoffset);
+    if (i==1 || i==n/2+1)
+      setColor (color[0],color[1],color[2],color[3]);
+
+    // rotate ny,nz
+    tmp = ca*ny + sa*nz;
+    nz = -sa*ny + ca*nz;
+    ny = tmp;
+  }
+  glEnd();
+}
+
+
+
