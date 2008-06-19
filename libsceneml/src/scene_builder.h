@@ -27,7 +27,7 @@
 namespace sceneml {
 
 // Abstract Builder
-class SCENEML_API SceneBuilder
+class SceneBuilder
 {
 protected:
 	ScenePtr scene_;
@@ -45,7 +45,7 @@ public:
 };
  
 // Director
-class SCENEML_API SceneDirector
+class SceneDirector
 {
 	SceneBuilder* sceneBuilder;
 public:

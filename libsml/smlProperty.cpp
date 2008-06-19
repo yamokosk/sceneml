@@ -1,5 +1,5 @@
 /*************************************************************************
- * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SML, Copyright (C) 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -16,7 +16,8 @@
  *
  *************************************************************************/
  
-#include "property.h"
+#include "smlProperty.h"
+
 #include <assert.h>
 #include <sstream>
 #include <string>
@@ -114,6 +115,21 @@ PropertyPair PropertyCollection::getPair(size_t index) const throw (SMLError)
 void PropertyCollection::addPair(const PropertyPair& pair)
 {
 	pairs_[pair.getPropertyName()] = pair;
+}
+
+void updatePair(const char* key, const char* value)
+{
+	std::map<std::string, PropertyPair>::iterator it = pairs_.find(name);
+	
+	if (it != properties_.end()) {
+		pairs_.erase(it);
+		PropertyPair pair(name,value);
+		pairs_[name] = pair;
+	} else {
+		std::ostringstream msg;
+		msg << __FUNCTION__ << "() - Parameter " + name + " not found in properties.";
+		throw std::runtime_error(msg.str());
+	};
 }
 
 /**
