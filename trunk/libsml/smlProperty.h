@@ -1,5 +1,5 @@
 /*************************************************************************
- * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SML, Copyright (C) 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -15,9 +15,15 @@
  * more details.
  *
  *************************************************************************/
- 
+
+ #ifndef _SML_PROPERTY_H_FILE_
+#define _SML_PROPERTY_H_FILE_
+
 #include <string>
 #include <map>
+#include <memory>
+
+// Require newmat library
 #include <newmat.h>
 
 // Required math expression parser
@@ -27,9 +33,9 @@ namespace sml {
 
 struct PropertyPair
 {
-	PropertyPair(const char* prop, const char* value) :
-		propertyName_(prop), value_(value) {}
-	~PropertyPair() {}
+	PropertyPair(const char* prop, const char* value="NO_DATA", bool isRequired) :
+		propertyName_(prop), value_(value), required_(isRequired) {}
+	virtual ~PropertyPair() {}
 	
 	// Get the property name
 	std::string getPropertyName() const {return propertyName_;}
@@ -41,14 +47,29 @@ struct PropertyPair
 	ReturnMatrix getValAsVector(const std::string& name, unsigned int length) const;
 	//ReturnMatrix getValAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const;
 	
+	bool isRequired() {return required_;}
+	
 private:
 	std::string propertyName_;
 	std::string value_;
+	bool required_;
 	
 	static mu::Parser Parser;
 	
 	static sml::Real parseValue(const char* str);
 	static ReturnMatrix parseVector(const char* str);
+};
+
+struct RequiredProperty : public PropertyPair
+{
+	RequiredProperty(const char* prop, const char* value="NO_DATA") :
+		PropertyPair(prop, value, true) {}
+};
+
+struct OptionalProperty : public PropertyPair
+{
+	OptionalProperty(const char* prop, const char* value="NO_DATA") :
+		PropertyPair(prop, value, false) {}
 };
 
 class PropertyCollection
@@ -60,6 +81,7 @@ public:
 	~PropertyCollection() {}
 
 	void addPair(const PropertyPair& pair);
+	void updatePair(const char* key, const char* value);
 	PropertyPair getPair(size_t index) const throw (SMLError);
    
 	size_t size() const {return pairs_.size();}
@@ -68,5 +90,7 @@ public:
 private:
 	std::map<std::string, PropertyPair> pairs_;
 };
+
+typedef std::auto_ptr<PropertyCollection> PropertyCollectionPtr;
 
 } // Namespace

@@ -28,84 +28,23 @@
 #include <sstream>
 #include <stdexcept>
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-
-#ifndef M_PI // Make sure M_PI is defined
-#define My_PI 3.14159265358979323846
-#else
-#define My_PI M_PI
-#endif
-
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
-// Required math expression parser
-#include <muParser.h>
-
 // Boost shared ptr
 #include <boost/shared_ptr.hpp>
 
-// ODE
-#include <ode/ode.h>
-
-namespace sceneml {
+namespace sml {
 
 typedef boost::shared_ptr<dReal> dRealPtr;
 
 XERCES_CPP_NAMESPACE_USE
 
-class SCENEML_API Attributes
-{
-public:
-	typedef std::map<std::string, std::string> properties_t;
-	
-	Attributes();
-	virtual ~Attributes();
-	
-	void add(const std::string& name, const std::string &val);
-	void update(const std::string& name, const std::string &val);
-	
-	float getValAsReal(const std::string& name)
-	{
-		float val = 0.0;
-		dRealPtr pval( this->get(name, 1) );
-		val = *pval;
-		return val;
-	}
-	
-	int getValAsInt(const std::string& name)
-	{
-		return (int)getValAsReal(name);
-	}
-	
-	dRealPtr getValAsVec(const std::string& name, int length)
-	{
-		dRealPtr val( this->get(name, length) );
-		return val;
-	}
-	
-	std::string getValAsStr(const std::string& name)
-	{
-		return this->get(name);
-	}
-
-private:
-	std::string get(const std::string& name);
-	float* get(const std::string& name, int length);
-	
-	//class MathParserImpl; // Forward declaration
-	//std::auto_ptr<MathParserImpl> pimpl_;
-	mu::Parser parser_;
-	void parseValue(const char* str, float* val, int length);
-	properties_t properties_;
-};
-
 typedef std::auto_ptr<Attributes> AttributesPtr;
 
 // Abstract Builder
-class SCENEML_API AttributesBuilder
+class AttributesBuilder
 {
 protected:
 	AttributesPtr attrib_;
@@ -145,7 +84,7 @@ public:
 };
 
 // Space attributes
-class SCENEML_API SpaceAttributesBuilder : public AttributesBuilder
+class SpaceAttributesBuilder : public AttributesBuilder
 {
 public:
 	SpaceAttributesBuilder(const DOMNode* node);
@@ -157,7 +96,7 @@ public:
 };
 
 // Body attributes
-class SCENEML_API BodyAttributesBuilder : public AttributesBuilder
+class BodyAttributesBuilder : public AttributesBuilder
 {
 public:
 	BodyAttributesBuilder(const DOMNode* node);
@@ -169,7 +108,7 @@ public:
 };
 
 // Geom attributes
-class SCENEML_API GeomAttributesBuilder : public AttributesBuilder
+class GeomAttributesBuilder : public AttributesBuilder
 {
 public:
 	GeomAttributesBuilder(const DOMNode* node);
@@ -181,7 +120,7 @@ public:
 };
 
 // Translation attributes
-class SCENEML_API TranslationAttributesBuilder : public AttributesBuilder
+class TranslationAttributesBuilder : public AttributesBuilder
 {
 public:
 	TranslationAttributesBuilder(const DOMNode* node);
@@ -193,7 +132,7 @@ public:
 };
 
 // Rotation attributes
-class SCENEML_API RotationAttributesBuilder : public AttributesBuilder
+class RotationAttributesBuilder : public AttributesBuilder
 {
 public:
 	RotationAttributesBuilder(const DOMNode* node);
@@ -205,7 +144,7 @@ public:
 };
 
 // Pair attributes
-class SCENEML_API PairAttributesBuilder : public AttributesBuilder
+class PairAttributesBuilder : public AttributesBuilder
 {
 public:
 	PairAttributesBuilder(const DOMNode* node);
@@ -217,7 +156,7 @@ public:
 };
 
 // Rotation attributes
-class SCENEML_API MarkerAttributesBuilder : public AttributesBuilder
+class MarkerAttributesBuilder : public AttributesBuilder
 {
 public:
 	MarkerAttributesBuilder(const DOMNode* node);
@@ -229,7 +168,7 @@ public:
 };
 
 // Transform attributes
-class SCENEML_API TransformAttributesBuilder : public AttributesBuilder
+class TransformAttributesBuilder : public AttributesBuilder
 {
 public:
 	TransformAttributesBuilder(const DOMNode* node);

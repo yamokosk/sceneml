@@ -1,5 +1,5 @@
 /*************************************************************************
- * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SML, Copyright (C) 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -18,8 +18,8 @@
 
 // TODO: Rename xml_scene_builder to ode_scene_builder or lc_scene_builder
 
-#ifndef _SCENEML_XML_SCENE_BUILDER_H_FILE_
-#define _SCENEML_XML_SCENE_BUILDER_H_FILE_
+#ifndef _SML_SCENE_BUILDER_H_FILE_
+#define _SML_SCENE_BUILDER_H_FILE_
 
 #include "config.h"
 #include "sceneobjects.h"
@@ -27,14 +27,14 @@
 #include "Primitive.h"
 #include "scene_builder.h"
 
-namespace sceneml {
+namespace sml {
 
 // ConcreteBuilder
-class XMLSceneBuilder : public SceneBuilder
+class SceneBuilder : public SceneBuilderBase
 {
 public:
-	XMLSceneBuilder(const char* filename);
-	~XMLSceneBuilder();
+	SceneBuilder(const char* filename);
+	~SceneBuilder();
 
 	// Redefinition of parent functions
 	void buildSpaces();
@@ -42,8 +42,6 @@ public:
 	void buildGeoms();
 
 private:	
-	XMLSceneBuilder();
-	
 	// XML specific functions and data members
 	void readXMLDescription( );
 	void parseTransform(DOMNode *node, CompositeTransform *pTransform, Body *b=NULL);
@@ -51,11 +49,11 @@ private:
 	CoordinateTransformPtr parseMarkerTransform(DOMNode *node, Body *b=NULL);
 	void isFileValid();
 	
-	DOMImplementation* impl_;
-	DOMBuilder* parser_;
-	DOMDocument* domDoc_;
 	
-	char filename_[256];
+	TiXmlDocument doc_;
+	const TiXmlElement* root_;
+	
+	PropertiesDirector propertyDirector_;
 };
 
 };
