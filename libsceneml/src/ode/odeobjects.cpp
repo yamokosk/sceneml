@@ -16,9 +16,6 @@
  *
  *************************************************************************/
 
-#ifndef _ODE_OBJECTS_H_FILE_
-#define _ODE_OBJECTS_H_FILE_
-
 #include "odeobjects.h"
 
 namespace smlode {
@@ -544,6 +541,41 @@ Body::Body(const sml::PropertyCollection& props) :
 	pImpl_(NULL)
 {
 	pImpl_ = new BodyImpl(props);
+}
+
+void Body::validate()
+{
+	// My world pose has not been invalidated by anyone, therefore there 
+	// is nothing to do and I can just return.
+	if (!getPoseValidity()) {
+		// Someone has invalidated my local transformation, therefore I need
+		// to compute a new one, then update my world transformation by asking
+		// my prox body for his.
+		computeLocalTransform();
+		Body* prox = (Body*)getProxObj();
+			
+		if (prox != NULL ) {
+			prox->validate(); // Make sure his is also valid (essentially sets up recursion)
+			ColumnVector P_prox_obj(3), P_wcs_prox(3), P_wcs_obj(3);
+			Matrix R_prox_obj(3,3), R_wcs_prox(3,3), R_wcs_obj(3,3);
+				
+			// Get some data..
+			P_wcs_prox = prox->getGlobalPosition();
+			R_wcs_prox = prox->getGlobalRotation();
+			P_prox_obj = getLocalPosition();
+			R_prox_obj = getLocalRotation();
+			
+			// .. and do some calculations
+			memcpy(P_wcs_obj, P_wcs_prox, sizeof(dVector3));
+			dMULTIPLYADD0_331(P_wcs_obj, R_wcs_prox, P_prox_obj);
+			dMULTIPLY0_333(R_wcs_obj, R_wcs_prox, R_prox_obj);
+			
+			// Inform ODE of the Body changes
+			this->setGlobalPosition(P_wcs_obj);
+			this->setGlobalRotation(R_wcs_obj);
+		}
+		validWorldPose_ = true; // Don't forget to set this!
+	}
 }
 
 } // Namespace
