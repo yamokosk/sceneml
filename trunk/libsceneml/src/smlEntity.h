@@ -23,7 +23,7 @@
 
 namespace sceneml {
 
-class Entity : public Listener
+class SceneObject : public Listener
 {
 public:
 	Entity();

@@ -54,17 +54,13 @@ typedef std::map<std::string, Geom*> StringGeomMap_t;
 /** @ingroup xode 
  *  Base class for movalbe scene objects.
  */
-class SCENEML_API SceneObject
+class SceneObject : public Listener
 {
 	friend class Scene;
 public:
 	// The following virutal functions must be implemented by child classes
 	virtual ~SceneObjectBase() {};
-	virtual ReturnMatrix getGlobalPosition() const = 0;
-	virtual ReturnMatrix getGlobalRotation() const = 0;
-	virtual ReturnMatrix getGlobalTransformation() const = 0;
-	virtual void setGlobalPosition(const ColumnVector& pos) = 0;
-	virtual void setGlobalRotation(const Matrix& rot) = 0;
+	
 	virtual void invalidate() = 0;
 	virtual void validate() = 0;
 	virtual unsigned getNumberOfProperties() const = 0;
@@ -77,9 +73,10 @@ public:
 	virtual unsigned getNumberOfPropertyValues(const char* propertyName) const = 0;
 	virtual bool getPropertyValueAt(const char* propertyName, unsigned index, char* value) const = 0;
 	
-	ReturnMatrix getLocalPosition() const;
-	ReturnMatrix getLocalRotation() const;
-	ReturnMatrix getLocalTransformation() const;	
+	//! From Listener
+	virtual void notify(bool bExtended) const = 0;
+	
+	
 	//! Adds a transform object.
 	/** Notice that order which objects are added is extremely important. */
 	//void addTransform(Transform *t) {transformList_.push_back(t);};
@@ -97,6 +94,15 @@ protected:
 	SceneObjectBase();
 	virtual void computeLocalTransform();
 
+	//! Is this object visible? 
+	bool visible_;
+	
+	//! Node to which this object is attached
+	SceneNode* 	parentNode_;
+	
+	//! SceneManager holding this object (if applicable)
+	SceneMgr* 	manager_;
+	
 	//! List of transform objects from the proximal object
 	CompositeTransformPtr transform_;
 	//! Objects name

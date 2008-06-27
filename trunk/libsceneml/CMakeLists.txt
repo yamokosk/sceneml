@@ -40,6 +40,8 @@ if( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
 	endif ( CMAKE_COMPILER_IS_GNUCXX )
 endif( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "Pentium" )
 
+set(CMAKE_BUILD_TYPE "Debug")
+
 # ------------------------------------------------------------------------------
 # Require packages
 # ------------------------------------------------------------------------------
@@ -82,7 +84,6 @@ if (NOT DEPENDENCY_CHECK)
 else (NOT DEPENDENCY_CHECK)
 	# Set variable which contains all the libraries we need
 	if (WIN32)
-		add_definitions(-D_STANDARD_)
 		add_definitions (-DXML_LIBRARY)
 		set(REQUIRED_LIBS ode_static xerces-c_static_2 muparser_static newmat)
 	else (WIN32)

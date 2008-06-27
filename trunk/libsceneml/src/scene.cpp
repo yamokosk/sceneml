@@ -19,7 +19,7 @@
 #include "scene.h"
 #include "matrix.h"
 
-using namespace sceneml;
+using namespace sml;
 
 void collisionCallback(void* data, dGeomID o1, dGeomID o2);
 
