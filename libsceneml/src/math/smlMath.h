@@ -16,41 +16,34 @@
  *
  *************************************************************************/
  
-#ifndef _SML_SCENEMGR_H_FILE_
-#define _SML_SCENEMGR_H_FILE_
+#ifndef _SML_MATH_H_FILE_
+#define _SML_MATH_H_FILE_
 
-// std includes
-#include <string>
-#include <map>
+#include <smlConfig.h>
 
-// sml includes
-#include <smlException.h>
+#ifdef USE_DOUBLE_PRECISION
+#include <math/smlDoubleConstants.h>
+#else
+#include <math/smlFloatConstants.h>
+#endif
+
+#include <cmath>
+#include <boost/math/complex/asin.hpp>
+#include <boost/math/complex/acos.hpp>
+#include <boost/math/complex/atan.hpp>
 
 namespace sml {
 
-// Forward declarations
-class Node;
+namespace math {
 
-class SceneMgr
-{
-// public types
-public:
-	typedef std::map<std::string, Node*>	NodeMap;
-	typedef NodeMap::iterator				NodeIterator;
-	typedef NodeMap::const_iterator			ConstNodeIterator;
-	
-public:
-	SceneMgr();
-	virtual ~SceneMgr();
-	
-	Node* getRootNode() const {return rootNode_;}
-	Node* createNode();
-	Node* createNode(const std::string& name);
-private:
-	NodeMap nodes_;
-	Node* rootNode_;
-};
+#ifdef USE_DOUBLE_PRECISION
+typedef double Real;
+#else
+typedef float Real;
+#endif
 
-};
+} // namespace sml::math
+
+} // namespace sml
 
 #endif

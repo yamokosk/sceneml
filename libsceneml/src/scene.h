@@ -35,7 +35,7 @@
 
 #define NUM_CONTACT_POINTS 1
 
-namespace sceneml {
+namespace sml {
 
 typedef std::map<std::string, dSpaceID> 	StringSpaceMap_t;
 typedef std::pair<dSpaceID, dSpaceID> SpacePair_t;
@@ -44,13 +44,17 @@ typedef std::vector< dContactGeom > ContactGeoms_t;
 typedef std::map<std::string, dRealPtr> StringVariableMap_t;
 
 /**
- *  The scene class. A more elaborate scene description.
+ *  The scene manager class.
  */
-class SCENEML_API Scene
+class SceneMgr
 {	
 public:
-	Scene();
-	~Scene();
+	SceneMgr();
+	~SceneMgr();
+	
+	//! Get the root node
+	SceneNode* getSceneRootNode() const {return rootNode_;}
+	
 	
 	//! Add an ODE space
 	void addSpace( const std::string& name, dSpaceID id ) {spaceMap_[name] = id;}
@@ -88,6 +92,8 @@ public:
 	void computeSceneAABB(dReal aabb[6]);
 
 private:
+	SceneNode *rootNode_;
+	
 	// make object non-copyable
    //CMMCore(const CMMCore& /*c*/) {}
    //CMMCore& operator=(const CMMCore& /*rhs*/);
