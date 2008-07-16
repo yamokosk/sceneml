@@ -5,13 +5,13 @@
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 2.1 of the License, 
-* or (at your option) any later version. The text of the GNU Lesser General 
+* published by the Free Software Foundation; either version 2.1 of the License,
+* or (at your option) any later version. The text of the GNU Lesser General
 * Public License is included with this library in the file LICENSE.TXT.
 *
-* This library is distributed in the hope that it will be useful, but WITHOUT 
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-* or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for 
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+* or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for
 * more details.
 *
 *************************************************************************/
@@ -58,11 +58,11 @@ namespace sml {
 		derivedScale_ = math::one;
 		initialPosition_ = math::zero;
 		initialScale_ = math::one;
-		
+
 		//needUpdate();
 	}
 
-	//! Constructor, only to be called by the creator SceneManager. 
+	//! Constructor, only to be called by the creator SceneManager.
 	Node::Node(SceneMgr* mgr, const std::string& name) :
 		manager_(mgr),
 		//worldAABB_(),
@@ -93,7 +93,7 @@ namespace sml {
 		derivedPosition_ = math::zero;
 		derivedScale_ = math::one;
 		initialPosition_ = math::zero;
-		initialScale_ = math::one;	
+		initialScale_ = math::one;
 	}
 
 	Node::~Node()
@@ -114,8 +114,8 @@ namespace sml {
 				queuedUpdates_.pop_back();
 			}
 		}
-		
-		// Detach all objects, do this manually to avoid needUpdate() call 
+
+		// Detach all objects, do this manually to avoid needUpdate() call
 		// which can fail because of deleted items
 		ObjectMap::iterator itr;
 		MovableObject* ret;
@@ -130,6 +130,55 @@ namespace sml {
 			delete mWireBoundingBox;
 		}*/
 	}
+
+	// TODO: Convert runtime_errors into SMLErrors
+	void Node::notify(bool bExtended) const
+	{
+		// Access to variable from Listener::subject_
+		// TODO: Cast subject_ to the Variable class using boost cast library
+		std::string type = subject_.getPair("type"); //type of variable we are listening to
+
+		if ( !type.compare("translation") )
+		{
+			ColumnVector transl = subject_.getPair("value").getPropertyValueAsVector(3);
+			this->translate(transl, TS_PARENT);
+		}
+		else if ( !type.compare("rotation") )
+		{
+			std::string subtype = subject_.getPair("subtype"); //type of variable we are listening to
+			Real angle = 0.0;
+			ColumnVector axis(3); axis << 1.0 << 0.0 << 0.0;
+
+			if ( !subtype_.compare("x") )
+			{
+				angle = subject_.getPair("value").getPropertyValueAsReal();
+				axis << 1.0 << 0.0 << 0.0;
+			}
+			else if ( !subtype_.compare("y") ) {
+				angle = subject_.getPair("value").getPropertyValueAsReal();
+				axis << 0.0 << 1.0 << 0.0;
+			}
+			else if ( !subtype_.compare("z") ) {
+				angle = subject_.getPair("value").getPropertyValueAsReal();
+				axis << 0.0 << 0.0 << 1.0;
+			}
+			else if ( !subtype_.compare("e123") ) {
+				//dTFromEuler123(tmatrix_, (data_.get())[0], (data_.get())[1], (data_.get())[2]);
+			}
+			else if ( !subtype_.compare("t123") ) {
+				dTFromEuler123(tmatrix_, -(data_.get())[0], -(data_.get())[1], -(data_.get())[2]);
+			}
+			else {
+				throw std::runtime_error("");
+			}
+
+			this->rotate(axis, angle, TS_PARENT);
+		}
+		else
+		{
+			throw std::runtime_error("");
+		}
+	}
 	/*
 	void Node::attachObject (MovableObject *obj)
 	{
@@ -143,7 +192,7 @@ namespace sml {
 		obj->_notifyAttached(this);
 
 		// Also add to name index
-		std::pair<ObjectMap::iterator, bool> insresult = 
+		std::pair<ObjectMap::iterator, bool> insresult =
 		mObjectsByName.insert(ObjectMap::value_type(obj->getName(), obj));
 		assert(insresult.second && "Object was not attached because an object of the "
 		"same name was already attached to this node.");
@@ -151,19 +200,19 @@ namespace sml {
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
 	}
-	
+
 	unsigned short Node::numAttachedObjects (void) const
 	{
 		return static_cast< unsigned short >( mObjectsByName.size() );
 	}
-	
+
 	//! Retrieves a pointer to an attached object.
 	MovableObject* Node::getAttachedObject (unsigned short index)
 	{
 		if (index < mObjectsByName.size())
 		{
 			ObjectMap::iterator i = mObjectsByName.begin();
-			// Increment (must do this one at a time)            
+			// Increment (must do this one at a time)
 			while (index--)++i;
 
 			return i->second;
@@ -174,22 +223,22 @@ namespace sml {
 		}
 		return 0;
 	}
-	
+
 	//! Retrieves a pointer to an attached object.
 	MovableObject* Node::getAttachedObject (const String &name)
 	{
-		// Look up 
+		// Look up
 		ObjectMap::iterator i = mObjectsByName.find(name);
 
 		if (i == mObjectsByName.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Attached object " + 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Attached object " +
 			name + " not found.", "SceneNode::getAttachedObject");
 		}
 
 		return i->second;
 	}
-	
+
 	//! Detaches the indexed object from this scene node.
 	MovableObject* Node::detachObject (unsigned short index)
 	{
@@ -198,7 +247,7 @@ namespace sml {
 		{
 
 			ObjectMap::iterator i = mObjectsByName.begin();
-			// Increment (must do this one at a time)            
+			// Increment (must do this one at a time)
 			while (index--)++i;
 
 			ret = i->second;
@@ -217,7 +266,7 @@ namespace sml {
 		}
 		return 0;
 	}
-	
+
 	//! Detaches an object by pointer.
 	void Node::detachObject (MovableObject *obj)
 	{
@@ -236,7 +285,7 @@ namespace sml {
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
 	}
-	
+
 	//! Detaches the named object from this node and returns a pointer to it.
 	MovableObject* Node::detachObject (const String &name)
 	{
@@ -251,11 +300,11 @@ namespace sml {
 		ret->_notifyAttached((SceneNode*)0);
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
-		
+
 		return ret;
 	}
-	
-	//! Detaches all objects attached to this node. 
+
+	//! Detaches all objects attached to this node.
 	void Node::detachAllObjects (void)
 	{
 		ObjectMap::iterator itr;
@@ -269,8 +318,8 @@ namespace sml {
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
 	}
-	
-	//! Internal method to update the Node. 
+
+	//! Internal method to update the Node.
 	void Node::_update (bool updateChildren, bool parentHasChanged)
 	{
 		// always clear information about parent notification
@@ -316,8 +365,8 @@ namespace sml {
 
 		needChildUpdate_ = false;
 	}
-	
-	//! Tells the SceneNode to update the world bound info it stores. 
+
+	//! Tells the SceneNode to update the world bound info it stores.
 	void Node::_updateBounds (void)
 	{
 		// Reset bounds first
@@ -339,38 +388,38 @@ namespace sml {
 			mWorldAABB.merge(sceneChild->mWorldAABB);
 		}
 	}
-	
+
 	//! Gets the axis-aligned bounding box of this node (and hence all subnodes).
 	const AxisAlignedBox& Node::_getWorldAABB (void) const
 	{
 		return mWorldAABB;
 	}
-	
+
 	//! Retrieves an iterator which can be used to efficiently step through the objects attached to this node.
 	ObjectIterator Node::getAttachedObjectIterator (void)
 	{
 		return ObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
 	}
-	
+
 	//! Retrieves an iterator which can be used to efficiently step through the objects attached to this node.
 	ConstObjectIterator Node::getAttachedObjectIterator (void) const
 	{
 		return ConstObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
 	}
 	*/
-	//! Gets the creator of this scene node. 
+	//! Gets the creator of this scene node.
 	SceneMgr* Node::getManager (void) const
 	{
 		return manager_;
 	}
 
-	//! Gets the parent of this SceneNode. 
+	//! Gets the parent of this SceneNode.
 	Node* Node::getParent(void) const
 	{
 		return parent_;
 	}
 
-	//! Returns the name of the node. 
+	//! Returns the name of the node.
 	const std::string& Node::getName (void) const
 	{
 		return name_;
@@ -378,20 +427,20 @@ namespace sml {
 
 	//void attachObject(SceneObject* obj);
 	// Must call this->notify() whenever node's transformation changes
-	
+
 	//! Returns a quaternion representing the nodes orientation.
 	const math::Quaternion& Node::getOrientation () const
 	{
 		return orientation_;
 	}
-	
+
 	//! Sets the orientation of this node via a quaternion.
 	void Node::setOrientation (const math::Quaternion &q)
 	{
 		orientation_ = q;
 		needUpdate();
 	}
-	
+
 	//! Sets the orientation of this node via quaternion parameters.
 	void Node::setOrientation (math::Real w, math::Real x, math::Real y, math::Real z)
 	{
@@ -399,7 +448,7 @@ namespace sml {
 		setOrientation(q);
 		needUpdate();
 	}
-	
+
 	//! Resets the nodes orientation (local axes as world axes, no rotation).
 	void Node::resetOrientation (void)
 	{
@@ -407,35 +456,35 @@ namespace sml {
 		setOrientation(q);
 		needUpdate();
 	}
-	
+
 	//! Sets the position of the node relative to it's parent.
 	void Node::setPosition(const ColumnVector &pos)
 	{
 		position_ = pos;
 		needUpdate();
 	}
-	
+
 	//! Sets the position of the node relative to it's parent.
 	void Node::setPosition(math::Real x, math::Real y, math::Real z)
 	{
 		ColumnVector v(x,y,z);
 		setPosition(v);
 	}
-	
-	//! Gets the position of the node relative to it's parent. 
+
+	//! Gets the position of the node relative to it's parent.
 	const ColumnVector& Node::getPosition(void) const
 	{
 		return position_;
 	}
-	
+
 	//! Scales the node, combining it's current scale with the passed in scaling factor.
 	//void Node::scale(const ColumnVector &scale);
-	
+
 	//! Scales the node, combining it's current scale with the passed in scaling factor.
 	//void Node::scale(Real x, Real y, Real z);
 
 	//! Moves the node along the cartesian axes.
-	void Node::translate(const ColumnVector &d, TransformSpace relativeTo=TS_PARENT)
+	void Node::translate(const ColumnVector &d, TransformSpace relativeTo)
 	{
 		switch(relativeTo)
 		{
@@ -463,32 +512,32 @@ namespace sml {
 	}
 
 	//! Moves the node along the cartesian axes.
-	void Node::translate(Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT)
+	void Node::translate(Real x, Real y, Real z, TransformSpace relativeTo)
 	{
 		ColumnVector v(x,y,z);
 		translate(v, relativeTo);
 	}
-	
+
 	//! Moves the node along arbitrary axes.
-	void Node::translate(const Matrix3 &axes, const ColumnVector &move, TransformSpace relativeTo=TS_PARENT)
+	void Node::translate(const Matrix3 &axes, const ColumnVector &move, TransformSpace relativeTo)
 	{
 		ColumnVector derived = axes * move;
 		translate(derived, relativeTo);
 	}
-	
+
 	//! Moves the node along arbitrary axes.
-	void Node::translate(const Matrix3 &axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT)
+	void Node::translate(const Matrix3 &axes, Real x, Real y, Real z, TransformSpace relativeTo)
 	{
-		ColumnVector d(x,y,z);
+		ColumnVector d(3); d << x << y << z;
 		translate(axes,d,relativeTo);
 	}
-	
+
 	//! Rotate the node around the Z-axis.
 	/*void Node::roll(const Radian &angle, TransformSpace relativeTo=TS_LOCAL)
 	{
 		rotate(ColumnVector::UNIT_Z, angle, relativeTo);
 	}
-	
+
 	//! Rotate the node around the X-axis.
 	void Node::pitch(const Radian &angle, TransformSpace relativeTo=TS_LOCAL)
 	{
@@ -499,15 +548,15 @@ namespace sml {
 	{
 		rotate(ColumnVector::UNIT_Y, angle, relativeTo);
 	}*/
-	
+
 	//! Rotate the node around an arbitrary axis.
-	void Node::rotate(const ColumnVector &axis, const Radian &angle, TransformSpace relativeTo=TS_LOCAL)
+	void Node::rotate(const ColumnVector &axis, const Radian &angle, TransformSpace relativeTo)
 	{
 		math::Quaternion q;
 		q.FromAngleAxis(angle,axis);
 		rotate(q, relativeTo);
 	}
-	
+
 	//! Rotate the node around an aritrary axis using a Quarternion.
 	void Node::rotate(const math::Quaternion &q, TransformSpace relativeTo=TS_LOCAL)
 	{
@@ -528,7 +577,7 @@ namespace sml {
 		}
 		needUpdate();
 	}
-	
+
 	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
 	Matrix3 Node::getLocalAxes (void) const
 	{
@@ -544,7 +593,7 @@ namespace sml {
 		axisX.y, axisY.y, axisZ.y,
 		axisX.z, axisY.z, axisZ.z);
 	}
-	
+
 	//! Creates an unnamed new Node as a child of this node.
 	Node* Node::createChild(const ColumnVector& translate, const math::math::Quaternion& rotate)
 	{
@@ -555,7 +604,7 @@ namespace sml {
 
 		return newNode;
 	}
-	
+
 	//! Creates a new named Node as a child of this node.
 	Node* Node::createChild(const std::string& name, const ColumnVector& translate, const math::math::Quaternion& rotate)
 	{
@@ -566,8 +615,8 @@ namespace sml {
 
 		return newNode;
 	}*/
-	
-	//! Adds a (precreated) child scene node to this node. 
+
+	//! Adds a (precreated) child scene node to this node.
 	void Node::addChild (Node* child)
 	{
 		if (child->parent_)
@@ -579,13 +628,13 @@ namespace sml {
 		children_.insert(ChildNodeMap::value_type(child->getName(), child));
 		child->setParent(this);
 	}
-	
-	//! Reports the number of child nodes under this one. 
+
+	//! Reports the number of child nodes under this one.
 	unsigned short Node::numChildren (void) const
 	{
 		return static_cast< unsigned short >( children_.size() );
 	}
-	
+
 	//! Gets a pointer to a child node.
 	Node* Node::getChild (unsigned short index) const
 	{
@@ -597,7 +646,7 @@ namespace sml {
 		} else
 			return NULL;
 	}
-	
+
 	//! Gets a pointer to a named child node.
 	Node* Node::getChild (const std::string& name) const
 	{
@@ -615,7 +664,7 @@ namespace sml {
 	{
 		return ChildNodeIterator(children_.begin(), children_.end());
 	}
-	
+
 	//! Retrieves an iterator for efficiently looping through all children of this node.
 	Node::ConstChildNodeIterator Node::getChildIterator (void) const
 	{
@@ -644,7 +693,7 @@ namespace sml {
 		}
 		return 0;
 	}
-	
+
 	//! Drops the specified child from this node.
 	Node* Node::removeChild (Node *child)
 	{
@@ -663,7 +712,7 @@ namespace sml {
 		}
 		return child;
 	}
-	
+
 	//! Drops the named child from this node.
 	Node* Node::removeChild (const std::string &name)
 	{
@@ -683,7 +732,7 @@ namespace sml {
 
 		return ret;
 	}
-	
+
 	//! Removes all child Nodes attached to this node.
 	void Node::removeAllChildren (void)
 	{
@@ -696,7 +745,7 @@ namespace sml {
 		children_.clear();
 		//childrenToUpdate_.clear();
 	}
-	
+
 	//! Gets the orientation of the node as derived from all parents.
 	const math::Quaternion& Node::_getDerivedOrientation (void) const
 	{
@@ -706,7 +755,7 @@ namespace sml {
 		}
 		return mDerivedOrientation;
 	}
-	
+
 	//! Gets the position of the node as derived from all parents.
 	const ReturnMatrix& 	Node::_getDerivedPosition (void) const
 	{
@@ -716,7 +765,7 @@ namespace sml {
 		}
 		return mDerivedPosition;
 	}
-	
+
 	//! Gets the scaling factor of the node as derived from all parents.
 	const ReturnMatrix& Node::_getDerivedScale (void) const
 	{
@@ -726,8 +775,8 @@ namespace sml {
 		}
 		return mDerivedScale;
 	}
-	
-	//! Gets the full transformation matrix for this node. 
+
+	//! Gets the full transformation matrix for this node.
 	const Matrix4& 	Node::_getFullTransform (void) const
 	{
 		if (mCachedTransformOutOfDate)
@@ -742,14 +791,14 @@ namespace sml {
 		return mCachedTransform;
 	}
 
-	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation. 	
+	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
 	void Node::setInitialState (void)
 	{
 		mInitialPosition = position_;
 		mInitialOrientation = orientation_;
 		mInitialScale = mScale;
 	}
-	
+
 	//! Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info.
 	void Node::resetToInitialState (void)
 	{
@@ -759,19 +808,19 @@ namespace sml {
 
 		needUpdate();
 	}
-	
+
 	//! Gets the initial position of this node, see setInitialState for more info.
 	const ReturnMatrix& Node::getInitialPosition (void) const
 	{
 		return mInitialPosition;
 	}
-	
+
 	//! Gets the initial orientation of this node, see setInitialState for more info.
 	const math::Quaternion& Node::getInitialOrientation (void) const
 	{
 		return mInitialOrientation;
 	}
-	
+
 	//! Gets the initial position of this node, see setInitialState for more info.
 	const ReturnMatrix& Node::getInitialScale (void) const
 	{
@@ -795,7 +844,7 @@ namespace sml {
 		// all children will be updated
 		children_ToUpdate.clear();
 	}
-	
+
 	//! Called by children to notify their parent that they need an update.
 	void Node::requestUpdate (Node *child, bool forceParentUpdate=false)
 	{
@@ -813,8 +862,8 @@ namespace sml {
 			parent_Notified = true ;
 		}
 	}
-	
-	//! Called by children to notify their parent that they no longer need an update. 
+
+	//! Called by children to notify their parent that they no longer need an update.
 	void Node::cancelUpdate (Node *child)
 	{
 		children_ToUpdate.erase(child);
@@ -826,7 +875,7 @@ namespace sml {
 			parent_Notified = false ;
 		}
 	}
-	
+
 	// Static Public Member Functions
 	static void Node::queueNeedUpdate(Node *n)
 	{
@@ -837,8 +886,8 @@ namespace sml {
 			msQueuedUpdates.push_back(n);
 		}
 	}
-	
-	//! Process queued 'needUpdate' calls. 
+
+	//! Process queued 'needUpdate' calls.
 	static void Node::processQueuedUpdates (void)
 	{
 		for (QueuedUpdates::iterator i = msQueuedUpdates.begin();
@@ -910,7 +959,7 @@ namespace sml {
 		}
         return manager_->createNode();
 	}
-	
+
 	Node* Node::createChildImpl(const std::string& name)
 	{
 		if (!manager_)
@@ -919,7 +968,7 @@ namespace sml {
 		}
         return manager_->createNode(name);
 	}
-	
+
 	void Node::setParent(Node *parent)
 	{
 		bool different = (parent != parent_);
@@ -939,7 +988,7 @@ namespace sml {
 		}*/
 	}
 	/*
-	//! Triggers the node to update it's combined transforms. 
+	//! Triggers the node to update it's combined transforms.
 	void Node::_updateFroparent_ (void) const
 	{
 		updateFroparent_Impl();
