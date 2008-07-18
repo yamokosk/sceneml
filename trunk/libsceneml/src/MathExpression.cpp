@@ -16,69 +16,73 @@
  *
  *************************************************************************/
 /*
- * PropertyPair.cpp
+ * MathExpression.cpp
  *
- *  Created on: Jul 16, 2008
+ *  Created on: Jul 17, 2008
  *      Author: yamokosk
  */
 
-#include "PropertyPair.h"
-#include "math\smlMath.h"
+#include "MathExpression.h"
+#include <cstring>
 
 namespace sml
 {
 
-PropertyPair::Parser.DefineConst("pi", pi);
-PropertyPair::Parser.DefineConst("e", e);
-
-std::string PropertyPair::getPropertyValue() const
+namespace math
 {
-	return value_;
+
+MathExpression::MathExpression(const std::string& expr) :
+	expr_(expr)
+{
+	parser_.DefineConst("pi", math::pi);
+	parser_.DefineConst("e", math::e);
 }
 
-sml::Real PropertyPair::getPropertyValueAsReal() const
+MathExpression::~MathExpression()
 {
-	std::string expression = getPropertyValue();
-	return PropertyPair::parseValue( expression.c_str() );
+
 }
 
-int PropertyPair::getPropertyValueAsInt() const
+math::Real MathExpression::getExprAsReal() const
 {
-	std::string expression = getPropertyValue();
-	return (int)PropertyPair::parseValue( expression.c_str() );
+	return PropertyPair::parseValue( expr_.c_str() );
 }
 
-ReturnMatrix PropertyPair::getPropertyValueAsVector(unsigned int length) const
+int MathExpression::getExprAsInt() const
 {
-	std::string expression = getPropertyValue();
-	return PropertyPair::parseVector( expression.c_str() );
+	return (int)PropertyPair::parseValue( expr_.c_str() );
 }
 
-/*ReturnMatrix PropertyPair::getPropertyValueAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const
+ReturnMatrix MathExpression::getExprAsVector(unsigned int length) const
+{
+	return PropertyPair::parseVector( expr_.c_str() );
+}
+
+/*ReturnMatrix MathExpression::getPropertyValueAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const
 {
 	std::string expression = getPropertyValue(name);
 	ColumnVector temp = PropertyPair::parseVector( expression.c_str() );
 	return val;
 }*/
 
-static sml::Real PropertyPair::parseValue(const char* str)
+math::Real MathExpression::parseValue(const char* str)
 {
 	// Give expression to parser
-	parser_.SetExpr(str);
+	PropertyPair::Parser.SetExpr(str);
 	// Evaluate string
-	return (sml::Real)parser_.Eval();
+	return (math::Real)Parser.Eval();
 }
 
-static ReturnMatrix PropertyPair::parseVector(const char* str)
+ReturnMatrix MathExpression::parseVector(const char* str)
 {
-	std::vector<sml::Real> values;
+	std::vector<math::Real> values;
 
 	// Step through each token, evaluate it, and store it in our return vector
-	tok = strtok(str, " ,");
+	char* tok = strtok(str, " ,");
 	while (tok != NULL)
 	{
 		try {
-			sml::Real val = parseValue(tok);
+			math::Real val = parseValue(tok);
 			values.push_back( val );
 		} catch (mu::Parser::exception_type &e) {
 			std::cout << e.GetMsg() << std::endl;
@@ -94,5 +98,6 @@ static ReturnMatrix PropertyPair::parseVector(const char* str)
 	return ret;
 }
 
+}
 
 }

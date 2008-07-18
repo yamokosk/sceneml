@@ -25,7 +25,8 @@
 #ifndef PROPERTYPAIR_H
 #define PROPERTYPAIR_H
 
-#include <newmat.h>
+#include <math/smlMath.h>
+#include <newmat/newmat.h>
 
 // Required math expression parser
 #include <muParser.h>
@@ -34,6 +35,7 @@ namespace sml {
 
 struct PropertyPair
 {
+	PropertyPair() : propertyName_("NO_DATA"), value_("NO_DATA"), required_(false) {}
 	PropertyPair(const char* prop, const char* value="NO_DATA", bool isRequired) :
 		propertyName_(prop), value_(value), required_(isRequired) {}
 	virtual ~PropertyPair() {}
@@ -43,22 +45,12 @@ struct PropertyPair
 
 	// Various accessors for the value..
 	std::string getPropertyValue() const {return value_;}
-	sml::Real getPropertyValueAsReal() const;
-	int getPropertyValueAsInt() const;
-	ReturnMatrix getValAsVector(unsigned int length) const;
-	//ReturnMatrix getValAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const;
-
 	bool isRequired() {return required_;}
 
 private:
 	std::string propertyName_;
 	std::string value_;
 	bool required_;
-
-	static mu::Parser Parser;
-
-	static sml::Real parseValue(const char* str);
-	static ReturnMatrix parseVector(const char* str);
 };
 
 struct RequiredProperty : public PropertyPair

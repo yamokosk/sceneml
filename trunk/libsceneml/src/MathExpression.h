@@ -15,37 +15,48 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * MathExpression.h
+ *
+ *  Created on: Jul 17, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef _SML_MATH_H_FILE_
-#define _SML_MATH_H_FILE_
+#ifndef MATHEXPRESSION_H_
+#define MATHEXPRESSION_H_
 
-//#include <smlConfig.h>
+#include <string>
+#include <math/smlMath.h>
+#include <muParser.h>
+#include <newmat/newmat.h>
 
-#define USE_DOUBLE_PRECISION
+namespace sml
+{
 
-#ifdef USE_DOUBLE_PRECISION
-#include <math/smlDoubleConstants.h>
-#else
-#include <math/smlFloatConstants.h>
-#endif
+namespace math
+{
 
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+class MathExpression
+{
+public:
+	MathExpression(const std::string& expr);
+	virtual ~MathExpression();
 
-namespace sml {
+	math::Real getPropertyValueAsReal() const;
+	int getPropertyValueAsInt() const;
+	ReturnMatrix getValAsVector(unsigned int length) const;
+	//ReturnMatrix getValAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const;
 
-namespace math {
+private:
+	std::string expr_;
+	mu::Parser parser_;
 
-#ifdef USE_DOUBLE_PRECISION
-typedef double Real;
-#else
-typedef float Real;
-#endif
+	math::Real parseValue(const char* str);
+	ReturnMatrix parseVector(const char* str);
+};
 
-} // namespace sml::math
+}
 
-} // namespace sml
+}
 
-#endif
+#endif /* MATHEXPRESSION_H_ */

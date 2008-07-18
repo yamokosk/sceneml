@@ -45,6 +45,7 @@ set(CMAKE_BUILD_TYPE "Debug")
 # ------------------------------------------------------------------------------
 # Require packages
 # ------------------------------------------------------------------------------
+message( STATUS " == Dependencies == " )
 set( DEPENDENCY_CHECK 1 )
 include ( ${PROJECT_SOURCE_DIR}/cmake/FindODE.cmake )
 if (NOT ODE_FOUND)
@@ -70,11 +71,14 @@ if (NOT Boost_FOUND)
 	set(DEPENDENCY_CHECK 0)
 endif (NOT Boost_FOUND)
 
-include ( ${PROJECT_SOURCE_DIR}/cmake/FindNewmat.cmake )
-if (NOT NEWMAT_FOUND)
-	message( WARNING " Newmat is missing.")
-	set(DEPENDENCY_CHECK 0)
-endif (NOT NEWMAT_FOUND)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules (NEWMAT REQUIRED newmat)
+message( STATUS "Found Newmat." )
+message( STATUS "	Include dirs: ${NEWMAT_INCLUDE_DIRS}" )
+message( STATUS "	Library dirs: ${NEWMAT_LIBRARY_DIRS}" )
+message( STATUS "	Libs: ${NEWMAT_LIBRARIES}" )
+message( STATUS "	LDFlags: ${NEWMAT_LDFLAGS}" )
+message( STATUS "	CFlags: ${NEWMAT_CFLAGS}" )
 
 # ------------------------------------------------------------------------------
 # Finally, recurse in the sub directories

@@ -21,6 +21,8 @@
 
 #include <string>
 #include <map>
+#include "PropertyPair.h"
+#include "Exception.h"
 
 namespace sml {
 
@@ -33,11 +35,11 @@ public:
 	~PropertyCollection() {}
 
 	void addPair(const PropertyPair& pair);
-	void updatePair(const char* key, const char* value);
-	PropertyPair getPair(size_t index) const throw (SMLError);
+	void updatePair(const char* key, const char* value, bool isRequired);
+	PropertyPair getPair(size_t index) const throw (sml::Exception);
 
 	size_t size() const {return pairs_.size();}
-	std::string getValue(const char* key) const throw (SMLError);
+	std::string getValue(const char* key) const throw (sml::Exception);
 
 private:
 	std::map<std::string, PropertyPair> pairs_;
