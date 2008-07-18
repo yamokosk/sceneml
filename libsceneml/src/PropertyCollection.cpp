@@ -27,14 +27,14 @@ namespace sml {
 /**
  * Returns the property pair with specified index.
  */
-PropertyPair PropertyCollection::getPair(size_t index) const throw (SMLError)
+PropertyPair PropertyCollection::getPair(size_t index) const throw (sml::Exception)
 {
    PropertyIterator it = pairs_.begin();
    if (index >= pairs_.size())
    {
       std::ostringstream errTxt;
-      errTxt << (unsigned int)index << " - invalid property pair index";
-      throw SMLError(errTxt.str().c_str(), MMERR_DEVICE_GENERIC);
+      errTxt << "Invalid property pair index" << (unsigned int)index;
+      SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, errTxt.str());
    }
 
    for (size_t i=0; i<index; i++) it++;
@@ -49,25 +49,25 @@ void PropertyCollection::addPair(const PropertyPair& pair)
 	pairs_[pair.getPropertyName()] = pair;
 }
 
-void updatePair(const char* key, const char* value)
+void PropertyCollection::updatePair(const char* key, const char* value, bool isRequired)
 {
-	std::map<std::string, PropertyPair>::iterator it = pairs_.find(name);
+	std::map<std::string, PropertyPair>::iterator it = pairs_.find(key);
 
-	if (it != properties_.end()) {
+	if (it != pairs_.end()) {
 		pairs_.erase(it);
-		PropertyPair pair(name,value);
-		pairs_[name] = pair;
+		PropertyPair pair(key,value, isRequired);
+		pairs_[key] = pair;
 	} else {
 		std::ostringstream msg;
-		msg << __FUNCTION__ << "() - Parameter " + name + " not found in properties.";
-		throw std::runtime_error(msg.str());
+		msg << "Property '" << key << "' not found in collection.";
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, msg.str());
 	};
 }
 
 /**
  * Get value of the specified key (property).
  */
-std::string PropertyCollection::getValue(const char* key) const throw (SMLError)
+std::string PropertyCollection::getValue(const char* key) const throw (sml::Exception)
 {
 	PropertyIterator it;
 	it = pairs_.find(key);
@@ -75,8 +75,8 @@ std::string PropertyCollection::getValue(const char* key) const throw (SMLError)
 		return it->second.getPropertyValue();
 
 	std::ostringstream errTxt;
-	errTxt << key << " - invalid property name";
-	throw SMLError(errTxt.str().c_str(), MMERR_DEVICE_GENERIC);
+	errTxt << "Property '" << key << "' not found in collection.";
+	SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, errTxt.str());
 }
 
 
