@@ -16,7 +16,7 @@ namespace sml {
 class CommandBase : public PropertyCollection
 {
 public:
-	CommandBase(CommandTarget* target = NULL);
+	CommandBase();
 	virtual ~CommandBase();
 
 	virtual void execute() = 0;

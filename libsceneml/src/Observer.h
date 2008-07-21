@@ -22,35 +22,37 @@
  *      Author: yamokosk
  */
 
-#ifndef LISTENER_H
-#define LISTENER_H
+#ifndef OBSERVER_H
+#define OBSERVER_H
 
-#include "Subject.h"
-#include <boost/bind.hpp>
+//#include "Subject.h"
+//#include <boost/bind.hpp>
 
 namespace sml
 {
 
-class Listener
+class Subject;
+
+class Observer
 {
 public:
-	Listener(Subject& m) : subject_(m)
+	Observer()
 	{
-		connection_ = subject_.connect( boost::bind(&Observer::notify, this, _1) );
+		//connection_ = subject_.connect( boost::bind(&Listener::notify, this, _1) );
     }
 
-    virtual ~Listener()
+    virtual ~Observer()
 	{
-		subject_.disconnect(connection_);
+		//subject_.disconnect(connection_);
 	}
 
-	virtual void notify(bool bExtended) const = 0;
+	virtual void update(Subject* subject) = 0;
 
 protected:
-	Subject& subject_;
+	//Subject& subject_;
 
 private:
-	Subject::connection_t  connection_;
+	//Subject::connection_t  connection_;
 };
 
 }

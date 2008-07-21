@@ -16,7 +16,8 @@
 *
 *************************************************************************/
 
-#include "smlNode.h"
+#include "Node.h"
+#include <boost/cast.hpp>
 
 namespace sml {
 
@@ -132,34 +133,36 @@ namespace sml {
 	}
 
 	// TODO: Convert runtime_errors into SMLErrors
-	void Node::notify(bool bExtended) const
+	void Node::notify(Subject* sub)
 	{
+		Variable* var = boost::polymorphic_downcast<Variable*>(sub);
+
 		// Access to variable from Listener::subject_
 		// TODO: Cast subject_ to the Variable class using boost cast library
-		std::string type = subject_.getPair("type"); //type of variable we are listening to
+		std::string type = var.getPair("type"); //type of variable we are listening to
 
 		if ( !type.compare("translation") )
 		{
-			ColumnVector transl = subject_.getPair("value").getPropertyValueAsVector(3);
+			ColumnVector transl = var.getPair("value").getPropertyValueAsVector(3);
 			this->translate(transl, TS_PARENT);
 		}
 		else if ( !type.compare("rotation") )
 		{
-			std::string subtype = subject_.getPair("subtype"); //type of variable we are listening to
+			std::string subtype = var.getPair("subtype"); //type of variable we are listening to
 			Real angle = 0.0;
 			ColumnVector axis(3); axis << 1.0 << 0.0 << 0.0;
 
 			if ( !subtype_.compare("x") )
 			{
-				angle = subject_.getPair("value").getPropertyValueAsReal();
+				angle = var.getPair("value").getPropertyValueAsReal();
 				axis << 1.0 << 0.0 << 0.0;
 			}
 			else if ( !subtype_.compare("y") ) {
-				angle = subject_.getPair("value").getPropertyValueAsReal();
+				angle = var.getPair("value").getPropertyValueAsReal();
 				axis << 0.0 << 1.0 << 0.0;
 			}
 			else if ( !subtype_.compare("z") ) {
-				angle = subject_.getPair("value").getPropertyValueAsReal();
+				angle = var.getPair("value").getPropertyValueAsReal();
 				axis << 0.0 << 0.0 << 1.0;
 			}
 			else if ( !subtype_.compare("e123") ) {

@@ -28,15 +28,13 @@
 #include <math/smlMath.h>
 #include <newmat/newmat.h>
 
-// Required math expression parser
-#include <muParser.h>
 
 namespace sml {
 
 struct PropertyPair
 {
 	PropertyPair() : propertyName_("NO_DATA"), value_("NO_DATA"), required_(false) {}
-	PropertyPair(const char* prop, const char* value="NO_DATA", bool isRequired) :
+	PropertyPair(const char* prop, const char* value="NO_DATA", bool isRequired="false") :
 		propertyName_(prop), value_(value), required_(isRequired) {}
 	virtual ~PropertyPair() {}
 

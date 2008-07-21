@@ -42,9 +42,9 @@ public:
 	MathExpression(const std::string& expr);
 	virtual ~MathExpression();
 
-	math::Real getPropertyValueAsReal() const;
-	int getPropertyValueAsInt() const;
-	ReturnMatrix getValAsVector(unsigned int length) const;
+	math::Real getAsReal();
+	int getAsInt();
+	ReturnMatrix getAsVector(unsigned int length);
 	//ReturnMatrix getValAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const;
 
 private:

@@ -22,10 +22,11 @@
 // std inlcudes
 #include <string>
 #include <map>
+#include <set>
 
 // SML includes
 #include "SceneMgr.h"
-#include "Listener.h"
+#include "Observer.h"
 #include <math/smlMath.h>
 #include <math/smlQuaternion.h>
 
@@ -61,7 +62,7 @@ public:
 	virtual ~Node();
 
 	// From Listener class
-	virtual void notify(bool bExtended) const;
+	virtual void update(Subject* subject);
 
 	/*
 	//! Adds an instance of a scene object to this node.
@@ -149,10 +150,10 @@ public:
 	void translate(Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
 
 	//! Moves the node along arbitrary axes.
-	void translate(const Matrix3 &axes, const ColumnVector &move, TransformSpace relativeTo=TS_PARENT);
+	void translate(const SquareMatrix& axes, const ColumnVector &move, TransformSpace relativeTo=TS_PARENT);
 
 	//! Moves the node along arbitrary axes.
-	void translate(const Matrix3 &axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
+	void translate(const SquareMatrix& axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
 
 	//! Rotate the node around the Z-axis.
 	//virtual void roll(const Radian &angle, TransformSpace relativeTo=TS_LOCAL);
@@ -164,13 +165,13 @@ public:
 	//void Node::yaw(const Radian& angle, TransformSpace relativeTo)
 
 	//! Rotate the node around an arbitrary axis.
-	void rotate(const ColumnVector &axis, const Radian &angle, TransformSpace relativeTo=TS_LOCAL);
+	void rotate(const ColumnVector &axis, math::Real angle, TransformSpace relativeTo=TS_LOCAL);
 
 	//! Rotate the node around an aritrary axis using a Quarternion.
 	void rotate(const math::Quaternion &q, TransformSpace relativeTo=TS_LOCAL);
 
 	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
-	Matrix3 getLocalAxes (void) const;
+	ReturnMatrix getLocalAxes (void) const;
 
 	//! Creates an unnamed new Node as a child of this node.
 	Node* createChild(const ColumnVector& translate, const math::Quaternion& rotate);

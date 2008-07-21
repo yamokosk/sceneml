@@ -33,13 +33,26 @@ using namespace sml;
 
 BOOST_AUTO_TEST_CASE( add_pair_test )
 {
-	BOOST_TEST_MESSAGE( "Testing node constructors." );
+	BOOST_TEST_MESSAGE( "Add pair test." );
 
 	PropertyCollection pc;
 	pc.addPair( RequiredProperty("required", "3.0") );
 	pc.addPair( OptionalProperty("optional", "hello") );
 
 	BOOST_CHECK_EQUAL( pc.size(), 2 );
+}
+
+BOOST_AUTO_TEST_CASE( update_pair_test )
+{
+	BOOST_TEST_MESSAGE( "Update pair test." );
+
+	PropertyCollection pc;
+	pc.addPair( RequiredProperty("required", "3.0") );
+	pc.updatePair("required", "4.0", true);
+
+	std::string val = pc.getValue("required");
+
+	BOOST_CHECK_EQUAL( val, "4.0" );
 }
 
 /*BOOST_AUTO_TEST_CASE( get_value_test )
