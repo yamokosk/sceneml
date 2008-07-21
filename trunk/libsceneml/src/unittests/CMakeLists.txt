@@ -1,13 +1,62 @@
 include_directories( ${Boost_INCLUDE_DIRS}
 					 ${PROJECT_SOURCE_DIR}/src
-					 ${NEWMAT_INCLUDE_DIRS})
-link_directories( ${Boost_INCLUDE_DIRS}/lib
-				  ${NEWMAT_LIBRARY_DIRS} )
-link_libraries( ${NEWMAT_LIBRARIES} boost_unit_test_framework)
+					 ${NEWMAT_INCLUDE_DIRS}
+					 ${MUPARSER_HOME}/include)
+link_directories( ${Boost_LIBRARY_DIRS}
+				  ${NEWMAT_LIBRARY_DIRS}
+				  ${MUPARSER_HOME}/lib )
+
+if ( NOT WIN32 )
+    link_libraries( boost_unit_test_framework)
+endif ( NOT WIN32 )
 
 # TEST PROPERTIES
 set(name test_properties)
 set(srcs ${name}.cpp
 		 ${PROJECT_SOURCE_DIR}/src/PropertyCollection.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
-add_executable(${name} ${srcs})
+if ( WIN32 )
+    add_executable(${name} ${srcs})
+else ( WIN32 )
+    add_executable(${name} ${srcs})
+endif ( WIN32 )
+
+
+# TEST MATH EXPRESSION
+set(name test_mathexpression)
+set(srcs ${name}.cpp
+		 ${PROJECT_SOURCE_DIR}/src/MathExpression.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
+if ( WIN32 )
+    add_executable(${name} ${srcs})
+    target_link_libraries(${name} debug muparser_static_D optimized muparser_static
+                                  debug newmatD optimized newmat)
+else ( WIN32 )
+    add_executable(${name} ${srcs})
+    target_link_libraries(${name} muparser newmat)
+endif ( WIN32 )
+
+# TEST PROPERTIES
+set(name test_nodevariable)
+set(srcs ${name}.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Node.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Variable.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
+if ( WIN32 )
+    add_executable(${name} ${srcs})
+    target_link_libraries(${name} debug libmuparserD optimized libmuparser
+                                  debug newmatD optimized newmat)
+else ( WIN32 )
+    add_executable(${name} ${srcs})
+    target_link_libraries(${name} muparser newmat)
+endif ( WIN32 )
+
+# TEST OBSERVER
+set(name test_observer)
+set(srcs ${name}.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
+if ( WIN32 )
+    add_executable(${name} ${srcs})
+else ( WIN32 )
+    add_executable(${name} ${srcs})
+endif ( WIN32 )

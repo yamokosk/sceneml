@@ -19,39 +19,50 @@
 #ifndef SUBJECT_H
 #define SUBJECT_H
 
-#include <boost/signal.hpp>
-#include <boost/bind.hpp>
+#include <list>
+#include <Observer.h>
 
 namespace sml {
 
 class Subject
 {
 public:
-	typedef boost::signal<void (bool)>  signal_t;
-	typedef boost::signals::connection  connection_t;
+	typedef std::list<Observer*> Observers;
+	typedef Observers::iterator ObserversIterator;
 
-public:
-	Subject() {};
+	Subject() {}
+	virtual ~Subject() {}
 
-	connection_t connect(signal_t::slot_function_type subscriber)
+	void subscribe( Observer* obs )
 	{
-		return sig_.connect(subscriber);
+		observers_.push_back(obs);
 	}
 
-	void disconnect(connection_t subscriber)
+	void unsubscribe( Observer* obs )
 	{
-		subscriber.disconnect();
+		ObserversIterator it = observers_.begin();
+		for (; it != observers_.end(); ++it)
+		{
+			if ( (*it) == obs )
+			{
+				observers_.erase(it);
+				return;
+			}
+		}
 	}
 
 	virtual void notify()
 	{
-		sig_(true);
+		ObserversIterator it = observers_.begin();
+		for (; it != observers_.end(); ++it)
+		{
+			(*it)->update(this);
+		}
 	}
-
 private:
-    signal_t sig_;
+	Observers observers_;
 };
 
-};
+}
 
 #endif

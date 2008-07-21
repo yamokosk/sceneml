@@ -20,11 +20,11 @@
 #define SML_QUATERNION_H
 
 #include <math/smlMath.h>
-#include <smlException.h>
+#include "Exception.h"
 #include <boost/math/quaternion.hpp>
 
-#include <newmatap.h>                // need matrix applications
-#include <newmatio.h>                // need matrix output routines
+#include <newmat/newmatap.h>                // need matrix applications
+#include <newmat/newmatio.h>                // need matrix output routines
 
 namespace sml {
 	namespace math {
@@ -69,10 +69,10 @@ namespace sml {
 			}
 			
 			// nVidia SDK implementation - from OGRE implementation
-			ColumnVector(3) qvec; qvec << q.R_component_2() << q.R_component_3() << q.R_component_4();
-			ColumnVector uv = qvec.crossProduct(v);
-			ColumnVector uuv = qvec.crossProduct(uv);
-			uv *= (math::two * w);
+			ColumnVector qvec(3); qvec << q.R_component_2() << q.R_component_3() << q.R_component_4();
+			ColumnVector uv = crossproduct(qvec,v);
+			ColumnVector uuv = crossproduct(qvec,uv);
+			uv *= (math::two * q.real());
 			uuv *= math::two;
 
 			ColumnVector ret = v + uv + uuv;

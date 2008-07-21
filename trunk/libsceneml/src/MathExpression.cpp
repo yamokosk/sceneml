@@ -43,19 +43,19 @@ MathExpression::~MathExpression()
 
 }
 
-math::Real MathExpression::getExprAsReal() const
+math::Real MathExpression::getAsReal()
 {
-	return PropertyPair::parseValue( expr_.c_str() );
+	return parseValue( expr_.c_str() );
 }
 
-int MathExpression::getExprAsInt() const
+int MathExpression::getAsInt()
 {
-	return (int)PropertyPair::parseValue( expr_.c_str() );
+	return (int)parseValue( expr_.c_str() );
 }
 
-ReturnMatrix MathExpression::getExprAsVector(unsigned int length) const
+ReturnMatrix MathExpression::getAsVector(unsigned int length)
 {
-	return PropertyPair::parseVector( expr_.c_str() );
+	return parseVector( expr_.c_str() );
 }
 
 /*ReturnMatrix MathExpression::getPropertyValueAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const
@@ -68,17 +68,24 @@ ReturnMatrix MathExpression::getExprAsVector(unsigned int length) const
 math::Real MathExpression::parseValue(const char* str)
 {
 	// Give expression to parser
-	PropertyPair::Parser.SetExpr(str);
+	parser_.SetExpr(str);
 	// Evaluate string
-	return (math::Real)Parser.Eval();
+	return (math::Real)parser_.Eval();
 }
 
 ReturnMatrix MathExpression::parseVector(const char* str)
 {
+	// Copy incoming char buffer to local one
+	int length = strlen(str);
+	char* buf = new char[length+1];
+
+	memset(buf, '\0', (length+1)*sizeof(char));		
+	memcpy(buf, str, length*sizeof(char));
+	
 	std::vector<math::Real> values;
 
 	// Step through each token, evaluate it, and store it in our return vector
-	char* tok = strtok(str, " ,");
+	char* tok = strtok(buf, " ,");
 	while (tok != NULL)
 	{
 		try {
@@ -92,6 +99,10 @@ ReturnMatrix MathExpression::parseVector(const char* str)
 		tok = strtok(NULL, " ,");
 	}
 
+	// Delete temporary char buffer
+	delete [] buf;
+
+	// Copy answer into a Newmat column vector
 	ColumnVector ret( values.size() );
 	for (unsigned int n=0; n<values.size(); ++n) ret(n+1) = values[n];
 	ret.Release();

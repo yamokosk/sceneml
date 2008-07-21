@@ -24,7 +24,8 @@
 #include <map>
 
 // sml includes
-#include <smlException.h>
+#include "Exception.h"
+#include "CommandStack.h"
 
 namespace sml {
 
@@ -39,9 +40,9 @@ public:
 	typedef NodeMap::iterator				NodeIterator;
 	typedef NodeMap::const_iterator			ConstNodeIterator;
 
-	typedef std::map<std::string, Space*>	SpaceMap;
-	typedef SpaceMap::iterator				SpaceIterator;
-	typedef SpaceMap::const_iterator			ConstSpaceIterator;
+	//typedef std::map<std::string, Space*>	SpaceMap;
+	//typedef SpaceMap::iterator				SpaceIterator;
+	//typedef SpaceMap::const_iterator			ConstSpaceIterator;
 
 public:
 	SceneMgr();
@@ -51,15 +52,15 @@ public:
 	Node* createNode();
 	Node* createNode(const std::string& name);
 
-	Space* createSpace(const PropertyCollection& pc);
-	void addCollisionPair(const std::string& space1, const std::string& space2 );
+	//Space* createSpace(const PropertyCollection& pc);
+	//void addCollisionPair(const std::string& space1, const std::string& space2 );
 
-	Body* createBody( const PropertyCollection& pc );
+	//Body* createBody( const PropertyCollection& pc );
 private:
 	NodeMap nodes_;
 	Node* rootNode_;
 
-	SpaceMap spaces_;
+	//SpaceMap spaces_;
 
 	CommandStack cmdStack_;
 };
