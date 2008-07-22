@@ -24,6 +24,10 @@
 #include "PropertyPair.h"
 #include "Exception.h"
 
+#if defined(_WIN32)
+#pragma warning(disable: 4290)
+#endif
+
 namespace sml {
 
 class PropertyCollection
@@ -34,8 +38,8 @@ public:
 	PropertyCollection() {}
 	~PropertyCollection() {}
 
-	void addPair(const PropertyPair& pair);
-	void updatePair(const char* key, const char* value, bool isRequired);
+	void addPair(const PropertyPair& pair) throw (sml::Exception);
+	void updatePair(const char* key, const char* value, bool isRequired) throw (sml::Exception);
 	PropertyPair getPair(size_t index) const throw (sml::Exception);
 
 	size_t size() const {return pairs_.size();}

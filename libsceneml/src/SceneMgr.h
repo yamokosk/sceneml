@@ -48,10 +48,11 @@ public:
 	SceneMgr();
 	virtual ~SceneMgr();
 
-	Node* getRootNode() const {return rootNode_;}
+	Node* getRootNode() const;
 	Node* createNode();
 	Node* createNode(const std::string& name);
 
+	void clearScene();
 	//Space* createSpace(const PropertyCollection& pc);
 	//void addCollisionPair(const std::string& space1, const std::string& space2 );
 
@@ -65,6 +66,6 @@ private:
 	CommandStack cmdStack_;
 };
 
-};
+}
 
 #endif

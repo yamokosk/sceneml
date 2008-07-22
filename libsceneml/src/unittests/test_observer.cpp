@@ -29,7 +29,7 @@ public:
 	HelloObserver() : Observer() {}
 	virtual ~HelloObserver() {};
 
-	virtual void update(Subject* sub)
+	virtual void update(Subject* sub, int hint)
 	{
 		std::cout << "Hello ";
 	}
@@ -41,7 +41,7 @@ public:
 	WorldObserver() : Observer() {}
 	virtual ~WorldObserver() {};
 
-	virtual void update(Subject* sub)
+	virtual void update(Subject* sub, int hint)
 	{
 		std::cout << "World!" << std::endl;
 	}
@@ -53,15 +53,20 @@ public:
 	Numbers() : Subject(), a_(0), b_(0.0) {}
 	virtual ~Numbers() {};
 
+	enum NumbersHint {
+		FloatHint=0,
+		IntHint
+	};
+
 	void setInt(int a)
 	{
 		a_ = a;
-		this->notify();
+		this->notify(IntHint);
 	}
 	void setFloat(float b)
 	{
 		b_ = b;
-		this->notify();
+		this->notify(FloatHint);
 	}
 
 	int a_;
@@ -74,10 +79,12 @@ public:
 	FloatObserver() : Observer() {};
 	virtual ~FloatObserver() {};
 
-	virtual void update(Subject* sub)
+	virtual void update(Subject* sub, int hint)
 	{
-		Numbers* num = boost::polymorphic_downcast<Numbers*>(sub);
-		std::cout << "float = " << num->b_ << std::endl;
+		if (hint == Numbers::FloatHint) {
+			Numbers* num = boost::polymorphic_downcast<Numbers*>(sub);
+			std::cout << "float = " << num->b_ << std::endl;
+		}
 	}
 };
 
@@ -87,10 +94,12 @@ public:
 	IntObserver() : Observer() {};
 	virtual ~IntObserver() {};
 
-	virtual void update(Subject* sub)
+	virtual void update(Subject* sub, int hint)
 	{
-		Numbers* num = boost::polymorphic_downcast<Numbers*>(sub);
-		std::cout << "int = " << num->a_ << std::endl;
+		if (hint == Numbers::IntHint) {
+			Numbers* num = boost::polymorphic_downcast<Numbers*>(sub);
+			std::cout << "int = " << num->a_ << std::endl;
+		}
 	}
 };
 

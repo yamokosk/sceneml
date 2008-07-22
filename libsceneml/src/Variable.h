@@ -31,11 +31,33 @@
 namespace sml
 {
 
-class Variable : public PropertyCollection, public Subject
+class Variable : public Subject
 {
 public:
+	enum VariableHint
+	{
+		ScalarUpdate=100,
+		VectorUpdate
+	};
+
 	Variable();
 	virtual ~Variable();
+
+	void setType(const std::string&);
+	std::string getType();
+
+	void setSubType(const std::string&);
+	std::string getSubType();
+
+	void setScalar(math::Real s);
+	math::Real getScalar();
+
+	void setVector(const ColumnVector& v);
+	ReturnMatrix getVector();
+
+protected:
+	PropertyCollection pc_;
+	ColumnVector data_;
 };
 
 }

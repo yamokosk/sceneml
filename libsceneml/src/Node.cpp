@@ -18,10 +18,13 @@
 
 #include "Node.h"
 #include <boost/cast.hpp>
+#include <Variable.h>
+#include <iostream>
 
 namespace sml {
 
 	unsigned long Node::nextGeneratedNameExt_ = 1;
+	Node::QueuedUpdates Node::queuedUpdates_;
 
 	Node::Node (SceneMgr *mgr) :
 		manager_(mgr),
@@ -33,32 +36,24 @@ namespace sml {
 		parentNotified_(false),
 		queuedForUpdate_(false),
 		name_(""),
-		orientation_(1.,0.,0.,0.),
-		position_( 3 ),
-		scale_( 3 ),
+		orientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
+		position_( math::VectorFactory::Vector3( math::ZERO ) ),
+		scale_( math::VectorFactory::Vector3( math::ONES ) ),
 		inheritOrientation_(true),
 		inheritScale_(true),
-		derivedOrientation_(1.,0.,0.,0.),
-		derivedPosition_( 3 ),
-		derivedScale_( 3 ),
-		initialPosition_( 3 ),
-		initialOrientation_(1.,0.,0.,0.),
-		initialScale_( 3 ),
-		cachedTransform_( IdentityMatrix(4) ),
+		derivedOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
+		derivedPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
+		derivedScale_( math::VectorFactory::Vector3( math::ONES ) ),
+		initialPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
+		initialOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
+		initialScale_( math::VectorFactory::Vector3( math::ONES ) ),
+		cachedTransform_( math::MatrixFactory::Matrix4x4( math::IDENTITY ) ),
 		cachedTransformOutOfDate_(true)
 	{
 		// Generate a name
 		std::stringstream str;
 		str << "Unnamed_" << nextGeneratedNameExt_++;
 		name_ = str.str();
-
-		// Initialize all vectors.. stupid newmat can't do this through class constructor
-		position_ = math::zero;
-		scale_ = math::one;
-		derivedPosition_ = math::zero;
-		derivedScale_ = math::one;
-		initialPosition_ = math::zero;
-		initialScale_ = math::one;
 
 		//needUpdate();
 	}
@@ -74,27 +69,20 @@ namespace sml {
 		parentNotified_(false),
 		queuedForUpdate_(false),
 		name_(name),
-		orientation_(1.,0.,0.,0.),
-		position_( 3 ),
-		scale_( 3 ),
+		orientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
+		position_( math::VectorFactory::Vector3( math::ZERO ) ),
+		scale_( math::VectorFactory::Vector3( math::ONES ) ),
 		inheritOrientation_(true),
 		inheritScale_(true),
-		derivedOrientation_(1.,0.,0.,0.),
-		derivedPosition_( 3 ),
-		derivedScale_( 3 ),
-		initialPosition_( 3 ),
-		initialOrientation_(1.,0.,0.,0.),
-		initialScale_( 3 ),
-		cachedTransform_( IdentityMatrix(4) ),
+		derivedOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
+		derivedPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
+		derivedScale_( math::VectorFactory::Vector3( math::ONES ) ),
+		initialPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
+		initialOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
+		initialScale_( math::VectorFactory::Vector3( math::ONES ) ),
+		cachedTransform_( math::MatrixFactory::Matrix4x4( math::IDENTITY ) ),
 		cachedTransformOutOfDate_(true)
 	{
-		// Initialize all vectors.. stupid newmat can't do this through class constructor
-		position_ = math::zero;
-		scale_ = math::one;
-		derivedPosition_ = math::zero;
-		derivedScale_ = math::one;
-		initialPosition_ = math::zero;
-		initialScale_ = math::one;
 	}
 
 	Node::~Node()
@@ -132,54 +120,54 @@ namespace sml {
 		}*/
 	}
 
-	// TODO: Convert runtime_errors into SMLErrors
-	void Node::notify(Subject* sub)
+	void Node::update(Subject* sub, int hint)
 	{
+		std::cout << "Got that a variable I was watching has changed." << std::endl;
+
 		Variable* var = boost::polymorphic_downcast<Variable*>(sub);
 
-		// Access to variable from Listener::subject_
-		// TODO: Cast subject_ to the Variable class using boost cast library
-		std::string type = var.getPair("type"); //type of variable we are listening to
+		std::string type = var->getType(); //type of variable we are listening to
 
 		if ( !type.compare("translation") )
 		{
-			ColumnVector transl = var.getPair("value").getPropertyValueAsVector(3);
+			ColumnVector transl = var->getVector();
+			std::cout << "Translating " << transl.t() << std::endl;
 			this->translate(transl, TS_PARENT);
-		}
-		else if ( !type.compare("rotation") )
-		{
-			std::string subtype = var.getPair("subtype"); //type of variable we are listening to
-			Real angle = 0.0;
-			ColumnVector axis(3); axis << 1.0 << 0.0 << 0.0;
+		} else if ( !type.compare("rotation") ) {
 
-			if ( !subtype_.compare("x") )
+			std::string subtype = var->getSubType(); //type of variable we are listening to
+
+			if ( !subtype.compare("x") )
 			{
-				angle = var.getPair("value").getPropertyValueAsReal();
-				axis << 1.0 << 0.0 << 0.0;
+				Real angle = var->getScalar();
+				ColumnVector axis = math::VectorFactory::Vector3( math::UNIT_X );
+				this->rotate(axis, angle, TS_PARENT);
 			}
-			else if ( !subtype_.compare("y") ) {
-				angle = var.getPair("value").getPropertyValueAsReal();
-				axis << 0.0 << 1.0 << 0.0;
+			else if ( !subtype.compare("y") ) {
+				Real angle = var->getScalar();
+				ColumnVector axis = math::VectorFactory::Vector3( math::UNIT_Y );
+				this->rotate(axis, angle, TS_PARENT);
 			}
-			else if ( !subtype_.compare("z") ) {
-				angle = var.getPair("value").getPropertyValueAsReal();
-				axis << 0.0 << 0.0 << 1.0;
+			else if ( !subtype.compare("z") ) {
+				Real angle = var->getScalar();
+				ColumnVector axis = math::VectorFactory::Vector3( math::UNIT_Z );
+				this->rotate(axis, angle, TS_PARENT);
 			}
-			else if ( !subtype_.compare("e123") ) {
-				//dTFromEuler123(tmatrix_, (data_.get())[0], (data_.get())[1], (data_.get())[2]);
+			else if ( !subtype.compare("e123") ) {
+				ColumnVector angles = var->getVector();
+				math::Quaternion q = math::QuaternionFactory::FromEulerAngles( math::E123, angles);
+				this->rotate(q, TS_PARENT);
 			}
-			else if ( !subtype_.compare("t123") ) {
-				dTFromEuler123(tmatrix_, -(data_.get())[0], -(data_.get())[1], -(data_.get())[2]);
+			else if ( !subtype.compare("t123") ) {
+				//dTFromEuler123(tmatrix_, -(data_.get())[0], -(data_.get())[1], -(data_.get())[2]);
 			}
 			else {
-				throw std::runtime_error("");
+				SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unknown variable subtype: " + subtype);
 			}
+			//std::cout << "Rotating " << angle << " about " << axis.t() << std::endl;
 
-			this->rotate(axis, angle, TS_PARENT);
-		}
-		else
-		{
-			throw std::runtime_error("");
+		} else {
+			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unknown variable type: " + type);
 		}
 	}
 	/*
@@ -338,7 +326,7 @@ namespace sml {
 		if (needParentUpdate_ || parentHasChanged_)
 		{
 			// Update transforms from parent
-			_updateFroparent_();
+			_updateFromParent();
 		}
 
 		if (needChildUpdate_ || parentHasChanged_)
@@ -356,8 +344,8 @@ namespace sml {
 		{
 			// Just update selected children
 			ChildUpdateSet::iterator it, itend;
-			itend = children_ToUpdate.end();
-			for(it = children_ToUpdate.begin(); it != itend; ++it)
+			itend = childrenToUpdate_.end();
+			for(it = childrenToUpdate_.begin(); it != itend; ++it)
 			{
 				Node* child = *it;
 				child->_update(true, false);
@@ -455,8 +443,7 @@ namespace sml {
 	//! Resets the nodes orientation (local axes as world axes, no rotation).
 	void Node::resetOrientation (void)
 	{
-		math::Quaternion q(1., 0., 0., 0.);
-		setOrientation(q);
+		setOrientation( math::QuaternionFactory::Quat( math::IDENTITY ) );
 		needUpdate();
 	}
 
@@ -470,7 +457,7 @@ namespace sml {
 	//! Sets the position of the node relative to it's parent.
 	void Node::setPosition(math::Real x, math::Real y, math::Real z)
 	{
-		ColumnVector v(x,y,z);
+		ColumnVector v; v << x << y << z;
 		setPosition(v);
 	}
 
@@ -493,14 +480,14 @@ namespace sml {
 		{
 		case TS_LOCAL:
 			// position is relative to parent so transform downwards
-			position_ += orientation_ * d;
+			position_ += (orientation_ * d);
 			break;
 		case TS_WORLD:
 			// position is relative to parent so transform upwards
 			if (parent_)
 			{
-				position_ += (parent_->_getDerivedOrientation().Inverse() * d)
-				/ parent_->_getDerivedScale();
+				math::Quaternion qi = math::inverse( parent_->_getDerivedOrientation() );
+				position_ += (qi * d); //	/ parent_->_getDerivedScale();
 			}
 			else
 			{
@@ -517,19 +504,19 @@ namespace sml {
 	//! Moves the node along the cartesian axes.
 	void Node::translate(Real x, Real y, Real z, TransformSpace relativeTo)
 	{
-		ColumnVector v(x,y,z);
+		ColumnVector v; v << x << y << z;
 		translate(v, relativeTo);
 	}
 
 	//! Moves the node along arbitrary axes.
-	void Node::translate(const Matrix3 &axes, const ColumnVector &move, TransformSpace relativeTo)
+	void Node::translate(const SquareMatrix &axes, const ColumnVector &move, TransformSpace relativeTo)
 	{
 		ColumnVector derived = axes * move;
 		translate(derived, relativeTo);
 	}
 
 	//! Moves the node along arbitrary axes.
-	void Node::translate(const Matrix3 &axes, Real x, Real y, Real z, TransformSpace relativeTo)
+	void Node::translate(const SquareMatrix &axes, Real x, Real y, Real z, TransformSpace relativeTo)
 	{
 		ColumnVector d(3); d << x << y << z;
 		translate(axes,d,relativeTo);
@@ -553,52 +540,52 @@ namespace sml {
 	}*/
 
 	//! Rotate the node around an arbitrary axis.
-	void Node::rotate(const ColumnVector &axis, const Radian &angle, TransformSpace relativeTo)
+	void Node::rotate(const ColumnVector &axis, math::Real angle, TransformSpace relativeTo)
 	{
-		math::Quaternion q;
-		q.FromAngleAxis(angle,axis);
+		math::Quaternion q = math::QuaternionFactory::FromAngleAxis(angle,axis);
 		rotate(q, relativeTo);
 	}
 
 	//! Rotate the node around an aritrary axis using a Quarternion.
-	void Node::rotate(const math::Quaternion &q, TransformSpace relativeTo=TS_LOCAL)
+	void Node::rotate(const math::Quaternion &q, TransformSpace relativeTo)
 	{
 		switch(relativeTo)
 		{
 		case TS_PARENT:
 			// Rotations are normally relative to local axes, transform up
-			orientation_ = q * orientation_;
+			//orientation_ = q * orientation_;
 			break;
 		case TS_WORLD:
 			// Rotations are normally relative to local axes, transform up
-			orientation_ = orientation_ * _getDerivedOrientation().Inverse() * q * _getDerivedOrientation();
+			//orientation_ = orientation_ * _getDerivedOrientation().Inverse() * q * _getDerivedOrientation();
 			break;
 		case TS_LOCAL:
 			// Note the order of the mult, i.e. q comes after
-			orientation_ = orientation_ * q;
+			//orientation_ = orientation_ * q;
 			break;
 		}
 		needUpdate();
 	}
 
 	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
-	Matrix3 Node::getLocalAxes (void) const
+	ReturnMatrix Node::getLocalAxes (void) const
 	{
-		ColumnVector axisX = ColumnVector::UNIT_X;
-		ColumnVector axisY = ColumnVector::UNIT_Y;
-		ColumnVector axisZ = ColumnVector::UNIT_Z;
+		ColumnVector axisX = math::VectorFactory::Vector3( math::UNIT_X );
+		ColumnVector axisY = math::VectorFactory::Vector3( math::UNIT_Y );
+		ColumnVector axisZ = math::VectorFactory::Vector3( math::UNIT_Z );
 
-		axisX = orientation_ * axisX;
-		axisY = orientation_ * axisY;
-		axisZ = orientation_ * axisZ;
+		//axisX = orientation_ * axisX;
+		//axisY = orientation_ * axisY;
+		//axisZ = orientation_ * axisZ;
 
-		return Matrix3(axisX.x, axisY.x, axisZ.x,
-		axisX.y, axisY.y, axisZ.y,
-		axisX.z, axisY.z, axisZ.z);
+		// Concatenate columns to form matrix
+		Matrix ret = axisX & axisY & axisZ;
+		ret.Release();
+		return ret;
 	}
 
 	//! Creates an unnamed new Node as a child of this node.
-	Node* Node::createChild(const ColumnVector& translate, const math::math::Quaternion& rotate)
+	Node* Node::createChild(const ColumnVector& translate, const math::Quaternion& rotate)
 	{
 		Node* newNode = createChildImpl();
 		newNode->translate(translate);
@@ -609,7 +596,7 @@ namespace sml {
 	}
 
 	//! Creates a new named Node as a child of this node.
-	Node* Node::createChild(const std::string& name, const ColumnVector& translate, const math::math::Quaternion& rotate)
+	Node* Node::createChild(const std::string& name, const ColumnVector& translate, const math::Quaternion& rotate)
 	{
 		Node* newNode = createChildImpl(name);
 		newNode->translate(translate);
@@ -617,7 +604,7 @@ namespace sml {
 		this->addChild(newNode);
 
 		return newNode;
-	}*/
+	}
 
 	//! Adds a (precreated) child scene node to this node.
 	void Node::addChild (Node* child)
@@ -752,157 +739,159 @@ namespace sml {
 	//! Gets the orientation of the node as derived from all parents.
 	const math::Quaternion& Node::_getDerivedOrientation (void) const
 	{
-		if (mNeedParentUpdate)
+		if (needParentUpdate_)
 		{
-			_updateFroparent_();
+			//_updateFromParent();
 		}
-		return mDerivedOrientation;
+		return derivedOrientation_;
 	}
 
 	//! Gets the position of the node as derived from all parents.
-	const ReturnMatrix& 	Node::_getDerivedPosition (void) const
+	const ColumnVector& Node::_getDerivedPosition (void) const
 	{
-		if (mNeedParentUpdate)
+		if (needParentUpdate_)
 		{
-			_updateFroparent_();
+			//_updateFromParent();
 		}
-		return mDerivedPosition;
+		//ColumnVector ret(derivedPosition_);
+		//ret.Release();
+		return derivedPosition_;
 	}
 
 	//! Gets the scaling factor of the node as derived from all parents.
-	const ReturnMatrix& Node::_getDerivedScale (void) const
+	const ColumnVector& Node::_getDerivedScale (void) const
 	{
-		if (mNeedParentUpdate)
+		if (needParentUpdate_)
 		{
-			_updateFroparent_();
+			//_updateFromParent();
 		}
-		return mDerivedScale;
+		return derivedScale_;
 	}
 
 	//! Gets the full transformation matrix for this node.
-	const Matrix4& 	Node::_getFullTransform (void) const
+	const Matrix& 	Node::_getFullTransform (void)
 	{
-		if (mCachedTransformOutOfDate)
+		if (cachedTransformOutOfDate_)
 		{
 			// Use derived values
-			mCachedTransform.makeTransform(
+			/*cachedTransform_.makeTransform(
 			_getDerivedPosition(),
 			_getDerivedScale(),
-			_getDerivedOrientation());
-			mCachedTransformOutOfDate = false;
+			_getDerivedOrientation());*/
+			cachedTransformOutOfDate_ = false;
 		}
-		return mCachedTransform;
+		return cachedTransform_;
 	}
 
 	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
 	void Node::setInitialState (void)
 	{
-		mInitialPosition = position_;
-		mInitialOrientation = orientation_;
-		mInitialScale = mScale;
+		initialPosition_ = position_;
+		initialOrientation_ = orientation_;
+		initialScale_ = scale_;
 	}
 
 	//! Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info.
 	void Node::resetToInitialState (void)
 	{
-		position_ = mInitialPosition;
-		orientation_ = mInitialOrientation;
-		mScale = mInitialScale;
+		position_ = initialPosition_;
+		orientation_ = initialOrientation_;
+		scale_ = initialScale_;
 
 		needUpdate();
 	}
 
 	//! Gets the initial position of this node, see setInitialState for more info.
-	const ReturnMatrix& Node::getInitialPosition (void) const
+	const ColumnVector& Node::getInitialPosition (void) const
 	{
-		return mInitialPosition;
+		return initialPosition_;
 	}
 
 	//! Gets the initial orientation of this node, see setInitialState for more info.
 	const math::Quaternion& Node::getInitialOrientation (void) const
 	{
-		return mInitialOrientation;
+		return initialOrientation_;
 	}
 
 	//! Gets the initial position of this node, see setInitialState for more info.
-	const ReturnMatrix& Node::getInitialScale (void) const
+	const ColumnVector& Node::getInitialScale (void) const
 	{
-		return mInitialScale;
+		return initialScale_;
 	}
 
 	//! To be called in the event of transform changes to this node that require it's recalculation.
-	void Node::needUpdate (bool forceParentUpdate=false)
+	void Node::needUpdate (bool forceParentUpdate)
 	{
-		mNeedParentUpdate = true;
-		mNeedChildUpdate = true;
-		mCachedTransformOutOfDate = true;
+		needParentUpdate_ = true;
+		needChildUpdate_ = true;
+		cachedTransformOutOfDate_ = true;
 
 		// Make sure we're not root and parent hasn't been notified before
-		if (parent_ && (!parent_Notified || forceParentUpdate))
+		if (parent_ && (!parentNotified_ || forceParentUpdate))
 		{
 			parent_->requestUpdate(this, forceParentUpdate);
-			parent_Notified = true ;
+			parentNotified_ = true ;
 		}
 
 		// all children will be updated
-		children_ToUpdate.clear();
+		childrenToUpdate_.clear();
 	}
 
 	//! Called by children to notify their parent that they need an update.
-	void Node::requestUpdate (Node *child, bool forceParentUpdate=false)
+	void Node::requestUpdate (Node *child, bool forceParentUpdate)
 	{
 		// If we're already going to update everything this doesn't matter
-		if (mNeedChildUpdate)
+		if (needChildUpdate_)
 		{
 			return;
 		}
 
-		children_ToUpdate.insert(child);
+		childrenToUpdate_.insert(child);
 		// Request selective update of me, if we didn't do it before
-		if (parent_ && (!parent_Notified || forceParentUpdate))
+		if (parent_ && (!parentNotified_ || forceParentUpdate))
 		{
 			parent_->requestUpdate(this, forceParentUpdate);
-			parent_Notified = true ;
+			parentNotified_ = true ;
 		}
 	}
 
 	//! Called by children to notify their parent that they no longer need an update.
 	void Node::cancelUpdate (Node *child)
 	{
-		children_ToUpdate.erase(child);
+		childrenToUpdate_.erase(child);
 
 		// Propogate this up if we're done
-		if (children_ToUpdate.empty() && parent_ && !mNeedChildUpdate)
+		if (childrenToUpdate_.empty() && parent_ && !needChildUpdate_)
 		{
 			parent_->cancelUpdate(this);
-			parent_Notified = false ;
+			parentNotified_ = false ;
 		}
 	}
 
 	// Static Public Member Functions
-	static void Node::queueNeedUpdate(Node *n)
+	void Node::queueNeedUpdate(Node *n)
 	{
 		// Don't queue the node more than once
-		if (!n->mQueuedForUpdate)
+		if (!n->queuedForUpdate_)
 		{
-			n->mQueuedForUpdate = true;
-			msQueuedUpdates.push_back(n);
+			n->queuedForUpdate_ = true;
+			queuedUpdates_.push_back(n);
 		}
 	}
 
 	//! Process queued 'needUpdate' calls.
-	static void Node::processQueuedUpdates (void)
+	void Node::processQueuedUpdates (void)
 	{
-		for (QueuedUpdates::iterator i = msQueuedUpdates.begin();
-		i != msQueuedUpdates.end(); ++i)
+		for (QueuedUpdates::iterator i = queuedUpdates_.begin();
+		i != queuedUpdates_.end(); ++i)
 		{
 			// Update, and force parent update since chances are we've ended
 			// up with some mixed state in there due to re-entrancy
 			Node* n = *i;
-			n->mQueuedForUpdate = false;
+			n->queuedForUpdate_ = false;
 			n->needUpdate(true);
 		}
-		msQueuedUpdates.clear();
+		queuedUpdates_.clear();
 	}
 	/*
 	void Node::updateFroparent_Impl (void) const
@@ -992,7 +981,7 @@ namespace sml {
 	}
 	/*
 	//! Triggers the node to update it's combined transforms.
-	void Node::_updateFroparent_ (void) const
+	void Node::_updateFromParent (void) const
 	{
 		updateFroparent_Impl();
 

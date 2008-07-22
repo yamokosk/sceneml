@@ -44,12 +44,19 @@ PropertyPair PropertyCollection::getPair(size_t index) const throw (sml::Excepti
 /**
  * Adds a new pair to the current contents.
  */
-void PropertyCollection::addPair(const PropertyPair& pair)
+void PropertyCollection::addPair(const PropertyPair& pair) throw (sml::Exception)
 {
+	if (pairs_.find( pair.getPropertyName() ) != pairs_.end())
+	{
+		std::ostringstream msg;
+		msg << "A property with the name " << pair.getPropertyName() << " already exists.";
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, msg.str());
+	}
+
 	pairs_[pair.getPropertyName()] = pair;
 }
 
-void PropertyCollection::updatePair(const char* key, const char* value, bool isRequired)
+void PropertyCollection::updatePair(const char* key, const char* value, bool isRequired) throw (sml::Exception)
 {
 	std::map<std::string, PropertyPair>::iterator it = pairs_.find(key);
 

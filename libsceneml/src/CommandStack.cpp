@@ -29,33 +29,31 @@ namespace sml
 
 CommandStack::CommandStack()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 CommandStack::~CommandStack()
 {
-	// TODO Auto-generated destructor stub
+
 }
 
-CommandStack::add(CommandBase* c)
+void CommandStack::add(CommandBase* c)
 {
-	commands.push_back(c);
+	commands_.push_back(c);
 }
 
-CommandStack::undo(void)
+void CommandStack::undo(void)
 {
-	if (commands.size() > 1) {
-		commands.pop_back();
+	if (commands_.size() > 1) {
+		commands_.pop_back();
 	} else {
-		throw std::runtime_error("No message.")
+		throw std::runtime_error("No message.");
 	}
 }
 
-CommandStack::process(void)
+void CommandStack::process(void)
 {
-	for (std::vector<Command*>::size_type x=0; x < commands.size(); ++x) {
-		commands[x]->execute();
+	for (std::vector<CommandBase*>::size_type x=0; x < commands_.size(); ++x) {
+		commands_[x]->execute();
 	}
 }
 

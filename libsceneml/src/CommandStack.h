@@ -25,6 +25,7 @@
 #ifndef COMMANDSTACK_H_
 #define COMMANDSTACK_H_
 
+#include <vector>
 #include "CommandBase.h"
 
 namespace sml
@@ -41,7 +42,7 @@ public:
 	void process();
 
 private:
-	std::vector<CommandBase*> commands;
+	std::vector<CommandBase*> commands_;
 };
 
 }

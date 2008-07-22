@@ -25,15 +25,17 @@
 #include <set>
 
 // SML includes
-#include "SceneMgr.h"
-#include "Observer.h"
-#include <math/smlMath.h>
-#include <math/smlQuaternion.h>
+#include <SceneMgr.h>
+#include <Observer.h>
+#include <math/Math.h>
+#include <math/Vector.h>
+#include <math/Matrix.h>
+#include <math/Quaternion.h>
 
 
 namespace sml {
 
-class Node : public Listener
+class Node : public Observer
 {
 // Public types and enums
 public:
@@ -61,8 +63,8 @@ public:
 	//! Destructor. Cleans up....
 	virtual ~Node();
 
-	// From Listener class
-	virtual void update(Subject* subject);
+	// From Observer class
+	virtual void update(Subject* subject, int hint);
 
 	/*
 	//! Adds an instance of a scene object to this node.
@@ -174,10 +176,13 @@ public:
 	ReturnMatrix getLocalAxes (void) const;
 
 	//! Creates an unnamed new Node as a child of this node.
-	Node* createChild(const ColumnVector& translate, const math::Quaternion& rotate);
+	Node* createChild(const ColumnVector& translate=math::VectorFactory::Vector3( math::ZERO ),
+					  const math::Quaternion& rotate=math::QuaternionFactory::Quat( math::IDENTITY ) );
 
 	//! Creates a new named Node as a child of this node.
-	Node* createChild(const std::string& name, const ColumnVector& translate, const math::Quaternion& rotate);
+	Node* createChild(const std::string& name,
+					  const ColumnVector& translate=math::VectorFactory::Vector3( math::ZERO ),
+					  const math::Quaternion& rotate=math::QuaternionFactory::Quat( math::IDENTITY ) );
 
 	//! Adds a (precreated) child scene node to this node.
 	void addChild (Node* child);
@@ -219,7 +224,7 @@ public:
 	virtual const ColumnVector& 	_getDerivedScale (void) const;
 
 	//! Gets the full transformation matrix for this node.
-	virtual const Matrix& 	_getFullTransform (void) const;
+	virtual const Matrix& 	_getFullTransform (void);
 
 	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
 	virtual void setInitialState (void);
@@ -354,6 +359,8 @@ protected:
 // Protected static data
 protected:
 	static unsigned long nextGeneratedNameExt_;
+
+	static QueuedUpdates queuedUpdates_;
 };
 
 
