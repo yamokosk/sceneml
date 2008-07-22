@@ -25,7 +25,7 @@
 #ifndef PROPERTYPAIR_H
 #define PROPERTYPAIR_H
 
-#include <math/smlMath.h>
+#include <math/Math.h>
 #include <newmat/newmat.h>
 
 

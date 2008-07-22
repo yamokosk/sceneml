@@ -30,13 +30,58 @@ namespace sml
 Variable::Variable() :
 	Subject()
 {
-	// TODO Auto-generated constructor stub
-
+	pc_.addPair( RequiredProperty("type") );
+	pc_.addPair( RequiredProperty("subtype") );
 }
 
 Variable::~Variable()
 {
-	// TODO Auto-generated destructor stub
+}
+
+void Variable::setType(const std::string& type)
+{
+	pc_.updatePair("type", type.c_str(), true);
+}
+
+std::string Variable::getType()
+{
+	return pc_.getValue("type");
+}
+
+void Variable::setSubType(const std::string& subtype)
+{
+	pc_.updatePair("subtype", subtype.c_str(), true);
+}
+
+std::string Variable::getSubType()
+{
+	return pc_.getValue("subtype");
+}
+
+void Variable::setScalar(math::Real s)
+{
+	data_.resize(1);
+	data_(1) = s;
+	this->notify(ScalarUpdate);
+}
+
+math::Real Variable::getScalar()
+{
+	return data_(1);
+}
+
+void Variable::setVector(const ColumnVector& v)
+{
+	data_.cleanup();
+	data_ = v;
+	this->notify(VectorUpdate);
+}
+
+ReturnMatrix Variable::getVector()
+{
+	ColumnVector ret(data_);
+	ret.Release();
+	return ret;
 }
 
 }

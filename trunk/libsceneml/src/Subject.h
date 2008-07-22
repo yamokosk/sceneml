@@ -51,12 +51,12 @@ public:
 		}
 	}
 
-	virtual void notify()
+	virtual void notify(int hint=0)
 	{
 		ObserversIterator it = observers_.begin();
 		for (; it != observers_.end(); ++it)
 		{
-			(*it)->update(this);
+			(*it)->update(this, hint);
 		}
 	}
 private:

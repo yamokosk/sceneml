@@ -46,7 +46,7 @@ public:
 		//subject_.disconnect(connection_);
 	}
 
-	virtual void update(Subject* subject) = 0;
+	virtual void update(Subject* subject, int hint) = 0;
 
 protected:
 	//Subject& subject_;

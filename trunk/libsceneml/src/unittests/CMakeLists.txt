@@ -39,8 +39,12 @@ endif ( WIN32 )
 # TEST PROPERTIES
 set(name test_nodevariable)
 set(srcs ${name}.cpp
+		 ${PROJECT_SOURCE_DIR}/src/SceneMgr.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Node.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Variable.cpp
+		 ${PROJECT_SOURCE_DIR}/src/PropertyCollection.cpp
+		 ${PROJECT_SOURCE_DIR}/src/CommandStack.cpp
+		 ${PROJECT_SOURCE_DIR}/src/math/Quaternion.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
     add_executable(${name} ${srcs})
@@ -59,4 +63,17 @@ if ( WIN32 )
     add_executable(${name} ${srcs})
 else ( WIN32 )
     add_executable(${name} ${srcs})
+endif ( WIN32 )
+
+# TEST OBSERVER
+set(name test_mathfactories)
+set(srcs ${name}.cpp
+         ${PROJECT_SOURCE_DIR}/src/math/Quaternion.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
+if ( WIN32 )
+    add_executable(${name} ${srcs})
+    target_link_libraries(${name} debug newmatD optimized newmat)
+else ( WIN32 )
+    add_executable(${name} ${srcs})
+    target_link_libraries(${name} newmat)
 endif ( WIN32 )

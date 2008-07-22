@@ -24,9 +24,9 @@
 #define USE_DOUBLE_PRECISION
 
 #ifdef USE_DOUBLE_PRECISION
-#include <math/smlDoubleConstants.h>
+#include <math/DoubleConstants.h>
 #else
-#include <math/smlFloatConstants.h>
+#include <math/FloatConstants.h>
 #endif
 
 #include <cmath>
@@ -43,6 +43,15 @@ typedef double Real;
 #else
 typedef float Real;
 #endif
+
+enum FactoryTypes {
+	IDENTITY=0,
+	ZERO,
+	UNIT_X,
+	UNIT_Y,
+	UNIT_Z,
+	ONES
+};
 
 } // namespace sml::math
 

@@ -10,7 +10,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
+#include <SceneMgr.h>
 #include <Node.h>
+#include <Variable.h>
+#include <math/Vector.h>
 
 using namespace sml;
 
@@ -18,11 +21,16 @@ BOOST_AUTO_TEST_CASE( basic_test )
 {
 	BOOST_TEST_MESSAGE( "Node/variable test." );
 
-	// First create a variable
-	Variable var1;
-	var1.addPair( RequiredProperty("type","translation") );
-	var1.addPair( RequiredProperty("value","1.0 2.0 3.0") );
+	SceneMgr mgr;
 
-	Node node(NULL);
-	node.addSubject(var1);
+	Node* n1 = mgr.getRootNode()->createChild();
+	Node* n2 = n1->createChild();
+	Node* n3 = n2->createChild();
+	Node* n4 = n2->createChild();
+	Node* n5 = n4->createChild();
+
+	Variable var1;
+	var1.setType("translation");
+	var1.subscribe(n2);
+	var1.setVector( math::VectorFactory::Vector3( math::UNIT_X ) );
 }
