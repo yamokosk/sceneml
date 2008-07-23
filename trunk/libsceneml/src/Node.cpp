@@ -91,7 +91,7 @@ namespace sml {
 		if (parent_)
 			parent_->removeChild(this);
 
-		/*if (queuedForUpdate_)
+		if (queuedForUpdate_)
 		{
 			// Erase from queued updates
 			QueuedUpdates::iterator it = std::find( queuedUpdates_.begin(), queuedUpdates_.end(), this );
@@ -107,15 +107,15 @@ namespace sml {
 		// Detach all objects, do this manually to avoid needUpdate() call
 		// which can fail because of deleted items
 		ObjectMap::iterator itr;
-		MovableObject* ret;
-		for ( itr = mObjectsByName.begin(); itr != mObjectsByName.end(); itr++ )
+		SceneObject* ret;
+		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 		{
 			ret = itr->second;
 			ret->_notifyAttached((SceneNode*)0);
 		}
-		mObjectsByName.clear();
+		sceneObjects_.clear();
 
-		if (mWireBoundingBox) {
+		/*if (mWireBoundingBox) {
 			delete mWireBoundingBox;
 		}*/
 	}
@@ -170,23 +170,21 @@ namespace sml {
 			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unknown variable type: " + type);
 		}
 	}
-	/*
-	void Node::attachObject (MovableObject *obj)
+
+	void Node::attachObject (SceneObject *obj)
 	{
 		if (obj->isAttached())
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-			"Object already attached to a SceneNode or a Bone",
-			"SceneNode::attachObject");
+			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object already attached to a Node.");
 		}
 
 		obj->_notifyAttached(this);
 
 		// Also add to name index
 		std::pair<ObjectMap::iterator, bool> insresult =
-		mObjectsByName.insert(ObjectMap::value_type(obj->getName(), obj));
+		sceneObjects_.insert(ObjectMap::value_type(obj->getName(), obj));
 		assert(insresult.second && "Object was not attached because an object of the "
-		"same name was already attached to this node.");
+				"same name was already attached to this node.");
 
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
@@ -194,15 +192,15 @@ namespace sml {
 
 	unsigned short Node::numAttachedObjects (void) const
 	{
-		return static_cast< unsigned short >( mObjectsByName.size() );
+		return static_cast< unsigned short >( sceneObjects_.size() );
 	}
 
 	//! Retrieves a pointer to an attached object.
-	MovableObject* Node::getAttachedObject (unsigned short index)
+	SceneObject* Node::getAttachedObject (unsigned short index)
 	{
-		if (index < mObjectsByName.size())
+		if (index < sceneObjects_.size())
 		{
-			ObjectMap::iterator i = mObjectsByName.begin();
+			ObjectMap::iterator i = sceneObjects_.begin();
 			// Increment (must do this one at a time)
 			while (index--)++i;
 
@@ -210,39 +208,38 @@ namespace sml {
 		}
 		else
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttachedObject");
+			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.");
 		}
 		return 0;
 	}
 
 	//! Retrieves a pointer to an attached object.
-	MovableObject* Node::getAttachedObject (const String &name)
+	SceneObject* Node::getAttachedObject (const String &name)
 	{
 		// Look up
-		ObjectMap::iterator i = mObjectsByName.find(name);
+		ObjectMap::iterator i = sceneObjects_.find(name);
 
-		if (i == mObjectsByName.end())
+		if (i == sceneObjects_.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Attached object " +
-			name + " not found.", "SceneNode::getAttachedObject");
+			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Attached object " + name + " not found.");
 		}
 
 		return i->second;
 	}
 
 	//! Detaches the indexed object from this scene node.
-	MovableObject* Node::detachObject (unsigned short index)
+	SceneObject* Node::detachObject (unsigned short index)
 	{
-		MovableObject* ret;
-		if (index < mObjectsByName.size())
+		SceneObject* ret;
+		if (index < sceneObjects_.size())
 		{
 
-			ObjectMap::iterator i = mObjectsByName.begin();
+			ObjectMap::iterator i = sceneObjects_.begin();
 			// Increment (must do this one at a time)
 			while (index--)++i;
 
 			ret = i->second;
-			mObjectsByName.erase(i);
+			sceneObjects_.erase(i);
 			ret->_notifyAttached((SceneNode*)0);
 
 			// Make sure bounds get updated (must go right to the top)
@@ -253,21 +250,21 @@ namespace sml {
 		}
 		else
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttchedEntity");
+			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.");
 		}
 		return 0;
 	}
 
 	//! Detaches an object by pointer.
-	void Node::detachObject (MovableObject *obj)
+	void Node::detachObject (SceneObject *obj)
 	{
 		ObjectMap::iterator i, iend;
-		iend = mObjectsByName.end();
-		for (i = mObjectsByName.begin(); i != iend; ++i)
+		iend = sceneObjects_.end();
+		for (i = sceneObjects_.begin(); i != iend; ++i)
 		{
 			if (i->second == obj)
 			{
-				mObjectsByName.erase(i);
+				sceneObjects_.erase(i);
 				break;
 			}
 		}
@@ -278,16 +275,16 @@ namespace sml {
 	}
 
 	//! Detaches the named object from this node and returns a pointer to it.
-	MovableObject* Node::detachObject (const String &name)
+	SceneObject* Node::detachObject (const String &name)
 	{
-		ObjectMap::iterator it = mObjectsByName.find(name);
-		if (it == mObjectsByName.end())
+		ObjectIterator it = sceneObjects_.find(name);
+		if (it == sceneObjects_.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
-			"to this node.", "SceneNode::detachObject");
+			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
+					"to this node.");
 		}
-		MovableObject* ret = it->second;
-		mObjectsByName.erase(it);
+		SceneObject* ret = it->second;
+		sceneObjects_.erase(it);
 		ret->_notifyAttached((SceneNode*)0);
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
@@ -298,14 +295,14 @@ namespace sml {
 	//! Detaches all objects attached to this node.
 	void Node::detachAllObjects (void)
 	{
-		ObjectMap::iterator itr;
-		MovableObject* ret;
-		for ( itr = mObjectsByName.begin(); itr != mObjectsByName.end(); itr++ )
+		ObjectIterator itr;
+		SceneObject* ret;
+		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 		{
 			ret = itr->second;
 			ret->_notifyAttached((SceneNode*)0);
 		}
-		mObjectsByName.clear();
+		sceneObjects_.clear();
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
 	}
@@ -357,7 +354,7 @@ namespace sml {
 		needChildUpdate_ = false;
 	}
 
-	//! Tells the SceneNode to update the world bound info it stores.
+/*	//! Tells the SceneNode to update the world bound info it stores.
 	void Node::_updateBounds (void)
 	{
 		// Reset bounds first
@@ -365,7 +362,7 @@ namespace sml {
 
 		// Update bounds from own attached objects
 		ObjectMap::iterator i;
-		for (i = mObjectsByName.begin(); i != mObjectsByName.end(); ++i)
+		for (i = sceneObjects_.begin(); i != sceneObjects_.end(); ++i)
 		{
 			// Merge world bounds of each object
 			mWorldAABB.merge(i->second->getWorldBoundingBox(true));
@@ -389,13 +386,13 @@ namespace sml {
 	//! Retrieves an iterator which can be used to efficiently step through the objects attached to this node.
 	ObjectIterator Node::getAttachedObjectIterator (void)
 	{
-		return ObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
+		return ObjectIterator(sceneObjects_.begin(), sceneObjects_.end());
 	}
 
 	//! Retrieves an iterator which can be used to efficiently step through the objects attached to this node.
 	ConstObjectIterator Node::getAttachedObjectIterator (void) const
 	{
-		return ConstObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
+		return ConstObjectIterator(sceneObjects_.begin(), sceneObjects_.end());
 	}
 	*/
 	//! Gets the creator of this scene node.
@@ -574,9 +571,9 @@ namespace sml {
 		ColumnVector axisY = math::VectorFactory::Vector3( math::UNIT_Y );
 		ColumnVector axisZ = math::VectorFactory::Vector3( math::UNIT_Z );
 
-		//axisX = orientation_ * axisX;
-		//axisY = orientation_ * axisY;
-		//axisZ = orientation_ * axisZ;
+		axisX = orientation_ * axisX;
+		axisY = orientation_ * axisY;
+		axisZ = orientation_ * axisZ;
 
 		// Concatenate columns to form matrix
 		Matrix ret = axisX & axisY & axisZ;
@@ -733,7 +730,7 @@ namespace sml {
 			i->second->setParent(0);
 		}
 		children_.clear();
-		//childrenToUpdate_.clear();
+		childrenToUpdate_.clear();
 	}
 
 	//! Gets the orientation of the node as derived from all parents.
@@ -741,7 +738,7 @@ namespace sml {
 	{
 		if (needParentUpdate_)
 		{
-			//_updateFromParent();
+			_updateFromParent();
 		}
 		return derivedOrientation_;
 	}
@@ -751,7 +748,7 @@ namespace sml {
 	{
 		if (needParentUpdate_)
 		{
-			//_updateFromParent();
+			_updateFromParent();
 		}
 		//ColumnVector ret(derivedPosition_);
 		//ret.Release();
@@ -763,7 +760,7 @@ namespace sml {
 	{
 		if (needParentUpdate_)
 		{
-			//_updateFromParent();
+			_updateFromParent();
 		}
 		return derivedScale_;
 	}
@@ -882,8 +879,7 @@ namespace sml {
 	//! Process queued 'needUpdate' calls.
 	void Node::processQueuedUpdates (void)
 	{
-		for (QueuedUpdates::iterator i = queuedUpdates_.begin();
-		i != queuedUpdates_.end(); ++i)
+		for (QueuedUpdates::iterator i = queuedUpdates_.begin(); i != queuedUpdates_.end(); ++i)
 		{
 			// Update, and force parent update since chances are we've ended
 			// up with some mixed state in there due to re-entrancy
@@ -893,8 +889,8 @@ namespace sml {
 		}
 		queuedUpdates_.clear();
 	}
-	/*
-	void Node::updateFroparent_Impl (void) const
+
+	void Node::updateFromParentImpl (void) const
 	{
 		if (parent_)
 		{
@@ -941,8 +937,17 @@ namespace sml {
 
 		cachedTransformOutOfDate_ = true;
 		needParentUpdate_ = false;
+
+		// Notify objects that it has been moved
+		ObjectMapConstIterator i;
+		for (i = sceneObjects_.begin(); i != sceneObjects_.end(); ++i)
+		{
+			SceneObject* object = i->second;
+			object->_notifyMoved();
+		}
+
 	}
-	*/
+
 	Node*  Node::createChildImpl(void)
 	{
 		if (!manager_)
@@ -968,7 +973,7 @@ namespace sml {
 		parent_ = parent;
 		// Request update from parent
 		parentNotified_ = false ;
-		//needUpdate();
+		needUpdate();
 
 		// Call listener (note, only called if there's something to do)
 		/*if (mListener && different)
@@ -979,11 +984,11 @@ namespace sml {
 			mListener->nodeDetached(this);
 		}*/
 	}
-	/*
+
 	//! Triggers the node to update it's combined transforms.
 	void Node::_updateFromParent (void) const
 	{
-		updateFroparent_Impl();
+		updateFromParentImpl();
 
 		// Call listener (note, this method only called if there's something to do)
 		if (mListener)
@@ -991,5 +996,4 @@ namespace sml {
 			mListener->nodeUpdated(this);
 		}
 	}
-	*/
 } // Namespace: sml

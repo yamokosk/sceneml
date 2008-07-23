@@ -40,23 +40,46 @@ public:
 	typedef NodeMap::iterator				NodeIterator;
 	typedef NodeMap::const_iterator			ConstNodeIterator;
 
-	//typedef std::map<std::string, Space*>	SpaceMap;
-	//typedef SpaceMap::iterator				SpaceIterator;
-	//typedef SpaceMap::const_iterator			ConstSpaceIterator;
-
 public:
 	SceneMgr();
 	virtual ~SceneMgr();
 
-	Node* getRootNode() const;
 	Node* createNode();
 	Node* createNode(const std::string& name);
+	void destroySceneNode(const std::string& name);
+	Node* getRootNode() const;
+	Node* getNode(const std::string& name) const;
+	virtual bool hasSceneNode(const std::string& name) const;
 
 	void clearScene();
-	//Space* createSpace(const PropertyCollection& pc);
-	//void addCollisionPair(const std::string& space1, const std::string& space2 );
 
-	//Body* createBody( const PropertyCollection& pc );
+	void _updateSceneGraph();
+
+	typedef std::map<std::string, SceneObject*> SceneObjectMap;
+	struct SceneObjectCollection
+	{
+		SceneObjectMap map;
+		OGRE_MUTEX(mutex)
+	};
+	typedef std::map<std::string, SceneObjectCollection*> SceneObjectCollectionMap;
+	SceneObjectCollectionMap sceneObjectCollectionMap_;
+	SceneObjectCollection* getSceneObjectCollection(const std::string& typeName);
+	const SceneObjectCollection* getSceneObjectCollection(const std::string& typeName) const;
+
+	virtual SceneObject* createSceneObject(const std::string& name,const std::string& typeName, const NameValuePairList* params = 0);
+	virtual void destroySceneObject(const std::string& name, const std::string& typeName);
+	virtual void destroySceneObject(SceneObject* m);
+	virtual void destroyAllSceneObjectsByType(const std::string& typeName);
+	virtual void destroyAllSceneObjects(void);
+	virtual SceneObject* getSceneObject(const std::string& name, const std::string& typeName) const;
+	virtual bool hasSceneObject(const std::string& name, const std::string& typeName) const;
+	typedef MapIterator<SceneObjectMap> SceneObjectIterator;
+	virtual SceneObjectIterator getSceneObjectIterator(const std::string& typeName);
+	virtual void injectSceneObject(SceneObject* m);
+	virtual void extractSceneObject(const std::string& name, const std::string& typeName);
+	virtual void extractSceneObject(SceneObject* m);
+	virtual void extractAllSceneObjectsByType(const std::string& typeName);
+
 private:
 	NodeMap nodes_;
 	Node* rootNode_;
