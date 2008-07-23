@@ -43,6 +43,10 @@ public:
 	typedef ChildNodeMap::iterator			ChildNodeIterator;
 	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
+	typedef std::map<std::string, SceneObject*> ObjectMap;
+	typedef ObjectMap::iterator ObjectIterator;
+	typedef ObjectMap::const_iterator ConstObjectIterator;
+
 	enum TransformSpace
 	{
 		/// Transform is relative to the local space
@@ -64,36 +68,35 @@ public:
 	virtual ~Node();
 
 	// From Observer class
-	virtual void update(Subject* subject, int hint);
+	void update(Subject* subject, int hint);
 
-	/*
 	//! Adds an instance of a scene object to this node.
-	virtual void attachObject (MovableObject *obj);
+	void attachObject (SceneObject *obj);
 
 	//! Reports the number of objects attached to this node.
-	virtual unsigned short numAttachedObjects (void) const;
+	unsigned short numAttachedObjects (void) const;
 
 	//! Retrieves a pointer to an attached object.
-	virtual MovableObject* getAttachedObject (unsigned short index);
+	SceneObject* getAttachedObject (unsigned short index);
 
 	//! Retrieves a pointer to an attached object.
-	virtual MovableObject* getAttachedObject (const String &name);
+	SceneObject* getAttachedObject (const String &name);
 
 	//! Detaches the indexed object from this scene node.
-	virtual MovableObject* detachObject (unsigned short index);
+	SceneObject* detachObject (unsigned short index);
 
 	//! Detaches an object by pointer.
-	virtual void detachObject (MovableObject *obj);
+	void detachObject (SceneObject *obj);
 
 	//! Detaches the named object from this node and returns a pointer to it.
-	virtual MovableObject* detachObject (const String &name);
+	SceneObject* detachObject (const String &name);
 
 	//! Detaches all objects attached to this node.
-	virtual void detachAllObjects (void);
+	void detachAllObjects (void);
 
 	//! Internal method to update the Node.
-	virtual void _update (bool updateChildren, bool parentHasChanged);
-
+	void _update (bool updateChildren, bool parentHasChanged);
+/*
 	//! Tells the SceneNode to update the world bound info it stores.
 	virtual void _updateBounds (void);
 
@@ -105,7 +108,7 @@ public:
 
 	//! Retrieves an iterator which can be used to efficiently step through the objects attached to this node.
 	virtual ConstObjectIterator getAttachedObjectIterator (void) const;
- 	*/
+ */
 	//! Gets the creator of this scene node.
 	SceneMgr* getManager (void) const;
 
@@ -280,11 +283,11 @@ protected:
 	void setParent(Node *parent);
 	/*
 	//! Internal method for setting whether the node is in the scene graph.
-	virtual void setInSceneGraph (bool inGraph);
+	virtual void setInSceneGraph (bool inGraph);*/
 
 	//! Triggers the node to update it's combined transforms.
-	virtual void _updateFromParent (void) const;
-*/
+	void _updateFromParent (void) const;
+
 // Protected Attributes
 protected:
 	//! SceneManager which created this node.
@@ -301,6 +304,9 @@ protected:
 
 	//! List of children which need updating, used if self is not out of date but children are.
 	ChildUpdateSet childrenToUpdate_;
+
+	//! Scene objects attached to this node
+	ObjectMap sceneObjects_;
 
 	//! Flag to indicate own transform from parent is out of date.
 	bool needParentUpdate_;
