@@ -111,7 +111,7 @@ namespace sml {
 		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 		{
 			ret = itr->second;
-			ret->_notifyAttached((SceneNode*)0);
+			ret->_notifyAttached((Node*)0);
 		}
 		sceneObjects_.clear();
 
@@ -214,7 +214,7 @@ namespace sml {
 	}
 
 	//! Retrieves a pointer to an attached object.
-	SceneObject* Node::getAttachedObject (const String &name)
+	SceneObject* Node::getAttachedObject (const std::string &name)
 	{
 		// Look up
 		ObjectMap::iterator i = sceneObjects_.find(name);
@@ -240,7 +240,7 @@ namespace sml {
 
 			ret = i->second;
 			sceneObjects_.erase(i);
-			ret->_notifyAttached((SceneNode*)0);
+			ret->_notifyAttached((Node*)0);
 
 			// Make sure bounds get updated (must go right to the top)
 			needUpdate();
@@ -268,16 +268,16 @@ namespace sml {
 				break;
 			}
 		}
-		obj->_notifyAttached((SceneNode*)0);
+		obj->_notifyAttached((Node*)0);
 
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
 	}
 
 	//! Detaches the named object from this node and returns a pointer to it.
-	SceneObject* Node::detachObject (const String &name)
+	SceneObject* Node::detachObject (const std::string &name)
 	{
-		ObjectIterator it = sceneObjects_.find(name);
+		ObjectMapIterator it = sceneObjects_.find(name);
 		if (it == sceneObjects_.end())
 		{
 			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
@@ -285,7 +285,7 @@ namespace sml {
 		}
 		SceneObject* ret = it->second;
 		sceneObjects_.erase(it);
-		ret->_notifyAttached((SceneNode*)0);
+		ret->_notifyAttached((Node*)0);
 		// Make sure bounds get updated (must go right to the top)
 		needUpdate();
 
@@ -295,12 +295,12 @@ namespace sml {
 	//! Detaches all objects attached to this node.
 	void Node::detachAllObjects (void)
 	{
-		ObjectIterator itr;
+		ObjectMapIterator itr;
 		SceneObject* ret;
 		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 		{
 			ret = itr->second;
-			ret->_notifyAttached((SceneNode*)0);
+			ret->_notifyAttached((Node*)0);
 		}
 		sceneObjects_.clear();
 		// Make sure bounds get updated (must go right to the top)
@@ -734,7 +734,7 @@ namespace sml {
 	}
 
 	//! Gets the orientation of the node as derived from all parents.
-	const math::Quaternion& Node::_getDerivedOrientation (void) const
+	math::Quaternion Node::_getDerivedOrientation (void)
 	{
 		if (needParentUpdate_)
 		{
@@ -744,7 +744,7 @@ namespace sml {
 	}
 
 	//! Gets the position of the node as derived from all parents.
-	const ColumnVector& Node::_getDerivedPosition (void) const
+	const ColumnVector& Node::_getDerivedPosition (void)
 	{
 		if (needParentUpdate_)
 		{
@@ -756,7 +756,7 @@ namespace sml {
 	}
 
 	//! Gets the scaling factor of the node as derived from all parents.
-	const ColumnVector& Node::_getDerivedScale (void) const
+	const ColumnVector& Node::_getDerivedScale (void)
 	{
 		if (needParentUpdate_)
 		{
@@ -890,12 +890,12 @@ namespace sml {
 		queuedUpdates_.clear();
 	}
 
-	void Node::updateFromParentImpl (void) const
+	void Node::updateFromParentImpl(void)
 	{
 		if (parent_)
 		{
 			// Update orientation
-			const math::Quaternion& parentOrientation = parent->_getDerivedOrientation();
+			math::Quaternion parentOrientation = parent_->_getDerivedOrientation();
 			if (inheritOrientation_)
 			{
 				// Combine orientation with that of parent
@@ -922,7 +922,8 @@ namespace sml {
 			}
 
 			// Change position vector based on parent's orientation & scale
-			derivedPosition_ = parentOrientation * (parentScale_ * position_);
+			//derivedPosition_ = parentOrientation * (parentScale_ * position_);
+			derivedPosition_ = parentOrientation * position_;
 
 			// Add altered position vector to parents
 			derivedPosition_ += parent_->_getDerivedPosition();
@@ -986,14 +987,8 @@ namespace sml {
 	}
 
 	//! Triggers the node to update it's combined transforms.
-	void Node::_updateFromParent (void) const
+	void Node::_updateFromParent (void)
 	{
 		updateFromParentImpl();
-
-		// Call listener (note, this method only called if there's something to do)
-		if (mListener)
-		{
-			mListener->nodeUpdated(this);
-		}
 	}
 } // Namespace: sml

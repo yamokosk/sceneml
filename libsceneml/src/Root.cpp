@@ -27,14 +27,14 @@
 namespace sml
 {
 template<> Root* Singleton<Root>::ms_Singleton = 0;
-Root* Root::getSingletonPtr(void)
+/*Root* Root::getSingletonPtr(void)
 {
 	return ms_Singleton;
 }
 Root& Root::getSingleton(void)
 {
 	assert( ms_Singleton );  return ( *ms_Singleton );
-}
+}*/
 
 Root::Root()
 {
@@ -53,12 +53,10 @@ void Root::addSceneObjectFactory(SceneObjectFactory* fact, bool overrideExisting
 	SceneObjectFactoryMap::iterator facti = mSceneObjectFactoryMap.find(fact->getType());
 	if (!overrideExisting && facti != mSceneObjectFactoryMap.end())
 	{
-		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM,
-			"A factory of type '" + fact->getType() + "' already exists.",
-			"Root::addSceneObjectFactory");
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"A factory of type '" + fact->getType() + "' already exists.");
 	}
 
-	if (fact->requestTypeFlags())
+	/*if (fact->requestTypeFlags())
 	{
 		if (facti != mSceneObjectFactoryMap.end() && facti->second->requestTypeFlags())
 		{
@@ -70,44 +68,39 @@ void Root::addSceneObjectFactory(SceneObjectFactory* fact, bool overrideExisting
 			// Allocate new
 			fact->_notifyTypeFlags(_allocateNextSceneObjectTypeFlag());
 		}
-	}
+	}*/
 
 	// Save
 	mSceneObjectFactoryMap[fact->getType()] = fact;
 }
 //---------------------------------------------------------------------
-bool Root::hasSceneObjectFactory(const String& typeName) const
+bool Root::hasSceneObjectFactory(const std::string& typeName) const
 {
 	return !(mSceneObjectFactoryMap.find(typeName) == mSceneObjectFactoryMap.end());
 }
 //---------------------------------------------------------------------
-SceneObjectFactory* Root::getSceneObjectFactory(const String& typeName)
+SceneObjectFactory* Root::getSceneObjectFactory(const std::string& typeName)
 {
 	SceneObjectFactoryMap::iterator i = mSceneObjectFactoryMap.find(typeName);
 	if (i == mSceneObjectFactoryMap.end())
 	{
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
-			"SceneObjectFactory of type " + typeName + " does not exist",
-			"Root::getSceneObjectFactory");
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"SceneObjectFactory of type " + typeName + " does not exist");
 	}
 	return i->second;
 }
 //---------------------------------------------------------------------
-uint32 Root::_allocateNextSceneObjectTypeFlag(void)
+/*uint32 Root::_allocateNextSceneObjectTypeFlag(void)
 {
 	if (mNextSceneObjectTypeFlag == SceneManager::USER_TYPE_MASK_LIMIT)
 	{
-		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM,
-			"Cannot allocate a type flag since "
-			"all the available flags have been used.",
-			"Root::_allocateNextSceneObjectTypeFlag");
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Cannot allocate a type flag since all the available flags have been used.");
 
 	}
 	uint32 ret = mNextSceneObjectTypeFlag;
 	mNextSceneObjectTypeFlag <<= 1;
 	return ret;
 
-}
+}*/
 //---------------------------------------------------------------------
 void Root::removeSceneObjectFactory(SceneObjectFactory* fact)
 {
@@ -120,13 +113,11 @@ void Root::removeSceneObjectFactory(SceneObjectFactory* fact)
 
 }
 //---------------------------------------------------------------------
-Root::SceneObjectFactoryIterator
-Root::getSceneObjectFactoryIterator(void) const
+/*Root::SceneObjectFactoryIterator Root::getSceneObjectFactoryIterator(void) const
 {
 	return SceneObjectFactoryIterator(mSceneObjectFactoryMap.begin(),
 		mSceneObjectFactoryMap.end());
-
-}
+}*/
 
 
 }

@@ -25,7 +25,8 @@
 #ifndef ROOT_H_
 #define ROOT_H_
 
-#include <Singelton.h>
+#include <Singleton.h>
+#include <SceneObject.h>
 
 namespace sml
 {
@@ -33,30 +34,32 @@ namespace sml
 class Root : public Singleton<Root>
 {
 public:
+	typedef std::map<std::string, SceneObjectFactory*> SceneObjectFactoryMap;
+
 	Root();
 	virtual ~Root();
 
-	// Register a new MovableObjectFactory which will create new MovableObject instances of a particular type, as identified by the getType() method.
-	void 	addMovableObjectFactory (MovableObjectFactory *fact, bool overrideExisting=false);
-	// Removes a previously registered MovableObjectFactory.
-	void 	removeMovableObjectFactory (MovableObjectFactory *fact);
-	// Checks whether a factory is registered for a given MovableObject type.
-	bool 	hasMovableObjectFactory (const String &typeName) const;
-	// Get a MovableObjectFactory for the given type.
-	MovableObjectFactory * 	getMovableObjectFactory (const String &typeName);
-	// Allocate the next MovableObject type flag.
-	uint32 	_allocateNextMovableObjectTypeFlag (void);
-	// Return an iterator over all the MovableObjectFactory instances currently registered.
-	MovableObjectFactoryIterator 	getMovableObjectFactoryIterator (void) const;
+	// Register a new SceneObjectFactory which will create new SceneObject instances of a particular type, as identified by the getType() method.
+	void 	addSceneObjectFactory (SceneObjectFactory *fact, bool overrideExisting=false);
+	// Removes a previously registered SceneObjectFactory.
+	void 	removeSceneObjectFactory (SceneObjectFactory *fact);
+	// Checks whether a factory is registered for a given SceneObject type.
+	bool 	hasSceneObjectFactory (const std::string &typeName) const;
+	// Get a SceneObjectFactory for the given type.
+	SceneObjectFactory* 	getSceneObjectFactory (const std::string &typeName);
+	// Allocate the next SceneObject type flag.
+	//uint32 	_allocateNextSceneObjectTypeFlag (void);
+	// Return an iterator over all the SceneObjectFactory instances currently registered.
+	//SceneObjectFactoryIterator 	getSceneObjectFactoryIterator (void) const;
 
 protected:
 	// List of plugin DLLs loaded.
-	PluginLibList 	mPluginLibs;
+	//PluginLibList 	mPluginLibs;
 	// List of Plugin instances registered.
-	PluginInstanceList 	mPlugins;
+	//PluginInstanceList 	mPlugins;
 
-	MovableObjectFactoryMap 	mMovableObjectFactoryMap
-	MovableObjectFactory * 	mEntityFactory
+	SceneObjectFactoryMap 	mSceneObjectFactoryMap;
+	SceneObjectFactory* 	mEntityFactory;
 };
 
 }

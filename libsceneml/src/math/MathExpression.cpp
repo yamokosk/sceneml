@@ -16,7 +16,7 @@
  *
  *************************************************************************/
 /*
- * MathExpression.cpp
+ * ExpressionFactory.cpp
  *
  *  Created on: Jul 17, 2008
  *      Author: yamokosk
@@ -24,6 +24,7 @@
 
 #include "MathExpression.h"
 #include <cstring>
+#include <muParser.h>
 
 namespace sml
 {
@@ -31,57 +32,49 @@ namespace sml
 namespace math
 {
 
-MathExpression::MathExpression(const std::string& expr) :
-	expr_(expr)
+//mu::Parser ExpressionFactory::parser_.DefineConst("pi", math::pi);
+//mu::Parser ExpressionFactory::parser_.DefineConst("e", math::e);
+
+math::Real ExpressionFactory::getAsReal(const std::string& expr)
 {
+	return parseValue( expr.c_str() );
+}
+
+int ExpressionFactory::getAsInt(const std::string& expr)
+{
+	return (int)parseValue( expr.c_str() );
+}
+
+ReturnMatrix ExpressionFactory::getAsVector(const std::string& expr, unsigned int length)
+{
+	return parseVector( expr.c_str() );
+}
+
+math::Real ExpressionFactory::parseValue(const char* str)
+{
+	mu::Parser parser_;
 	parser_.DefineConst("pi", math::pi);
 	parser_.DefineConst("e", math::e);
-}
 
-MathExpression::~MathExpression()
-{
-
-}
-
-math::Real MathExpression::getAsReal()
-{
-	return parseValue( expr_.c_str() );
-}
-
-int MathExpression::getAsInt()
-{
-	return (int)parseValue( expr_.c_str() );
-}
-
-ReturnMatrix MathExpression::getAsVector(unsigned int length)
-{
-	return parseVector( expr_.c_str() );
-}
-
-/*ReturnMatrix MathExpression::getPropertyValueAsMatrix(const std::string& name, unsigned int rows, unsigned int cols) const
-{
-	std::string expression = getPropertyValue(name);
-	ColumnVector temp = PropertyPair::parseVector( expression.c_str() );
-	return val;
-}*/
-
-math::Real MathExpression::parseValue(const char* str)
-{
 	// Give expression to parser
 	parser_.SetExpr(str);
 	// Evaluate string
 	return (math::Real)parser_.Eval();
 }
 
-ReturnMatrix MathExpression::parseVector(const char* str)
+ReturnMatrix ExpressionFactory::parseVector(const char* str)
 {
+	mu::Parser parser_;
+	parser_.DefineConst("pi", math::pi);
+	parser_.DefineConst("e", math::e);
+
 	// Copy incoming char buffer to local one
 	int length = strlen(str);
 	char* buf = new char[length+1];
 
-	memset(buf, '\0', (length+1)*sizeof(char));		
+	memset(buf, '\0', (length+1)*sizeof(char));
 	memcpy(buf, str, length*sizeof(char));
-	
+
 	std::vector<math::Real> values;
 
 	// Step through each token, evaluate it, and store it in our return vector

@@ -57,7 +57,7 @@ Node* SceneMgr::createNode(const std::string& name)
 	return n;
 }
 
-void SceneMgr::destroyNode(const std:string& name)
+void SceneMgr::destroyNode(const std::string& name)
 {
 	NodeIterator i = nodes_.find(name);
 
@@ -140,10 +140,11 @@ void SceneMgr::_updateSceneGraph()
 	rootNode_->_update(true, false);
 }
 
-SceneObjectCollection* getSceneObjectCollection(const std::string& typeName)
+//SceneObjectCollection* SceneMgr::getSceneObjectCollection(const std::string& typeName)
+SceneObjectCollection* SceneMgr::getSceneObjectCollection(const std::string& typeName)
 {
 	// lock collection mutex
-	OGRE_LOCK_MUTEX(mSceneObjectCollectionMapMutex)
+	//OGRE_LOCK_MUTEX(mSceneObjectCollectionMapMutex)
 
 	SceneObjectCollectionMap::iterator i = sceneObjectCollectionMap_.find(typeName);
 	if (i == sceneObjectCollectionMap_.end())
@@ -159,25 +160,7 @@ SceneObjectCollection* getSceneObjectCollection(const std::string& typeName)
 	}
 }
 
-const SceneObjectCollection* getSceneObjectCollection(const std::string& typeName) const
-{
-	// lock collection mutex
-	OGRE_LOCK_MUTEX(mSceneObjectCollectionMapMutex)
-
-	SceneObjectCollectionMap::const_iterator i =
-		sceneObjectCollectionMap_.find(typeName);
-	if (i == sceneObjectCollectionMap_.end())
-	{
-		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object collection named '" + typeName + "' does not exist.");
-	}
-	else
-	{
-		return i->second;
-	}
-}
-
-SceneObject* SceneMgr::createSceneObject(const std::string& name,
-	const std::string& typeName, const NameValuePairList* params)
+SceneObject* SceneMgr::createSceneObject(const std::string& name, const std::string& typeName, const PropertyCollection* params)
 {
 	SceneObjectFactory* factory =
 		Root::getSingleton().getSceneObjectFactory(typeName);
@@ -185,14 +168,11 @@ SceneObject* SceneMgr::createSceneObject(const std::string& name,
 	SceneObjectCollection* objectMap = getSceneObjectCollection(typeName);
 
 	{
-		OGRE_LOCK_MUTEX(objectMap->mutex)
+		//OGRE_LOCK_MUTEX(objectMap->mutex)
 
 		if (objectMap->map.find(name) != objectMap->map.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM,
-				"An object of type '" + typeName + "' with name '" + name
-				+ "' already exists.",
-				"SceneMgr::createSceneObject");
+			SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"An object of type '" + typeName + "' with name '" + name + "' already exists.");
 		}
 
 		SceneObject* newObj = factory->createInstance(name, this, params);
@@ -205,11 +185,10 @@ SceneObject* SceneMgr::createSceneObject(const std::string& name,
 void SceneMgr::destroySceneObject(const std::string& name, const std::string& typeName)
 {
 	SceneObjectCollection* objectMap = getSceneObjectCollection(typeName);
-	SceneObjectFactory* factory =
-		Root::getSingleton().getSceneObjectFactory(typeName);
+	SceneObjectFactory* factory = Root::getSingleton().getSceneObjectFactory(typeName);
 
 	{
-		OGRE_LOCK_MUTEX(objectMap->mutex)
+		//OGRE_LOCK_MUTEX(objectMap->mutex)
 
 		SceneObjectMap::iterator mi = objectMap->map.find(name);
 		if (mi != objectMap->map.end())
@@ -227,7 +206,7 @@ void SceneMgr::destroyAllSceneObjectsByType(const std::string& typeName)
 		Root::getSingleton().getSceneObjectFactory(typeName);
 
 	{
-		OGRE_LOCK_MUTEX(objectMap->mutex)
+		//OGRE_LOCK_MUTEX(objectMap->mutex)
 		SceneObjectMap::iterator i = objectMap->map.begin();
 		for (; i != objectMap->map.end(); ++i)
 		{
@@ -244,7 +223,7 @@ void SceneMgr::destroyAllSceneObjectsByType(const std::string& typeName)
 void SceneMgr::destroyAllSceneObjects(void)
 {
 	// Lock collection mutex
-	OGRE_LOCK_MUTEX(mSceneObjectCollectionMapMutex)
+	//OGRE_LOCK_MUTEX(mSceneObjectCollectionMapMutex)
 
 	SceneObjectCollectionMap::iterator ci = sceneObjectCollectionMap_.begin();
 
@@ -253,13 +232,12 @@ void SceneMgr::destroyAllSceneObjects(void)
 		SceneObjectCollection* coll = ci->second;
 
 		// lock map mutex
-		OGRE_LOCK_MUTEX(coll->mutex)
+		//OGRE_LOCK_MUTEX(coll->mutex)
 
 		if (Root::getSingleton().hasSceneObjectFactory(ci->first))
 		{
 			// Only destroy if we have a factory instance; otherwise must be injected
-			SceneObjectFactory* factory =
-				Root::getSingleton().getSceneObjectFactory(ci->first);
+			SceneObjectFactory* factory = Root::getSingleton().getSceneObjectFactory(ci->first);
 			SceneObjectMap::iterator i = coll->map.begin();
 			for (; i != coll->map.end(); ++i)
 			{
@@ -274,18 +252,16 @@ void SceneMgr::destroyAllSceneObjects(void)
 
 }
 //---------------------------------------------------------------------
-SceneObject* SceneMgr::getSceneObject(const std::string& name, const std::string& typeName) const
+SceneObject* SceneMgr::getSceneObject(const std::string& name, const std::string& typeName)
 {
-	const SceneObjectCollection* objectMap = getSceneObjectCollection(typeName);
+	SceneObjectCollection* objectMap = getSceneObjectCollection(typeName);
 
 	{
-		OGRE_LOCK_MUTEX(objectMap->mutex)
+		//OGRE_LOCK_MUTEX(objectMap->mutex)
 		SceneObjectMap::const_iterator mi = objectMap->map.find(name);
 		if (mi == objectMap->map.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
-				"Object named '" + name + "' does not exist.",
-				"SceneMgr::getSceneObject");
+			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"Object named '" + name + "' does not exist.");
 		}
 		return mi->second;
 	}
@@ -294,42 +270,40 @@ SceneObject* SceneMgr::getSceneObject(const std::string& name, const std::string
 //-----------------------------------------------------------------------
 bool SceneMgr::hasSceneObject(const std::string& name, const std::string& typeName) const
 {
-	OGRE_LOCK_MUTEX(mSceneObjectCollectionMapMutex)
+	//OGRE_LOCK_MUTEX(mSceneObjectCollectionMapMutex)
 
-	SceneObjectCollectionMap::const_iterator i =
-		sceneObjectCollectionMap_.find(typeName);
+	SceneObjectCollectionMap::const_iterator i = sceneObjectCollectionMap_.find(typeName);
 	if (i == sceneObjectCollectionMap_.end())
 		return false;
 
 	{
-		OGRE_LOCK_MUTEX(i->second->mutex)
+		//OGRE_LOCK_MUTEX(i->second->mutex)
 		return (i->second->map.find(name) != i->second->map.end());
 	}
 }
 
 //---------------------------------------------------------------------
-SceneMgr::SceneObjectIterator
-SceneMgr::getSceneObjectIterator(const std::string& typeName)
+/*SceneMgr::SceneObjectIterator SceneMgr::getSceneObjectIterator(const std::string& typeName)
 {
 	SceneObjectCollection* objectMap = getSceneObjectCollection(typeName);
 	// Iterator not thread safe! Warned in header.
 	return SceneObjectIterator(objectMap->map.begin(), objectMap->map.end());
-}
+}*/
 //---------------------------------------------------------------------
 void SceneMgr::destroySceneObject(SceneObject* m)
 {
-	destroySceneObject(m->getName(), m->getMovableType());
+	destroySceneObject(m->getName(), "DUMMY"); //m->getMovableType());
 }
 //---------------------------------------------------------------------
-void SceneMgr::injectSceneObject(SceneObject* m)
+/*void SceneMgr::injectSceneObject(SceneObject* m)
 {
 	SceneObjectCollection* objectMap = getSceneObjectCollection(m->getMovableType());
 	{
-		OGRE_LOCK_MUTEX(objectMap->mutex)
+		//OGRE_LOCK_MUTEX(objectMap->mutex)
 
 		objectMap->map[m->getName()] = m;
 	}
-}
+}*/
 
 
 

@@ -26,6 +26,7 @@
 
 // SML includes
 #include <SceneMgr.h>
+#include <SceneObject.h>
 #include <Observer.h>
 #include <math/Math.h>
 #include <math/Vector.h>
@@ -37,6 +38,8 @@ namespace sml {
 
 class Node : public Observer
 {
+	friend class SceneMgr;
+
 // Public types and enums
 public:
 	typedef std::map<std::string, Node*>	ChildNodeMap;
@@ -44,8 +47,8 @@ public:
 	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
 	typedef std::map<std::string, SceneObject*> ObjectMap;
-	typedef ObjectMap::iterator ObjectIterator;
-	typedef ObjectMap::const_iterator ConstObjectIterator;
+	typedef ObjectMap::iterator ObjectMapIterator;
+	typedef ObjectMap::const_iterator ObjectMapConstIterator;
 
 	enum TransformSpace
 	{
@@ -80,7 +83,7 @@ public:
 	SceneObject* getAttachedObject (unsigned short index);
 
 	//! Retrieves a pointer to an attached object.
-	SceneObject* getAttachedObject (const String &name);
+	SceneObject* getAttachedObject (const std::string &name);
 
 	//! Detaches the indexed object from this scene node.
 	SceneObject* detachObject (unsigned short index);
@@ -89,7 +92,7 @@ public:
 	void detachObject (SceneObject *obj);
 
 	//! Detaches the named object from this node and returns a pointer to it.
-	SceneObject* detachObject (const String &name);
+	SceneObject* detachObject (const std::string &name);
 
 	//! Detaches all objects attached to this node.
 	void detachAllObjects (void);
@@ -218,40 +221,40 @@ public:
 	void removeAllChildren (void);
 
 	//! Gets the orientation of the node as derived from all parents.
-	virtual const math::Quaternion& 	_getDerivedOrientation (void) const;
+	math::Quaternion _getDerivedOrientation (void);
 
 	//! Gets the position of the node as derived from all parents.
-	virtual const ColumnVector& 	_getDerivedPosition (void) const;
+	const ColumnVector& _getDerivedPosition (void);
 
 	//! Gets the scaling factor of the node as derived from all parents.
-	virtual const ColumnVector& 	_getDerivedScale (void) const;
+	const ColumnVector& _getDerivedScale (void);
 
 	//! Gets the full transformation matrix for this node.
-	virtual const Matrix& 	_getFullTransform (void);
+	const Matrix& _getFullTransform (void);
 
 	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
-	virtual void setInitialState (void);
+	void setInitialState (void);
 
 	//! Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info.
-	virtual void resetToInitialState (void);
+	void resetToInitialState (void);
 
 	//! Gets the initial position of this node, see setInitialState for more info.
-	virtual const ColumnVector& getInitialPosition (void) const;
+	const ColumnVector& getInitialPosition (void) const;
 
 	//! Gets the initial orientation of this node, see setInitialState for more info.
-	virtual const math::Quaternion& getInitialOrientation (void) const;
+	const math::Quaternion& getInitialOrientation (void) const;
 
 	//! Gets the initial position of this node, see setInitialState for more info.
-	virtual const ColumnVector& getInitialScale (void) const;
+	const ColumnVector& getInitialScale (void) const;
 
 	//! To be called in the event of transform changes to this node that require it's recalculation.
-	virtual void needUpdate (bool forceParentUpdate=false);
+	void needUpdate (bool forceParentUpdate=false);
 
 	//! Called by children to notify their parent that they need an update.
-	virtual void requestUpdate (Node *child, bool forceParentUpdate=false);
+	void requestUpdate (Node *child, bool forceParentUpdate=false);
 
 	//! Called by children to notify their parent that they no longer need an update.
-	virtual void cancelUpdate (Node *child);
+	void cancelUpdate (Node *child);
 
 // Static Public Member Functions
 protected:
@@ -271,8 +274,8 @@ protected:
 	// Remarks: Splitting the implementation of the update away from the update call
 	// itself allows the detail to be overridden without disrupting the general
 	// sequence of updateFromParent (e.g. raising events)
-	/*void 	updateFromParentImpl (void) const;
- 	*/
+	void 	updateFromParentImpl(void);
+
 	//! See Node.
 	Node* 	createChildImpl(void);
 
@@ -286,7 +289,7 @@ protected:
 	virtual void setInSceneGraph (bool inGraph);*/
 
 	//! Triggers the node to update it's combined transforms.
-	void _updateFromParent (void) const;
+	void _updateFromParent (void);
 
 // Protected Attributes
 protected:
@@ -313,6 +316,9 @@ protected:
 
 	//! Flag indicating that all children need to be updated.
 	bool needChildUpdate_;
+
+	bool updateChildren_;
+	bool parentHasChanged_;
 
 	//! Flag indicating that parent has been notified about update request.
 	bool parentNotified_;
