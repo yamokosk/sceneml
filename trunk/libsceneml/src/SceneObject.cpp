@@ -23,6 +23,7 @@
  */
 
 #include "SceneObject.h"
+#include "Node.h"
 
 namespace sml
 {
@@ -44,7 +45,7 @@ SceneObject::SceneObject(const std::string& name) :
 {
 }
 
-SceneObject::~SceneObjectBase()
+SceneObject::~SceneObject()
 {
 	if (parentNode_)
 		parentNode_->detachObject(this);

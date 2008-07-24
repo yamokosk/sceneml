@@ -25,7 +25,7 @@ endif ( WIN32 )
 # TEST MATH EXPRESSION
 set(name test_mathexpression)
 set(srcs ${name}.cpp
-		 ${PROJECT_SOURCE_DIR}/src/MathExpression.cpp
+		 ${PROJECT_SOURCE_DIR}/src/math/MathExpression.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
     add_executable(${name} ${srcs})
@@ -39,12 +39,14 @@ endif ( WIN32 )
 # TEST PROPERTIES
 set(name test_nodevariable)
 set(srcs ${name}.cpp
+         ${PROJECT_SOURCE_DIR}/src/Root.cpp
 		 ${PROJECT_SOURCE_DIR}/src/SceneMgr.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Node.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Variable.cpp
 		 ${PROJECT_SOURCE_DIR}/src/PropertyCollection.cpp
 		 ${PROJECT_SOURCE_DIR}/src/CommandStack.cpp
 		 ${PROJECT_SOURCE_DIR}/src/math/Quaternion.cpp
+		 ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
     add_executable(${name} ${srcs})

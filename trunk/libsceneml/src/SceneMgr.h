@@ -24,13 +24,23 @@
 #include <map>
 
 // sml includes
+#include "Root.h"
 #include "Exception.h"
 #include "CommandStack.h"
+#include "SceneObject.h"
+#include "PropertyCollection.h"
 
 namespace sml {
 
 // Forward declarations
 class Node;
+
+typedef std::map<std::string, SceneObject*> SceneObjectMap;
+struct SceneObjectCollection
+{
+	SceneObjectMap map;
+	//OGRE_MUTEX(mutex)
+};
 
 class SceneMgr
 {
@@ -38,7 +48,12 @@ class SceneMgr
 public:
 	typedef std::map<std::string, Node*>	NodeMap;
 	typedef NodeMap::iterator				NodeIterator;
-	typedef NodeMap::const_iterator			ConstNodeIterator;
+	typedef NodeMap::const_iterator			NodeConstIterator;
+
+	
+	
+	typedef std::map<std::string, SceneObjectCollection*> SceneObjectCollectionMap;
+	//typedef MapIterator<SceneObjectMap> SceneObjectIterator;
 
 public:
 	SceneMgr();
@@ -46,7 +61,7 @@ public:
 
 	Node* createNode();
 	Node* createNode(const std::string& name);
-	void destroySceneNode(const std::string& name);
+	void destroyNode(const std::string& name);
 	Node* getRootNode() const;
 	Node* getNode(const std::string& name) const;
 	virtual bool hasSceneNode(const std::string& name) const;
@@ -54,36 +69,25 @@ public:
 	void clearScene();
 
 	void _updateSceneGraph();
-
-	typedef std::map<std::string, SceneObject*> SceneObjectMap;
-	struct SceneObjectCollection
-	{
-		SceneObjectMap map;
-		OGRE_MUTEX(mutex)
-	};
-	typedef std::map<std::string, SceneObjectCollection*> SceneObjectCollectionMap;
-	SceneObjectCollectionMap sceneObjectCollectionMap_;
+	
 	SceneObjectCollection* getSceneObjectCollection(const std::string& typeName);
-	const SceneObjectCollection* getSceneObjectCollection(const std::string& typeName) const;
-
-	virtual SceneObject* createSceneObject(const std::string& name,const std::string& typeName, const NameValuePairList* params = 0);
-	virtual void destroySceneObject(const std::string& name, const std::string& typeName);
-	virtual void destroySceneObject(SceneObject* m);
-	virtual void destroyAllSceneObjectsByType(const std::string& typeName);
-	virtual void destroyAllSceneObjects(void);
-	virtual SceneObject* getSceneObject(const std::string& name, const std::string& typeName) const;
-	virtual bool hasSceneObject(const std::string& name, const std::string& typeName) const;
-	typedef MapIterator<SceneObjectMap> SceneObjectIterator;
-	virtual SceneObjectIterator getSceneObjectIterator(const std::string& typeName);
-	virtual void injectSceneObject(SceneObject* m);
-	virtual void extractSceneObject(const std::string& name, const std::string& typeName);
-	virtual void extractSceneObject(SceneObject* m);
-	virtual void extractAllSceneObjectsByType(const std::string& typeName);
+	SceneObject* createSceneObject(const std::string& name,const std::string& typeName, const PropertyCollection* params = 0);
+	void destroySceneObject(const std::string& name, const std::string& typeName);
+	void destroySceneObject(SceneObject* m);
+	void destroyAllSceneObjectsByType(const std::string& typeName);
+	void destroyAllSceneObjects(void);
+	SceneObject* getSceneObject(const std::string& name, const std::string& typeName);
+	bool hasSceneObject(const std::string& name, const std::string& typeName) const;
+	//virtual SceneObjectIterator getSceneObjectIterator(const std::string& typeName);
+	//void injectSceneObject(SceneObject* m);
+	//void extractSceneObject(const std::string& name, const std::string& typeName);
+	//void extractSceneObject(SceneObject* m);
+	//void extractAllSceneObjectsByType(const std::string& typeName);
 
 private:
 	NodeMap nodes_;
 	Node* rootNode_;
-
+	SceneObjectCollectionMap sceneObjectCollectionMap_;
 	//SpaceMap spaces_;
 
 	CommandStack cmdStack_;

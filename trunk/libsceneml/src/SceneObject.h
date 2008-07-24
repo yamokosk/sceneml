@@ -21,11 +21,14 @@
 
 #include <string>
 #include <Exception.h>
+#include <PropertyCollection.h>
 
 namespace sml {
 
 // Forward declaration
 class SceneObjectFactory;
+class Node;
+class SceneMgr;
 
 //! Base class for movable scene objects.
 /** @ingroup xode
@@ -36,7 +39,7 @@ class SceneObject
 public:
 	SceneObject();
 	SceneObject(const std::string& name);
-	virtual ~SceneObjectBase();
+	virtual ~SceneObject();
 
 	void _notifyAttached(Node* parent);
 	void _notifyCreator(SceneObjectFactory* fact) { creator_ = fact; }
@@ -50,6 +53,7 @@ public:
 	virtual bool isAttached(void) const;
 
 	virtual void _notifyMoved(void) = 0;
+	//virtual void _notifySpace(Space* space) = 0;
 
 	//virtual const AxisAlignedBox& getBoundingBox(void) const = 0;
 	//virtual Real getBoundingRadius(void) const = 0;
@@ -78,7 +82,7 @@ class SceneObjectFactory
 protected:
 	//unsigned long mTypeFlag;
 
-	virtual SceneObject* createInstanceImpl(const String& name, const NameValuePairList* params = 0) = 0;
+	virtual SceneObject* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0) = 0;
 public:
 	SceneObjectFactory() /*: mTypeFlag(0xFFFFFFFF)*/ {}
 	virtual ~SceneObjectFactory() {}
