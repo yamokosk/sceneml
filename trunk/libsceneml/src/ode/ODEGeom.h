@@ -8,7 +8,9 @@
 #ifndef ODEGEOM_H_
 #define ODEGEOM_H_
 
-#include "SceneObject.h"
+#include <SceneObject.h>
+#include <math/Math.h>
+#include <math/Vector.h>
 
 namespace sml {
 
@@ -24,7 +26,6 @@ public:
 
 	// Inherited from SceneObject
 	virtual void _notifyMoved(void);
-	//virtual void _notifySpace(Space* space);
 
 private:
 	//! ODE object pointer
@@ -32,9 +33,9 @@ private:
 	//! Geom mesh data
 	PolyhedronPtr mesh_; // Owner of this pointer
 	//! Geom color
-	dVector3 rgb_;
+	ColumnVector rgb_;
 	//! Geom alpha (transperancy)
-	dReal alpha_;
+	math::Real alpha_;
 };
 
 class ODEObjectFactory
@@ -46,7 +47,7 @@ public:
 	ODEObjectFactory();
 	virtual ~ODEObjectFactory();
 
-	virtual const std::string& getType(void) const;
+	virtual std::string getType(void) const;
 	virtual void destroyInstance(SceneObject* obj);
 };
 

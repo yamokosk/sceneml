@@ -40,13 +40,13 @@ public:
 	virtual ~Root();
 
 	// Register a new SceneObjectFactory which will create new SceneObject instances of a particular type, as identified by the getType() method.
-	void 	addSceneObjectFactory (SceneObjectFactory *fact, bool overrideExisting=false);
+	void addSceneObjectFactory (SceneObjectFactory *fact, bool overrideExisting=false);
 	// Removes a previously registered SceneObjectFactory.
-	void 	removeSceneObjectFactory (SceneObjectFactory *fact);
+	void removeSceneObjectFactory (SceneObjectFactory *fact);
 	// Checks whether a factory is registered for a given SceneObject type.
-	bool 	hasSceneObjectFactory (const std::string &typeName) const;
+	bool hasSceneObjectFactory (const std::string &typeName) const;
 	// Get a SceneObjectFactory for the given type.
-	SceneObjectFactory* 	getSceneObjectFactory (const std::string &typeName);
+	SceneObjectFactory* getSceneObjectFactory (const std::string &typeName);
 	// Allocate the next SceneObject type flag.
 	//uint32 	_allocateNextSceneObjectTypeFlag (void);
 	// Return an iterator over all the SceneObjectFactory instances currently registered.
@@ -58,7 +58,7 @@ protected:
 	// List of Plugin instances registered.
 	//PluginInstanceList 	mPlugins;
 
-	SceneObjectFactoryMap 	mSceneObjectFactoryMap;
+	SceneObjectFactoryMap 	sceneObjectFactoryMap_;
 	SceneObjectFactory* 	mEntityFactory;
 };
 

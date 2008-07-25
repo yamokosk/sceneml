@@ -48,17 +48,17 @@ Root::~Root()
 }
 
 //---------------------------------------------------------------------
-void Root::addSceneObjectFactory(SceneObjectFactory* fact, bool overrideExisting)
+void Root::addSceneObjectFactory(SceneObjectFactory* fact)
 {
-	SceneObjectFactoryMap::iterator facti = mSceneObjectFactoryMap.find(fact->getType());
-	if (!overrideExisting && facti != mSceneObjectFactoryMap.end())
+	SceneObjectFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
+	if (!overrideExisting && facti != sceneObjectFactoryMap_.end())
 	{
 		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"A factory of type '" + fact->getType() + "' already exists.");
 	}
 
 	/*if (fact->requestTypeFlags())
 	{
-		if (facti != mSceneObjectFactoryMap.end() && facti->second->requestTypeFlags())
+		if (facti != sceneObjectFactoryMap_.end() && facti->second->requestTypeFlags())
 		{
 			// Copy type flags from the factory we're replacing
 			fact->_notifyTypeFlags(facti->second->getTypeFlags());
@@ -71,18 +71,18 @@ void Root::addSceneObjectFactory(SceneObjectFactory* fact, bool overrideExisting
 	}*/
 
 	// Save
-	mSceneObjectFactoryMap[fact->getType()] = fact;
+	sceneObjectFactoryMap_[fact->getType()] = fact;
 }
 //---------------------------------------------------------------------
 bool Root::hasSceneObjectFactory(const std::string& typeName) const
 {
-	return !(mSceneObjectFactoryMap.find(typeName) == mSceneObjectFactoryMap.end());
+	return !(sceneObjectFactoryMap_.find(typeName) == sceneObjectFactoryMap_.end());
 }
 //---------------------------------------------------------------------
 SceneObjectFactory* Root::getSceneObjectFactory(const std::string& typeName)
 {
-	SceneObjectFactoryMap::iterator i = mSceneObjectFactoryMap.find(typeName);
-	if (i == mSceneObjectFactoryMap.end())
+	SceneObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(typeName);
+	if (i == sceneObjectFactoryMap_.end())
 	{
 		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"SceneObjectFactory of type " + typeName + " does not exist");
 	}
@@ -104,19 +104,19 @@ SceneObjectFactory* Root::getSceneObjectFactory(const std::string& typeName)
 //---------------------------------------------------------------------
 void Root::removeSceneObjectFactory(SceneObjectFactory* fact)
 {
-	SceneObjectFactoryMap::iterator i = mSceneObjectFactoryMap.find(
+	SceneObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(
 		fact->getType());
-	if (i != mSceneObjectFactoryMap.end())
+	if (i != sceneObjectFactoryMap_.end())
 	{
-		mSceneObjectFactoryMap.erase(i);
+		sceneObjectFactoryMap_.erase(i);
 	}
 
 }
 //---------------------------------------------------------------------
 /*Root::SceneObjectFactoryIterator Root::getSceneObjectFactoryIterator(void) const
 {
-	return SceneObjectFactoryIterator(mSceneObjectFactoryMap.begin(),
-		mSceneObjectFactoryMap.end());
+	return SceneObjectFactoryIterator(sceneObjectFactoryMap_.begin(),
+		sceneObjectFactoryMap_.end());
 }*/
 
 
