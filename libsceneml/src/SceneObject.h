@@ -86,7 +86,7 @@ protected:
 public:
 	SceneObjectFactory() /*: mTypeFlag(0xFFFFFFFF)*/ {}
 	virtual ~SceneObjectFactory() {}
-	virtual const std::string& getType(void) const = 0;
+	virtual std::string getType(void) const = 0;
 
 	virtual SceneObject* createInstance( const std::string& name, SceneMgr* manager, const PropertyCollection* params = 0);
 	virtual void destroyInstance(SceneObject* obj) = 0;

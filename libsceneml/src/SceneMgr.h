@@ -50,8 +50,6 @@ public:
 	typedef NodeMap::iterator				NodeIterator;
 	typedef NodeMap::const_iterator			NodeConstIterator;
 
-	
-	
 	typedef std::map<std::string, SceneObjectCollection*> SceneObjectCollectionMap;
 	//typedef MapIterator<SceneObjectMap> SceneObjectIterator;
 
@@ -69,7 +67,7 @@ public:
 	void clearScene();
 
 	void _updateSceneGraph();
-	
+
 	SceneObjectCollection* getSceneObjectCollection(const std::string& typeName);
 	SceneObject* createSceneObject(const std::string& name,const std::string& typeName, const PropertyCollection* params = 0);
 	void destroySceneObject(const std::string& name, const std::string& typeName);

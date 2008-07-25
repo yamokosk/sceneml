@@ -11,17 +11,26 @@ namespace sml {
 
 namespace ode {
 
-ODEGeom::ODEGeom() {
-
-}
-
-ODEGeom::ODEGeom(const std::string& name)
+ODEGeom::ODEGeom() :
+	SceneObject(),
+	geomID_(NULL),
+	alpha_(1)
 {
 
 }
 
-ODEGeom::~ODEGeom() {
+ODEGeom::ODEGeom(const std::string& name) :
+	SceneObject(name),
+	geomID_(NULL),
+	alpha_(1)
+{
 
+}
+
+ODEGeom::~ODEGeom()
+{
+	if (geomID_)
+		dGeomDestroy(geomID_);
 }
 
 
@@ -30,10 +39,16 @@ void ODEGeom::_notifyMoved(void)
 	assert(geomID_ && parentNode_);
 
 	if ( getType() != dPlaneClass ) {
-		Matrix T = parentNode_->_getFullTransform();
+		ColumnVector pos = parentNode_->_getDerivedPosition();
+		dGeomSetPosition(geomID_, pos(1), pos(2), pos(3));
 
-		dGeomSetPosition(geomID_, T(1,4), T(2,4)), T(3,4));
-		//dGeomSetRotation(geomID_, rot);
+		Quaternion q = parentNode_->_getDerivedOrientation();
+		dQuaternion dq = {0};
+		dq[0] = q.real();
+		dq[1] = q.R_component_2();
+		dq[2] = q.R_component_3();
+		dq[3] = q.R_component_4();
+		dGeomSetQuaternion(geomID_, dq);
 	}
 }
 
@@ -54,7 +69,9 @@ ODEObjectFactory::~ODEObjectFactory()
 
 SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params = 0)
 {
-	dGeomID geomID_ = NULL;
+	ODEGeom* g = new ODEGeom( name );
+
+	dGeomID geomID = NULL;
 
 	// Construct the ODE object - based on type of course
 	std::string type = params->getValue("type");
@@ -63,24 +80,24 @@ SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const
 		float length = math::ExpressionFactory::getAsReal( params->getValue("length") );
 		float width = math::ExpressionFactory::getAsReal( params->getValue("width") );
 		float height = math::ExpressionFactory::getAsReal( params->getValue("height") );
-		geomID_ = dCreateBox(NULL, length, width, height);
+		geomID = dCreateBox(NULL, length, width, height);
 	} else if (!type.compare("ccylinder")) {
 		float length = math::ExpressionFactory::getAsReal( params->getValue("length") );
 		float radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
-		geomID_ = dCreateCCylinder(NULL, radius, length);
+		geomID = dCreateCCylinder(NULL, radius, length);
 	} else if (!type.compare("cylinder")) {
 		float length = math::ExpressionFactory::getAsReal( params->getValue("length") );
 		float radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
-		geomID_ = dCreateCylinder(NULL, radius, length);
+		geomID = dCreateCylinder(NULL, radius, length);
 	} else if (!type.compare("sphere")) {
 		float radius = math::ExpressionFactory::getAsReal( params->getValue("radius");
-		geomID_ = dCreateSphere(NULL, radius);
+		geomID = dCreateSphere(NULL, radius);
 	} else if (!type.compare("plane")) {
 		float nx = math::ExpressionFactory::getAsReal( params->getValue("normal_x") );
 		float ny = math::ExpressionFactory::getAsReal( params->getValue("normal_y") );
 		float nz = math::ExpressionFactory::getAsReal( params->getValue("normal_z") );
 		float d = params->getValue("d");
-		geomID_ = dCreatePlane(NULL, nx, ny, nz, d);
+		geomID = dCreatePlane(NULL, nx, ny, nz, d);
 	} else if (!type.compare("mesh")) {
 		// Got to make a TriMeshObj!.. tough one.
 		std::string filename = params->getValue("filename");
@@ -119,7 +136,7 @@ SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const
 		dGeomTriMeshDataBuildSingle(Data,
 			(void*)mesh->vertices.get(), mesh->vertex_stride, mesh->vertex_count,
 			(void*)mesh->indices.get(),mesh->index_count,mesh->index_stride);
-		geomID_ = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);
+		geomID = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);
 	} else {
 		std::ostringstream msg;
 		msg << type << " is an unrecognized geom type. Currently only stl and obj files are supported." << std::endl;
@@ -127,41 +144,23 @@ SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const
 		throw std::runtime_error(msg.str());
 	}
 
-	// At this point the geom has NOT been added to the correct space. First
-	// we need to check if there is a transform between this geom and its body.
-	// That effects who is added to what space.
-	//TransformList_t tlist = parseTransform(thisGeomItem);
-	CompositeTransformPtr pTransform(new CompositeTransform());
-	parseTransform(thisGeomItem, pTransform.get());
+	//if (type.compare("plane")) dGeomSetBody(g, body->id());
+	//dSpaceAdd(spaceID, geomID_);
+	//dGeomSetCategoryBits(geomID_, 1);
+	//dGeomSetCollideBits(geomID_, 1);
 
-	if (pTransform->size() > 0) {
-		// There exists a transform between the body and geom.. therefore
-		// we need a transform geom in ODE to accurately represent this.
-		transID_ = dCreateGeomTransform(NULL);
-		dGeomTransformSetGeom(transID_, geomID_);
-		if (type.compare("plane")) dGeomSetBody(transID_, body->id());
-			dSpaceAdd(spaceID, transID_);
-		dGeomSetCategoryBits(transID_, 1);
-		dGeomSetCollideBits(transID_, 1);
-	} else {
-		if (type.compare("plane")) dGeomSetBody(g, body->id());
-		dSpaceAdd(spaceID, geomID_);
-		dGeomSetCategoryBits(geomID_, 1);
-		dGeomSetCollideBits(geomID_, 1);
-	}
-
-	ODEGeom* g = new ODEGeom("test");
 	g->_setGeomID(geomID);
+	return g;
 }
 
-const std::string& ODEObjectFactory::getType(void) const
+std::string ODEObjectFactory::getType(void) const
 {
-
+	return std::string("ODE");
 }
 
 void ODEObjectFactory::destroyInstance(SceneObject* obj)
 {
-
+	delete obj;
 }
 
 }
