@@ -16,9 +16,9 @@ set(srcs ${name}.cpp
 		 ${PROJECT_SOURCE_DIR}/src/PropertyCollection.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
-    add_executable(${name} ${srcs})
+    add_executable(unit${name} ${srcs})
 else ( WIN32 )
-    add_executable(${name} ${srcs})
+    add_executable(unit${name} ${srcs})
 endif ( WIN32 )
 
 
@@ -28,12 +28,12 @@ set(srcs ${name}.cpp
 		 ${PROJECT_SOURCE_DIR}/src/math/MathExpression.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
-    add_executable(${name} ${srcs})
-    target_link_libraries(${name} debug muparser_static_D optimized muparser_static
+    add_executable(unit${name} ${srcs})
+    target_link_libraries(unit${name} debug muparser_static_D optimized muparser_static
                                   debug newmatD optimized newmat)
 else ( WIN32 )
-    add_executable(${name} ${srcs})
-    target_link_libraries(${name} muparser newmat)
+    add_executable(unit${name} ${srcs})
+    target_link_libraries(unit${name} muparser newmat)
 endif ( WIN32 )
 
 # TEST PROPERTIES
@@ -49,12 +49,12 @@ set(srcs ${name}.cpp
 		 ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
-    add_executable(${name} ${srcs})
-    target_link_libraries(${name} debug libmuparserD optimized libmuparser
+    add_executable(unit${name} ${srcs})
+    target_link_libraries(unit${name} debug libmuparserD optimized libmuparser
                                   debug newmatD optimized newmat)
 else ( WIN32 )
-    add_executable(${name} ${srcs})
-    target_link_libraries(${name} muparser newmat)
+    add_executable(unit${name} ${srcs})
+    target_link_libraries(unit${name} muparser newmat)
 endif ( WIN32 )
 
 # TEST OBSERVER
@@ -62,9 +62,9 @@ set(name test_observer)
 set(srcs ${name}.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
-    add_executable(${name} ${srcs})
+    add_executable(unit${name} ${srcs})
 else ( WIN32 )
-    add_executable(${name} ${srcs})
+    add_executable(unit${name} ${srcs})
 endif ( WIN32 )
 
 # TEST OBSERVER
@@ -73,9 +73,9 @@ set(srcs ${name}.cpp
          ${PROJECT_SOURCE_DIR}/src/math/Quaternion.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
-    add_executable(${name} ${srcs})
-    target_link_libraries(${name} debug newmatD optimized newmat)
+    add_executable(unit${name} ${srcs})
+    target_link_libraries(unit${name} debug newmatD optimized newmat)
 else ( WIN32 )
-    add_executable(${name} ${srcs})
-    target_link_libraries(${name} newmat)
+    add_executable(unit${name} ${srcs})
+    target_link_libraries(unit${name} newmat)
 endif ( WIN32 )

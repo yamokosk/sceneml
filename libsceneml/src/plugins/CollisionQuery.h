@@ -8,14 +8,15 @@
 #ifndef COLLISIONQUERY_H_
 #define COLLISIONQUERY_H_
 
-#include "SceneQuery.h"
+// SceneML
+#include <SceneML.h>
 
-namespace sml {
+// ODE library
+#include <ode/ode.h>
 
-namespace ode {
+namespace smlode {
 
-// Forward declaration
-class SceneMgr;
+using namespace sml;
 
 class CollisionQuery: public sml::SceneQuery
 {
@@ -24,10 +25,8 @@ public:
 	virtual ~CollisionQuery();
 
 	// Inherited from SceneQuery
-	virtual void query();
+	virtual SceneQueryResult* query();
 };
-
-}
 
 }
 

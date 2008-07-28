@@ -23,6 +23,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <iostream>
 
 // SML includes
 #include <SceneMgr.h>
@@ -232,6 +233,9 @@ public:
 	//! Gets the full transformation matrix for this node.
 	const Matrix& _getFullTransform (void);
 
+	//! Public form of the above function
+	const Matrix& getFullTransform (void) const;
+
 	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
 	void setInitialState (void);
 
@@ -375,7 +379,8 @@ protected:
 	static QueuedUpdates queuedUpdates_;
 };
 
+} // namespace sml
 
-};
+ostream& operator << (ostream& os, sml::Node& s);
 
  #endif

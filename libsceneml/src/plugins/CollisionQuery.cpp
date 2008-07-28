@@ -8,9 +8,9 @@
 #include "CollisionQuery.h"
 #include <SceneMgr.h>
 
-namespace sml {
+namespace smlode {
 
-namespace ode {
+using namespace sml;
 
 CollisionQuery::CollisionQuery(SceneMgr* mgr) :
 	SceneQuery(mgr)
@@ -23,16 +23,16 @@ CollisionQuery::~CollisionQuery() {
 	// TODO Auto-generated destructor stub
 }
 
-void CollisionQuery::query()
+SceneQueryResult* CollisionQuery::query()
 {
-	Space* space1 = manager_->getSceneObject(space1, "space");
+	/*Space* space1 = manager_->getSceneObject(space1, "space");
 
-	ODEGeom* g1; ODEGeom g2; int flags = 0; int skip = 0;
+	Geom* g1; Geom g2; int flags = 0; int skip = 0;
 	dContactGeom contactGeom[MAX_NUM_CONTACT_PTS];
-	int numContactPts = dCollide (g1->getGeomID(), g2->getGeomID(), flags, contactGeom, skip);
+	int numContactPts = dCollide (g1->getGeomID(), g2->getGeomID(), flags, contactGeom, skip);*/
+
+	return NULL;
 }
 
-
-}
 
 }

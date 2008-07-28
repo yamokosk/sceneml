@@ -24,37 +24,57 @@
 
 #include "Root.h"
 
+#include <SceneMgr.h>
+#include <SceneObject.h>
+
 namespace sml
 {
+
 template<> Root* Singleton<Root>::ms_Singleton = 0;
-/*Root* Root::getSingletonPtr(void)
+Root* Root::getSingletonPtr(void)
 {
 	return ms_Singleton;
 }
 Root& Root::getSingleton(void)
 {
 	assert( ms_Singleton );  return ( *ms_Singleton );
-}*/
+}
 
-Root::Root()
+Root::Root() :
+	mEntityFactory(NULL),
+	sceneMgr_(NULL)
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 Root::~Root()
 {
-	// TODO Auto-generated destructor stub
+	if (sceneMgr_) delete sceneMgr_;
+	if (mEntityFactory) delete mEntityFactory;
+}
+
+SceneMgr* Root::createSceneManager()
+{
+	if (!sceneMgr_) sceneMgr_ = new SceneMgr();
+	else
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "A scene manager already exists.");
+
+	return sceneMgr_;
+}
+
+SceneMgr* Root::getSceneManager()
+{
+	return sceneMgr_;
 }
 
 //---------------------------------------------------------------------
 void Root::addSceneObjectFactory(SceneObjectFactory* fact)
 {
 	SceneObjectFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
-	if (!overrideExisting && facti != sceneObjectFactoryMap_.end())
+	/*if (!overrideExisting && facti != sceneObjectFactoryMap_.end())
 	{
 		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"A factory of type '" + fact->getType() + "' already exists.");
-	}
+	}*/
 
 	/*if (fact->requestTypeFlags())
 	{
