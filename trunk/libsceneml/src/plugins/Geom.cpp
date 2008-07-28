@@ -1,17 +1,17 @@
 /*
- * ODEGeom.cpp
+ * Geom.cpp
  *
  *  Created on: Jul 24, 2008
  *      Author: yamokosk
  */
 
-#include "ODEGeom.h"
+#include "Geom.h"
 
-namespace sml {
+namespace smlode {
 
-namespace ode {
+using namespace sml;
 
-ODEGeom::ODEGeom() :
+Geom::Geom() :
 	SceneObject(),
 	geomID_(NULL),
 	alpha_(1)
@@ -19,7 +19,7 @@ ODEGeom::ODEGeom() :
 
 }
 
-ODEGeom::ODEGeom(const std::string& name) :
+Geom::Geom(const std::string& name) :
 	SceneObject(name),
 	geomID_(NULL),
 	alpha_(1)
@@ -27,32 +27,32 @@ ODEGeom::ODEGeom(const std::string& name) :
 
 }
 
-ODEGeom::~ODEGeom()
+Geom::~Geom()
 {
 	if (geomID_)
 		dGeomDestroy(geomID_);
 }
 
 
-void ODEGeom::_notifyMoved(void)
+void Geom::_notifyMoved(void)
 {
 	assert(geomID_ && parentNode_);
 
-	if ( getType() != dPlaneClass ) {
+	if ( _getGeomClass() != dPlaneClass ) {
 		ColumnVector pos = parentNode_->_getDerivedPosition();
-		dGeomSetPosition(geomID_, pos(1), pos(2), pos(3));
+		dGeomSetPosition(geomID_, (dReal)pos(1), (dReal)pos(2), (dReal)pos(3));
 
-		Quaternion q = parentNode_->_getDerivedOrientation();
+		math::Quaternion q = parentNode_->_getDerivedOrientation();
 		dQuaternion dq = {0};
-		dq[0] = q.real();
-		dq[1] = q.R_component_2();
-		dq[2] = q.R_component_3();
-		dq[3] = q.R_component_4();
+		dq[0] = (dReal)q.real();
+		dq[1] = (dReal)q.R_component_2();
+		dq[2] = (dReal)q.R_component_3();
+		dq[3] = (dReal)q.R_component_4();
 		dGeomSetQuaternion(geomID_, dq);
 	}
 }
 
-//void ODEGeom::_notifySpace(Space* space)
+//void Geom::_notifySpace(Space* space)
 //{
 	// Tell ODE Geom its part of a new space... is this necessary?
 //}
@@ -67,9 +67,9 @@ ODEObjectFactory::~ODEObjectFactory()
 
 }
 
-SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params = 0)
+SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params)
 {
-	ODEGeom* g = new ODEGeom( name );
+	Geom* g = new Geom( name );
 
 	dGeomID geomID = NULL;
 
@@ -77,33 +77,33 @@ SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const
 	std::string type = params->getValue("type");
 
 	if (!type.compare("box")) {
-		float length = math::ExpressionFactory::getAsReal( params->getValue("length") );
-		float width = math::ExpressionFactory::getAsReal( params->getValue("width") );
-		float height = math::ExpressionFactory::getAsReal( params->getValue("height") );
-		geomID = dCreateBox(NULL, length, width, height);
+		math::Real length = math::ExpressionFactory::getAsReal( params->getValue("length") );
+		math::Real width = math::ExpressionFactory::getAsReal( params->getValue("width") );
+		math::Real height = math::ExpressionFactory::getAsReal( params->getValue("height") );
+		geomID = dCreateBox(NULL, (dReal)length, (dReal)width, (dReal)height);
 	} else if (!type.compare("ccylinder")) {
-		float length = math::ExpressionFactory::getAsReal( params->getValue("length") );
-		float radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
-		geomID = dCreateCCylinder(NULL, radius, length);
+		math::Real length = math::ExpressionFactory::getAsReal( params->getValue("length") );
+		math::Real radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
+		geomID = dCreateCCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("cylinder")) {
-		float length = math::ExpressionFactory::getAsReal( params->getValue("length") );
-		float radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
-		geomID = dCreateCylinder(NULL, radius, length);
+		math::Real length = math::ExpressionFactory::getAsReal( params->getValue("length") );
+		math::Real radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
+		geomID = dCreateCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("sphere")) {
-		float radius = math::ExpressionFactory::getAsReal( params->getValue("radius");
-		geomID = dCreateSphere(NULL, radius);
+		math::Real radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
+		geomID = dCreateSphere(NULL, (dReal)radius);
 	} else if (!type.compare("plane")) {
-		float nx = math::ExpressionFactory::getAsReal( params->getValue("normal_x") );
-		float ny = math::ExpressionFactory::getAsReal( params->getValue("normal_y") );
-		float nz = math::ExpressionFactory::getAsReal( params->getValue("normal_z") );
-		float d = params->getValue("d");
-		geomID = dCreatePlane(NULL, nx, ny, nz, d);
+		math::Real nx = math::ExpressionFactory::getAsReal( params->getValue("normal_x") );
+		math::Real ny = math::ExpressionFactory::getAsReal( params->getValue("normal_y") );
+		math::Real nz = math::ExpressionFactory::getAsReal( params->getValue("normal_z") );
+		math::Real d = math::ExpressionFactory::getAsReal( params->getValue("d") );
+		geomID = dCreatePlane(NULL, (dReal)nx, (dReal)ny, (dReal)nz, (dReal)d);
 	} else if (!type.compare("mesh")) {
 		// Got to make a TriMeshObj!.. tough one.
-		std::string filename = params->getValue("filename");
+		/*std::string filename = params->getValue("filename");
 		int pos = filename.find_last_of(".");
 		std::string extension = filename.substr(pos+1);
-		float scale = math::ExpressionFactory::getAsReal( params->getValue("scale") );
+		math::Real scale = math::ExpressionFactory::getAsReal( params->getValue("scale") );
 
 		if (!extension.compare("obj")) {
 			mesh.reset(new POLYHEDRON());
@@ -136,7 +136,7 @@ SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const
 		dGeomTriMeshDataBuildSingle(Data,
 			(void*)mesh->vertices.get(), mesh->vertex_stride, mesh->vertex_count,
 			(void*)mesh->indices.get(),mesh->index_count,mesh->index_stride);
-		geomID = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);
+		geomID = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);*/
 	} else {
 		std::ostringstream msg;
 		msg << type << " is an unrecognized geom type. Currently only stl and obj files are supported." << std::endl;
@@ -161,8 +161,6 @@ std::string ODEObjectFactory::getType(void) const
 void ODEObjectFactory::destroyInstance(SceneObject* obj)
 {
 	delete obj;
-}
-
 }
 
 }

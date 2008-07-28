@@ -162,8 +162,7 @@ SceneObjectCollection* SceneMgr::getSceneObjectCollection(const std::string& typ
 
 SceneObject* SceneMgr::createSceneObject(const std::string& name, const std::string& typeName, const PropertyCollection* params)
 {
-	SceneObjectFactory* factory =
-		Root::getSingleton().getSceneObjectFactory(typeName);
+	SceneObjectFactory* factory = Root::getSingleton().getSceneObjectFactory(typeName);
 	// Check for duplicate names
 	SceneObjectCollection* objectMap = getSceneObjectCollection(typeName);
 

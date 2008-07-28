@@ -122,8 +122,6 @@ namespace sml {
 
 	void Node::update(Subject* sub, int hint)
 	{
-		std::cout << "Got that a variable I was watching has changed." << std::endl;
-
 		Variable* var = boost::polymorphic_downcast<Variable*>(sub);
 
 		std::string type = var->getType(); //type of variable we are listening to
@@ -131,7 +129,6 @@ namespace sml {
 		if ( !type.compare("translation") )
 		{
 			ColumnVector transl = var->getVector();
-			std::cout << "Translating " << transl.t() << std::endl;
 			this->translate(transl, TS_PARENT);
 		} else if ( !type.compare("rotation") ) {
 
@@ -164,8 +161,6 @@ namespace sml {
 			else {
 				SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unknown variable subtype: " + subtype);
 			}
-			//std::cout << "Rotating " << angle << " about " << axis.t() << std::endl;
-
 		} else {
 			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unknown variable type: " + type);
 		}
@@ -179,10 +174,11 @@ namespace sml {
 		}
 
 		obj->_notifyAttached(this);
+		//obj->_notifyMoved();
 
 		// Also add to name index
 		std::pair<ObjectMap::iterator, bool> insresult =
-		sceneObjects_.insert(ObjectMap::value_type(obj->getName(), obj));
+			sceneObjects_.insert(ObjectMap::value_type(obj->getName(), obj));
 		assert(insresult.second && "Object was not attached because an object of the "
 				"same name was already attached to this node.");
 
@@ -310,6 +306,8 @@ namespace sml {
 	//! Internal method to update the Node.
 	void Node::_update (bool updateChildren, bool parentHasChanged)
 	{
+		std::cout << getName() << "::_update()" << std::endl;
+
 		// always clear information about parent notification
 		parentNotified_ = false ;
 
@@ -548,17 +546,23 @@ namespace sml {
 	{
 		switch(relativeTo)
 		{
-		case TS_PARENT:
-			// Rotations are normally relative to local axes, transform up
-			//orientation_ = q * orientation_;
+		case TS_LOCAL:
+			// Note the order of the mult, i.e. q comes after
+			orientation_ = orientation_ * q;
 			break;
 		case TS_WORLD:
 			// Rotations are normally relative to local axes, transform up
-			//orientation_ = orientation_ * _getDerivedOrientation().Inverse() * q * _getDerivedOrientation();
+			if (parent_)
+			{
+				math::Quaternion qi = math::inverse( parent_->_getDerivedOrientation() );
+				orientation_ = orientation_ * qi * q * _getDerivedOrientation();
+			} else {
+
+			}
 			break;
-		case TS_LOCAL:
-			// Note the order of the mult, i.e. q comes after
-			//orientation_ = orientation_ * q;
+		case TS_PARENT:
+			// Rotations are normally relative to local axes, transform up
+			orientation_ = q * orientation_;
 			break;
 		}
 		needUpdate();
@@ -766,17 +770,22 @@ namespace sml {
 	}
 
 	//! Gets the full transformation matrix for this node.
-	const Matrix& 	Node::_getFullTransform (void)
+	const Matrix& Node::_getFullTransform (void)
 	{
 		if (cachedTransformOutOfDate_)
 		{
 			// Use derived values
-			/*cachedTransform_.makeTransform(
-			_getDerivedPosition(),
-			_getDerivedScale(),
-			_getDerivedOrientation());*/
+			cachedTransform_.SubMatrix(1,3,4,4) = _getDerivedPosition();
+
+			Matrix m = math::MatrixFactory::FromQuaternion( _getDerivedOrientation() );
+			cachedTransform_.SubMatrix(1,3,1,3) = m;
 			cachedTransformOutOfDate_ = false;
 		}
+		return cachedTransform_;
+	}
+
+	const Matrix& Node::getFullTransform (void) const
+	{
 		return cachedTransform_;
 	}
 
@@ -819,6 +828,8 @@ namespace sml {
 	//! To be called in the event of transform changes to this node that require it's recalculation.
 	void Node::needUpdate (bool forceParentUpdate)
 	{
+		std::cout << getName() << "::needUpdate()" << std::endl;
+
 		needParentUpdate_ = true;
 		needChildUpdate_ = true;
 		cachedTransformOutOfDate_ = true;
@@ -892,9 +903,12 @@ namespace sml {
 
 	void Node::updateFromParentImpl(void)
 	{
+		std::cout << getName() << "::updateFromParentImpl()" << std::endl;
+
 		if (parent_)
 		{
 			// Update orientation
+			std::cout << "	update orientation..." << std::endl;
 			math::Quaternion parentOrientation = parent_->_getDerivedOrientation();
 			if (inheritOrientation_)
 			{
@@ -908,12 +922,14 @@ namespace sml {
 			}
 
 			// Update scale
+			std::cout << "	update scale..." << std::endl;
 			const ColumnVector& parentScale = parent_->_getDerivedScale();
 			if (inheritScale_)
 			{
 				// Scale own position by parent scale, NB just combine
 				// as equivalent axes, no shearing
-				derivedScale_ = parentScale * scale_;
+				//derivedScale_ = parentScale * scale_;
+				derivedScale_ = parentScale;
 			}
 			else
 			{
@@ -922,6 +938,7 @@ namespace sml {
 			}
 
 			// Change position vector based on parent's orientation & scale
+			std::cout << "	update position..." << std::endl;
 			//derivedPosition_ = parentOrientation * (parentScale_ * position_);
 			derivedPosition_ = parentOrientation * position_;
 
@@ -992,3 +1009,10 @@ namespace sml {
 		updateFromParentImpl();
 	}
 } // Namespace: sml
+
+ostream& operator << (ostream& os, sml::Node& s)
+{
+	return os << "Name: " << s.getName() << std::endl
+	   << "Tmatrix: " << std::endl << s._getFullTransform() << std::endl;
+}
+

@@ -25,11 +25,16 @@
 #ifndef ROOT_H_
 #define ROOT_H_
 
+#include <map>
+
 #include <Singleton.h>
-#include <SceneObject.h>
+#include <Exception.h>
 
 namespace sml
 {
+
+class SceneMgr;
+class SceneObjectFactory;
 
 class Root : public Singleton<Root>
 {
@@ -39,8 +44,15 @@ public:
 	Root();
 	virtual ~Root();
 
+	// Override standard Singleton retrieval.
+	static Root& getSingleton(void);
+	static Root* getSingletonPtr(void);
+
+	SceneMgr* createSceneManager();
+	SceneMgr* getSceneManager();
+
 	// Register a new SceneObjectFactory which will create new SceneObject instances of a particular type, as identified by the getType() method.
-	void addSceneObjectFactory (SceneObjectFactory *fact, bool overrideExisting=false);
+	void addSceneObjectFactory (SceneObjectFactory *fact);
 	// Removes a previously registered SceneObjectFactory.
 	void removeSceneObjectFactory (SceneObjectFactory *fact);
 	// Checks whether a factory is registered for a given SceneObject type.
@@ -60,6 +72,7 @@ protected:
 
 	SceneObjectFactoryMap 	sceneObjectFactoryMap_;
 	SceneObjectFactory* 	mEntityFactory;
+	SceneMgr*				sceneMgr_;
 };
 
 }

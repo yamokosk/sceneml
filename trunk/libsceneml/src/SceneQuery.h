@@ -8,6 +8,10 @@
 #ifndef SCENEQUERY_H_
 #define SCENEQUERY_H_
 
+#include <list>
+
+#include <SceneObject.h>
+
 namespace sml {
 
 typedef std::list<SceneObject*> SceneQueryResultObjectList;

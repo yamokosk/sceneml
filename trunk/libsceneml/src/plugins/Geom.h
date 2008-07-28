@@ -8,21 +8,25 @@
 #ifndef ODEGEOM_H_
 #define ODEGEOM_H_
 
-#include <SceneObject.h>
-#include <math/Math.h>
-#include <math/Vector.h>
+// SceneML
+#include <SceneML.h>
 
-namespace sml {
+// ODE library
+#include <ode/ode.h>
 
-namespace ode {
+namespace smlode {
 
-class ODEGeom: public sml::SceneObject {
+using namespace sml;
+
+class Geom : public sml::SceneObject {
 public:
-	ODEGeom();
-	ODEGeom(const std::string& name);
-	virtual ~ODEGeom();
+	Geom();
+	Geom(const std::string& name);
+	virtual ~Geom();
 
 	void _setGeomID(dGeomID g) {geomID_ = g;}
+	dGeomID _getGeomID(void) {return geomID_;}
+	int _getGeomClass() {return dGeomGetClass(geomID_);}
 
 	// Inherited from SceneObject
 	virtual void _notifyMoved(void);
@@ -31,17 +35,17 @@ private:
 	//! ODE object pointer
 	dGeomID geomID_;
 	//! Geom mesh data
-	PolyhedronPtr mesh_; // Owner of this pointer
+	//PolyhedronPtr mesh_; // Owner of this pointer
 	//! Geom color
 	ColumnVector rgb_;
 	//! Geom alpha (transperancy)
 	math::Real alpha_;
 };
 
-class ODEObjectFactory
+class ODEObjectFactory : public SceneObjectFactory
 {
 protected:
-	virtual SceneObject* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0) = 0;
+	virtual SceneObject* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0);
 
 public:
 	ODEObjectFactory();
@@ -50,8 +54,6 @@ public:
 	virtual std::string getType(void) const;
 	virtual void destroyInstance(SceneObject* obj);
 };
-
-}
 
 }
 

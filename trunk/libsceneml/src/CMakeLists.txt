@@ -1,5 +1,6 @@
 #if (PERFORM_UNIT_TESTS)
-	subdirs(unittests)
+	add_subdirectory(unittests)
+	add_subdirectory(plugins)
 #endif (PERFORM_UNIT_TESTS)
 
 # Gather all *.cpp and *.h files into their respective variables

@@ -26,7 +26,6 @@
 // sml includes
 #include "Root.h"
 #include "Exception.h"
-#include "CommandStack.h"
 #include "SceneObject.h"
 #include "PropertyCollection.h"
 
@@ -87,8 +86,6 @@ private:
 	Node* rootNode_;
 	SceneObjectCollectionMap sceneObjectCollectionMap_;
 	//SpaceMap spaces_;
-
-	CommandStack cmdStack_;
 };
 
 }
