@@ -42,7 +42,7 @@ void Geom::_notifyMoved(void)
 		ColumnVector pos = parentNode_->_getDerivedPosition();
 		dGeomSetPosition(geomID_, (dReal)pos(1), (dReal)pos(2), (dReal)pos(3));
 
-		math::Quaternion q = parentNode_->_getDerivedOrientation();
+		Quaternion q = parentNode_->_getDerivedOrientation();
 		dQuaternion dq = {0};
 		dq[0] = (dReal)q.real();
 		dq[1] = (dReal)q.R_component_2();
@@ -77,26 +77,26 @@ SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const
 	std::string type = params->getValue("type");
 
 	if (!type.compare("box")) {
-		math::Real length = math::ExpressionFactory::getAsReal( params->getValue("length") );
-		math::Real width = math::ExpressionFactory::getAsReal( params->getValue("width") );
-		math::Real height = math::ExpressionFactory::getAsReal( params->getValue("height") );
+		sml::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		sml::Real width = ExpressionFactory::getAsReal( params->getValue("width") );
+		sml::Real height = ExpressionFactory::getAsReal( params->getValue("height") );
 		geomID = dCreateBox(NULL, (dReal)length, (dReal)width, (dReal)height);
 	} else if (!type.compare("ccylinder")) {
-		math::Real length = math::ExpressionFactory::getAsReal( params->getValue("length") );
-		math::Real radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
+		sml::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		sml::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateCCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("cylinder")) {
-		math::Real length = math::ExpressionFactory::getAsReal( params->getValue("length") );
-		math::Real radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
+		sml::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		sml::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("sphere")) {
-		math::Real radius = math::ExpressionFactory::getAsReal( params->getValue("radius") );
+		sml::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateSphere(NULL, (dReal)radius);
 	} else if (!type.compare("plane")) {
-		math::Real nx = math::ExpressionFactory::getAsReal( params->getValue("normal_x") );
-		math::Real ny = math::ExpressionFactory::getAsReal( params->getValue("normal_y") );
-		math::Real nz = math::ExpressionFactory::getAsReal( params->getValue("normal_z") );
-		math::Real d = math::ExpressionFactory::getAsReal( params->getValue("d") );
+		sml::Real nx = ExpressionFactory::getAsReal( params->getValue("normal_x") );
+		sml::Real ny = ExpressionFactory::getAsReal( params->getValue("normal_y") );
+		sml::Real nz = ExpressionFactory::getAsReal( params->getValue("normal_z") );
+		sml::Real d = ExpressionFactory::getAsReal( params->getValue("d") );
 		geomID = dCreatePlane(NULL, (dReal)nx, (dReal)ny, (dReal)nz, (dReal)d);
 	} else if (!type.compare("mesh")) {
 		// Got to make a TriMeshObj!.. tough one.

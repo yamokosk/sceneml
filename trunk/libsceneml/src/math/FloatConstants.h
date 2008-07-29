@@ -3,8 +3,6 @@
 
 namespace sml {
 
-namespace math {
-
 // A collection of basic mathematical constants, accurate to 40 decimal digits.
 // C++ floating-point type is float.
 
@@ -166,8 +164,6 @@ static const float gammaMinValue = 0.885603194410888700278815900582588733208F; /
 static const float cf10 = 1.030640834100712935881776094116936840925F; // Continued fraction (base 10)
 static const float zetaTwo = 1.644934066848226436472415166646025189219F; // Zeta(2) or Pi^(2/6) = sum(1/n**2, n=1..infinity
 static const float zetaThree = 1.202056903159594285399738161511449990765F; // zeta(3)
-
-} // namespace sml::math
 
 } // namespace sml
 #endif

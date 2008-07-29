@@ -22,23 +22,23 @@ BOOST_AUTO_TEST_CASE( vector3_factories_test )
 
 	ColumnVector v1(3), v2(3);
 
-	v1 = math::VectorFactory::Vector3( math::UNIT_X );
+	v1 = VectorFactory::Vector3( UNIT_X );
 	v2 << 1. << 0. << 0.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector3( math::UNIT_Y );
+	v1 = VectorFactory::Vector3( UNIT_Y );
 	v2 << 0. << 1. << 0.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector3( math::UNIT_Z );
+	v1 = VectorFactory::Vector3( UNIT_Z );
 	v2 << 0. << 0. << 1.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector3( math::ZERO );
+	v1 = VectorFactory::Vector3( ZERO );
 	v2 << 0. << 0. << 0.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector3( math::ONES );
+	v1 = VectorFactory::Vector3( ONES );
 	v2 << 1. << 1. << 1.;
 	BOOST_CHECK( v1 == v2);
 }
@@ -49,23 +49,23 @@ BOOST_AUTO_TEST_CASE( vector4_factories_test )
 
 	ColumnVector v1(4), v2(4);
 
-	v1 = math::VectorFactory::Vector4( math::UNIT_X );
+	v1 = VectorFactory::Vector4( UNIT_X );
 	v2 << 1. << 0. << 0. << 1.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector4( math::UNIT_Y );
+	v1 = VectorFactory::Vector4( UNIT_Y );
 	v2 << 0. << 1. << 0. << 1.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector4( math::UNIT_Z );
+	v1 = VectorFactory::Vector4( UNIT_Z );
 	v2 << 0. << 0. << 1. << 1.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector4( math::ZERO );
+	v1 = VectorFactory::Vector4( ZERO );
 	v2 << 0. << 0. << 0. << 1.;
 	BOOST_CHECK( v1 == v2);
 
-	v1 = math::VectorFactory::Vector4( math::ONES );
+	v1 = VectorFactory::Vector4( ONES );
 	v2 << 1. << 1. << 1. << 1.;
 	BOOST_CHECK( v1 == v2);
 }
@@ -76,11 +76,11 @@ BOOST_AUTO_TEST_CASE( matrix3x3_factories_test )
 
 	Matrix m1(3,3), m2(3,3);
 
-	m1 = math::MatrixFactory::Matrix3x3( math::IDENTITY );
+	m1 = MatrixFactory::Matrix3x3( IDENTITY );
 	m2 = IdentityMatrix(3);
 	BOOST_CHECK( m1 == m2);
 
-	m1 = math::MatrixFactory::Matrix3x3( math::ZERO );
+	m1 = MatrixFactory::Matrix3x3( ZERO );
 	m2 = 0.;
 	BOOST_CHECK( m1 == m2);
 }
@@ -91,11 +91,11 @@ BOOST_AUTO_TEST_CASE( matrix4x4_factories_test )
 
 	Matrix m1(4,4), m2(4,4);
 
-	m1 = math::MatrixFactory::Matrix4x4( math::IDENTITY );
+	m1 = MatrixFactory::Matrix4x4( IDENTITY );
 	m2 = IdentityMatrix(4);
 	BOOST_CHECK( m1 == m2);
 
-	m1 = math::MatrixFactory::Matrix4x4( math::ZERO );
+	m1 = MatrixFactory::Matrix4x4( ZERO );
 	m2 = 0.;
 	BOOST_CHECK( m1 == m2);
 }
@@ -104,13 +104,13 @@ BOOST_AUTO_TEST_CASE( quaternion_factories_test )
 {
 	BOOST_TEST_MESSAGE( "Quaternion factories test" );
 
-	math::Quaternion q1, q2;
+	Quaternion q1, q2;
 
-	q1 = math::QuaternionFactory::Quat( math::IDENTITY );
-	q2 = math::Quaternion(1.,0.,0.,0.);
+	q1 = QuaternionFactory::IDENTITY;
+	q2 = Quaternion(1.,0.,0.,0.);
 	BOOST_CHECK( q1 == q2);
 
-	q1 = math::QuaternionFactory::Quat( math::ZERO );
-	q2 = math::Quaternion(0.,0.,0.,0.);
+	q1 = QuaternionFactory::ZERO;
+	q2 = Quaternion(0.,0.,0.,0.);
 	BOOST_CHECK( q1 == q2);
 }

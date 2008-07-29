@@ -58,14 +58,14 @@ std::string Variable::getSubType()
 	return pc_.getValue("subtype");
 }
 
-void Variable::setScalar(math::Real s)
+void Variable::setScalar(Real s)
 {
 	data_.resize(1);
 	data_(1) = s;
 	this->notify(ScalarUpdate);
 }
 
-math::Real Variable::getScalar()
+Real Variable::getScalar()
 {
 	return data_(1);
 }

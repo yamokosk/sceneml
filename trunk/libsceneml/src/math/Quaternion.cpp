@@ -20,6 +20,20 @@
 
 namespace sml {
 
+Quaternion QuaternionFactory::ZERO(zero, zero, zero, zero);
+Quaternion QuaternionFactory::IDENTITY(one, zero, zero, zero);
+/*Quaternion Quat(int choice)
+{
+	switch (choice){
+	case IDENTITY:
+		return Quaternion(one, zero, zero, zero);
+	case ZERO:
+		return Quaternion(zero, zero, zero, zero);
+	default:
+		SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid factory parameter.");
+	}
+}*/
+
 Quaternion inverse(const Quaternion& q)
 {
 	return Quaternion(q.real(), -q.R_component_2(), -q.R_component_3(), -q.R_component_4() );

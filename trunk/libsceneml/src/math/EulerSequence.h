@@ -17,11 +17,6 @@ namespace sml {
 
 namespace math {
 
-enum EulerSequenceTypes {
-	E123=0,
-	EZERO
-};
-
 }
 
 }

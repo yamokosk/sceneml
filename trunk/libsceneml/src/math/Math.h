@@ -36,8 +36,6 @@
 
 namespace sml {
 
-namespace math {
-
 #ifdef USE_DOUBLE_PRECISION
 typedef double Real;
 #else
@@ -53,7 +51,9 @@ enum FactoryTypes {
 	ONES
 };
 
-} // namespace sml::math
+enum EulerSequences {
+	XYZ=0
+};
 
 } // namespace sml
 

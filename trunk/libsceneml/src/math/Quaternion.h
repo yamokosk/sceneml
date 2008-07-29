@@ -32,17 +32,11 @@ namespace sml {
 
 typedef ::boost::math::quaternion<Real> Quaternion;
 
-Quaternion Quat(int choice)
+struct QuaternionFactory
 {
-	switch (choice){
-	case IDENTITY:
-		return Quaternion(one, zero, zero, zero);
-	case ZERO:
-		return Quaternion(zero, zero, zero, zero);
-	default:
-		SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid factory parameter.");
-	}
-}
+	static Quaternion ZERO;
+	static Quaternion IDENTITY;
+};
 
 Quaternion inverse(const Quaternion& q);
 

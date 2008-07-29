@@ -29,13 +29,10 @@
 namespace sml
 {
 
-namespace math
-{
+//mu::Parser ExpressionFactory::parser_.DefineConst("pi", sml::pi);
+//mu::Parser ExpressionFactory::parser_.DefineConst("e", sml::e);
 
-//mu::Parser ExpressionFactory::parser_.DefineConst("pi", math::pi);
-//mu::Parser ExpressionFactory::parser_.DefineConst("e", math::e);
-
-math::Real ExpressionFactory::getAsReal(const std::string& expr)
+sml::Real ExpressionFactory::getAsReal(const std::string& expr)
 {
 	return parseValue( expr.c_str() );
 }
@@ -50,23 +47,23 @@ ReturnMatrix ExpressionFactory::getAsVector(const std::string& expr, unsigned in
 	return parseVector( expr.c_str() );
 }
 
-math::Real ExpressionFactory::parseValue(const char* str)
+sml::Real ExpressionFactory::parseValue(const char* str)
 {
 	mu::Parser parser_;
-	parser_.DefineConst("pi", math::pi);
-	parser_.DefineConst("e", math::e);
+	parser_.DefineConst("pi", sml::pi);
+	parser_.DefineConst("e", sml::e);
 
 	// Give expression to parser
 	parser_.SetExpr(str);
 	// Evaluate string
-	return (math::Real)parser_.Eval();
+	return (sml::Real)parser_.Eval();
 }
 
 ReturnMatrix ExpressionFactory::parseVector(const char* str)
 {
 	mu::Parser parser_;
-	parser_.DefineConst("pi", math::pi);
-	parser_.DefineConst("e", math::e);
+	parser_.DefineConst("pi", sml::pi);
+	parser_.DefineConst("e", sml::e);
 
 	// Copy incoming char buffer to local one
 	int length = strlen(str);
@@ -75,14 +72,14 @@ ReturnMatrix ExpressionFactory::parseVector(const char* str)
 	memset(buf, '\0', (length+1)*sizeof(char));
 	memcpy(buf, str, length*sizeof(char));
 
-	std::vector<math::Real> values;
+	std::vector<sml::Real> values;
 
 	// Step through each token, evaluate it, and store it in our return vector
 	char* tok = strtok(buf, " ,");
 	while (tok != NULL)
 	{
 		try {
-			math::Real val = parseValue(tok);
+			sml::Real val = parseValue(tok);
 			values.push_back( val );
 		} catch (mu::Parser::exception_type &e) {
 			std::cout << e.GetMsg() << std::endl;
@@ -100,8 +97,6 @@ ReturnMatrix ExpressionFactory::parseVector(const char* str)
 	for (unsigned int n=0; n<values.size(); ++n) ret(n+1) = values[n];
 	ret.Release();
 	return ret;
-}
-
 }
 
 }

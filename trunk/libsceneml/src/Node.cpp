@@ -17,8 +17,11 @@
 *************************************************************************/
 
 #include "Node.h"
-#include <boost/cast.hpp>
+
 #include <Variable.h>
+#include <math/Util.h>
+
+#include <boost/cast.hpp>
 #include <iostream>
 
 namespace sml {
@@ -36,18 +39,18 @@ namespace sml {
 		parentNotified_(false),
 		queuedForUpdate_(false),
 		name_(""),
-		orientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
-		position_( math::VectorFactory::Vector3( math::ZERO ) ),
-		scale_( math::VectorFactory::Vector3( math::ONES ) ),
+		orientation_( QuaternionFactory::IDENTITY ),
+		position_( VectorFactory::Vector3( ZERO ) ),
+		scale_( VectorFactory::Vector3( ONES ) ),
 		inheritOrientation_(true),
 		inheritScale_(true),
-		derivedOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
-		derivedPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
-		derivedScale_( math::VectorFactory::Vector3( math::ONES ) ),
-		initialPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
-		initialOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
-		initialScale_( math::VectorFactory::Vector3( math::ONES ) ),
-		cachedTransform_( math::MatrixFactory::Matrix4x4( math::IDENTITY ) ),
+		derivedOrientation_( QuaternionFactory::IDENTITY ),
+		derivedPosition_( VectorFactory::Vector3( ZERO ) ),
+		derivedScale_( VectorFactory::Vector3( ONES ) ),
+		initialPosition_( VectorFactory::Vector3( ZERO ) ),
+		initialOrientation_( QuaternionFactory::IDENTITY ),
+		initialScale_( VectorFactory::Vector3( ONES ) ),
+		cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
 		cachedTransformOutOfDate_(true)
 	{
 		// Generate a name
@@ -69,18 +72,18 @@ namespace sml {
 		parentNotified_(false),
 		queuedForUpdate_(false),
 		name_(name),
-		orientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
-		position_( math::VectorFactory::Vector3( math::ZERO ) ),
-		scale_( math::VectorFactory::Vector3( math::ONES ) ),
+		orientation_( QuaternionFactory::IDENTITY ),
+		position_( VectorFactory::Vector3( ZERO ) ),
+		scale_( VectorFactory::Vector3( ONES ) ),
 		inheritOrientation_(true),
 		inheritScale_(true),
-		derivedOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
-		derivedPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
-		derivedScale_( math::VectorFactory::Vector3( math::ONES ) ),
-		initialPosition_( math::VectorFactory::Vector3( math::ZERO ) ),
-		initialOrientation_( math::QuaternionFactory::Quat( math::IDENTITY ) ),
-		initialScale_( math::VectorFactory::Vector3( math::ONES ) ),
-		cachedTransform_( math::MatrixFactory::Matrix4x4( math::IDENTITY ) ),
+		derivedOrientation_( QuaternionFactory::IDENTITY ),
+		derivedPosition_( VectorFactory::Vector3( ZERO ) ),
+		derivedScale_( VectorFactory::Vector3( ONES ) ),
+		initialPosition_( VectorFactory::Vector3( ZERO ) ),
+		initialOrientation_( QuaternionFactory::IDENTITY ),
+		initialScale_( VectorFactory::Vector3( ONES ) ),
+		cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
 		cachedTransformOutOfDate_(true)
 	{
 	}
@@ -137,22 +140,22 @@ namespace sml {
 			if ( !subtype.compare("x") )
 			{
 				Real angle = var->getScalar();
-				ColumnVector axis = math::VectorFactory::Vector3( math::UNIT_X );
+				ColumnVector axis = VectorFactory::Vector3( UNIT_X );
 				this->rotate(axis, angle, TS_PARENT);
 			}
 			else if ( !subtype.compare("y") ) {
 				Real angle = var->getScalar();
-				ColumnVector axis = math::VectorFactory::Vector3( math::UNIT_Y );
+				ColumnVector axis = VectorFactory::Vector3( UNIT_Y );
 				this->rotate(axis, angle, TS_PARENT);
 			}
 			else if ( !subtype.compare("z") ) {
 				Real angle = var->getScalar();
-				ColumnVector axis = math::VectorFactory::Vector3( math::UNIT_Z );
+				ColumnVector axis = VectorFactory::Vector3( UNIT_Z );
 				this->rotate(axis, angle, TS_PARENT);
 			}
 			else if ( !subtype.compare("e123") ) {
 				ColumnVector angles = var->getVector();
-				math::Quaternion q = math::QuaternionFactory::FromEulerAngles( math::E123, angles);
+				Quaternion q = QuatFromEulerAngles( XYZ, angles);
 				this->rotate(q, TS_PARENT);
 			}
 			else if ( !subtype.compare("t123") ) {
@@ -415,22 +418,22 @@ namespace sml {
 	// Must call this->notify() whenever node's transformation changes
 
 	//! Returns a quaternion representing the nodes orientation.
-	const math::Quaternion& Node::getOrientation () const
+	const Quaternion& Node::getOrientation () const
 	{
 		return orientation_;
 	}
 
 	//! Sets the orientation of this node via a quaternion.
-	void Node::setOrientation (const math::Quaternion &q)
+	void Node::setOrientation (const Quaternion &q)
 	{
 		orientation_ = q;
 		needUpdate();
 	}
 
 	//! Sets the orientation of this node via quaternion parameters.
-	void Node::setOrientation (math::Real w, math::Real x, math::Real y, math::Real z)
+	void Node::setOrientation (Real w, Real x, Real y, Real z)
 	{
-		math::Quaternion q(w, x, y, z);
+		Quaternion q(w, x, y, z);
 		setOrientation(q);
 		needUpdate();
 	}
@@ -438,7 +441,7 @@ namespace sml {
 	//! Resets the nodes orientation (local axes as world axes, no rotation).
 	void Node::resetOrientation (void)
 	{
-		setOrientation( math::QuaternionFactory::Quat( math::IDENTITY ) );
+		setOrientation( QuaternionFactory::IDENTITY );
 		needUpdate();
 	}
 
@@ -450,7 +453,7 @@ namespace sml {
 	}
 
 	//! Sets the position of the node relative to it's parent.
-	void Node::setPosition(math::Real x, math::Real y, math::Real z)
+	void Node::setPosition(Real x, Real y, Real z)
 	{
 		ColumnVector v; v << x << y << z;
 		setPosition(v);
@@ -481,7 +484,7 @@ namespace sml {
 			// position is relative to parent so transform upwards
 			if (parent_)
 			{
-				math::Quaternion qi = math::inverse( parent_->_getDerivedOrientation() );
+				Quaternion qi = inverse( parent_->_getDerivedOrientation() );
 				position_ += (qi * d); //	/ parent_->_getDerivedScale();
 			}
 			else
@@ -535,14 +538,14 @@ namespace sml {
 	}*/
 
 	//! Rotate the node around an arbitrary axis.
-	void Node::rotate(const ColumnVector &axis, math::Real angle, TransformSpace relativeTo)
+	void Node::rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo)
 	{
-		math::Quaternion q = math::QuaternionFactory::FromAngleAxis(angle,axis);
+		Quaternion q = QuatFromAngleAxis(angle,axis);
 		rotate(q, relativeTo);
 	}
 
 	//! Rotate the node around an aritrary axis using a Quarternion.
-	void Node::rotate(const math::Quaternion &q, TransformSpace relativeTo)
+	void Node::rotate(const Quaternion &q, TransformSpace relativeTo)
 	{
 		switch(relativeTo)
 		{
@@ -554,7 +557,7 @@ namespace sml {
 			// Rotations are normally relative to local axes, transform up
 			if (parent_)
 			{
-				math::Quaternion qi = math::inverse( parent_->_getDerivedOrientation() );
+				Quaternion qi = inverse( parent_->_getDerivedOrientation() );
 				orientation_ = orientation_ * qi * q * _getDerivedOrientation();
 			} else {
 
@@ -571,9 +574,9 @@ namespace sml {
 	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
 	ReturnMatrix Node::getLocalAxes (void) const
 	{
-		ColumnVector axisX = math::VectorFactory::Vector3( math::UNIT_X );
-		ColumnVector axisY = math::VectorFactory::Vector3( math::UNIT_Y );
-		ColumnVector axisZ = math::VectorFactory::Vector3( math::UNIT_Z );
+		ColumnVector axisX = VectorFactory::Vector3( UNIT_X );
+		ColumnVector axisY = VectorFactory::Vector3( UNIT_Y );
+		ColumnVector axisZ = VectorFactory::Vector3( UNIT_Z );
 
 		axisX = orientation_ * axisX;
 		axisY = orientation_ * axisY;
@@ -586,7 +589,7 @@ namespace sml {
 	}
 
 	//! Creates an unnamed new Node as a child of this node.
-	Node* Node::createChild(const ColumnVector& translate, const math::Quaternion& rotate)
+	Node* Node::createChild(const ColumnVector& translate, const Quaternion& rotate)
 	{
 		Node* newNode = createChildImpl();
 		newNode->translate(translate);
@@ -597,7 +600,7 @@ namespace sml {
 	}
 
 	//! Creates a new named Node as a child of this node.
-	Node* Node::createChild(const std::string& name, const ColumnVector& translate, const math::Quaternion& rotate)
+	Node* Node::createChild(const std::string& name, const ColumnVector& translate, const Quaternion& rotate)
 	{
 		Node* newNode = createChildImpl(name);
 		newNode->translate(translate);
@@ -738,7 +741,7 @@ namespace sml {
 	}
 
 	//! Gets the orientation of the node as derived from all parents.
-	math::Quaternion Node::_getDerivedOrientation (void)
+	Quaternion Node::_getDerivedOrientation (void)
 	{
 		if (needParentUpdate_)
 		{
@@ -777,7 +780,7 @@ namespace sml {
 			// Use derived values
 			cachedTransform_.SubMatrix(1,3,4,4) = _getDerivedPosition();
 
-			Matrix m = math::MatrixFactory::FromQuaternion( _getDerivedOrientation() );
+			Matrix m = MatrixFactory::FromQuaternion( _getDerivedOrientation() );
 			cachedTransform_.SubMatrix(1,3,1,3) = m;
 			cachedTransformOutOfDate_ = false;
 		}
@@ -814,7 +817,7 @@ namespace sml {
 	}
 
 	//! Gets the initial orientation of this node, see setInitialState for more info.
-	const math::Quaternion& Node::getInitialOrientation (void) const
+	const Quaternion& Node::getInitialOrientation (void) const
 	{
 		return initialOrientation_;
 	}
@@ -909,7 +912,7 @@ namespace sml {
 		{
 			// Update orientation
 			std::cout << "	update orientation..." << std::endl;
-			math::Quaternion parentOrientation = parent_->_getDerivedOrientation();
+			Quaternion parentOrientation = parent_->_getDerivedOrientation();
 			if (inheritOrientation_)
 			{
 				// Combine orientation with that of parent

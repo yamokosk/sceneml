@@ -304,6 +304,11 @@ void SceneMgr::destroySceneObject(SceneObject* m)
 	}
 }*/
 
+void SceneMgr::_performQuery(const std::string& typeName)
+{
+	SceneQuery* query =	Root::getSingleton().getSceneQuery(typeName);
 
+	query.perform(this);
+}
 
 } // namespace sml
