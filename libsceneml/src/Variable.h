@@ -49,8 +49,8 @@ public:
 	void setSubType(const std::string&);
 	std::string getSubType();
 
-	void setScalar(math::Real s);
-	math::Real getScalar();
+	void setScalar(Real s);
+	Real getScalar();
 
 	void setVector(const ColumnVector& v);
 	ReturnMatrix getVector();

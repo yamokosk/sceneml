@@ -39,6 +39,6 @@ namespace sml
 }
 
 // Global operators
-ReturnMatrix operator* (const sml::math::Quaternion& q, const ColumnVector& v);
+ReturnMatrix operator* (const sml::Quaternion& q, const ColumnVector& v);
 
 #endif /* UTIL_H_ */

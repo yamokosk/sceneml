@@ -41,6 +41,8 @@ public:
 	SceneObject(const std::string& name);
 	virtual ~SceneObject();
 
+	virtual SceneObject* clone() const = 0;
+
 	void _notifyAttached(Node* parent);
 	void _notifyCreator(SceneObjectFactory* fact) { creator_ = fact; }
 	virtual SceneObjectFactory* _getCreator(void) const { return creator_; }

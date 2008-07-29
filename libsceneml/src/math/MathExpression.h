@@ -32,23 +32,18 @@
 namespace sml
 {
 
-namespace math
-{
-
 class ExpressionFactory
 {
 public:
-	static math::Real getAsReal(const std::string& expr);
+	static sml::Real getAsReal(const std::string& expr);
 	static int getAsInt(const std::string& expr);
 	static ReturnMatrix getAsVector(const std::string& expr, unsigned int length);
 
 private:
 
-	static math::Real parseValue(const char* str);
+	static sml::Real parseValue(const char* str);
 	static ReturnMatrix parseVector(const char* str);
 };
-
-}
 
 }
 

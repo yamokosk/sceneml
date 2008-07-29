@@ -14,23 +14,22 @@
 
 namespace sml {
 
-typedef std::list<SceneObject*> SceneQueryResultObjectList;
+typedef std::list<SceneObject*> SceneObjectList;
 
-struct SceneQueryResult
+struct QueryResult
 {
-	/// List of movable objects in the query (entities, particle systems etc)
-	SceneQueryResultObjectList movables;
+	SceneObjectList objects_;
 };
 
-class SceneQuery {
+class SceneObjectQuery
+{
 public:
-	SceneQuery(SceneMgr* mgr);
-	virtual ~SceneQuery();
+	SceneObjectQuery();
+	virtual ~SceneObjectQuery();
 
-	virtual SceneQueryResult* query() = 0;
-
-protected:
-	SceneMgr* manager_;
+	virtual SceneObjectQuery* clone() const = 0;
+	virtual QueryResult execute(SceneMgr* mgr) = 0;
+	std::string getType() const = 0;
 };
 
 }

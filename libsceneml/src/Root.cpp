@@ -139,5 +139,25 @@ void Root::removeSceneObjectFactory(SceneObjectFactory* fact)
 		sceneObjectFactoryMap_.end());
 }*/
 
+void Root::addSceneQuery (SceneQuery* query)
+{
+	return;
+}
+
+void Root::removeSceneQuery (SceneQuery* query)
+{
+	return;
+}
+
+bool Root::hasSceneQuery ( const std::string &typeName ) const
+{
+	return false;
+}
+
+SceneQuery* Root::getSceneQuery (const std::string& typeName )
+{
+	return NULL;
+}
+
 
 }

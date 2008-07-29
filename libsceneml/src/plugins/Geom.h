@@ -39,7 +39,7 @@ private:
 	//! Geom color
 	ColumnVector rgb_;
 	//! Geom alpha (transperancy)
-	math::Real alpha_;
+	sml::Real alpha_;
 };
 
 class ODEObjectFactory : public SceneObjectFactory

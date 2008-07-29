@@ -23,6 +23,9 @@ int main(void)
 	smlode::ODEObjectFactory objfactory;
 	root.addSceneObjectFactory( &objfactory );
 
+	smlode::CollisionQuery query;
+	root.addSceneQuery( &query );
+
 	// Create simple scene graph
 	Node* n1 = sceneMgr->getRootNode()->createChild("n1");
 	Node* n2 = n1->createChild("n2");
@@ -34,13 +37,13 @@ int main(void)
 	Variable var1;
 	var1.setType("translation");
 	var1.subscribe(n2);
-	var1.setVector( math::VectorFactory::Vector3( math::UNIT_X ) );
+	var1.setVector( VectorFactory::Vector3( UNIT_X ) );
 
 	Variable var2;
 	var2.setType("rotation");
 	var2.setSubType("x");
 	var2.subscribe(n4);
-	var2.setScalar( math::zero );
+	var2.setScalar( sml::zero );
 
 	// Create some ODE geoms
 	PropertyCollection boxparams;
@@ -57,7 +60,7 @@ int main(void)
 	SceneObject* sphere = sceneMgr->createSceneObject("sphere", "ODE", &sphereparams);
 	n4->attachObject( sphere );
 
-	var2.setScalar( math::pi );
+	var2.setScalar( sml::pi );
 
 	sceneMgr->_updateSceneGraph();
 
@@ -85,6 +88,8 @@ int main(void)
 	printf("\t[%g, %g, %g]\n", sphererot[4], sphererot[5], sphererot[6]);
 	printf("\t[%g, %g, %g]\n", sphererot[8], sphererot[9], sphererot[10]);
 
+
+	// Do collision check
 
 	return 0;
 }

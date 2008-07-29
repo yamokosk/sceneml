@@ -15,8 +15,6 @@
 
 namespace sml {
 
-namespace math {
-
 struct MatrixFactory
 {
 	static ReturnMatrix Matrix3x3(int choice)
@@ -84,8 +82,6 @@ struct MatrixFactory
 		ret.Release(); return ret;
 	};
 };
-
-}
 
 }
 #endif /* MATRIX_H_ */

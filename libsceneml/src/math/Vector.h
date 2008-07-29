@@ -14,8 +14,6 @@
 
 namespace sml {
 
-namespace math {
-
 struct VectorFactory
 {
 	static ReturnMatrix Vector3(int choice)
@@ -69,8 +67,6 @@ struct VectorFactory
 		ret.Release(); return ret;
 	};
 };
-
-}
 
 }
 #endif /* VECTOR_H_ */

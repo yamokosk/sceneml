@@ -64,6 +64,12 @@ public:
 	// Return an iterator over all the SceneObjectFactory instances currently registered.
 	//SceneObjectFactoryIterator 	getSceneObjectFactoryIterator (void) const;
 
+	// Register a new SceneQuery
+	void addSceneQuery (SceneQuery* query);
+	void removeSceneQuery (SceneQuery* query);
+	bool hasSceneQuery ( const std::string &typeName ) const;
+	SceneQuery* getSceneQuery (const std::string& typeName );
+
 protected:
 	// List of plugin DLLs loaded.
 	//PluginLibList 	mPluginLibs;

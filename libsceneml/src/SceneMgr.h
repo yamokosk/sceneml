@@ -81,6 +81,8 @@ public:
 	//void extractSceneObject(SceneObject* m);
 	//void extractAllSceneObjectsByType(const std::string& typeName);
 
+	void _performQueries();
+
 private:
 	NodeMap nodes_;
 	Node* rootNode_;

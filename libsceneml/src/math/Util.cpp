@@ -27,7 +27,7 @@
 namespace sml
 {
 
-Quaternion FromAngleAxis(Real angle, const ColumnVector& axis)
+Quaternion QuatFromAngleAxis(Real angle, const ColumnVector& axis)
 {
 	if(axis.Nrows() != 3)
 	{
@@ -41,7 +41,7 @@ Quaternion FromAngleAxis(Real angle, const ColumnVector& axis)
 	return Quaternion(cos(angle/two), axis(1)*s/len, axis(2)*s/len, axis(3)*s/len);
 }
 
-Quaternion FromRotationMatrix(const Matrix& kRot)
+Quaternion QuatFromRotationMatrix(const Matrix& kRot)
 {
 	// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
 	// article "Quaternion Calculus and Fast Animation".
@@ -81,7 +81,7 @@ Quaternion FromRotationMatrix(const Matrix& kRot)
 	return Quaternion(w,x,y,z);
 }
 
-Quaternion FromEulerAngles(int choice, const ColumnVector& angles)
+Quaternion QuatFromEulerAngles(int choice, const ColumnVector& angles)
 {
 	if(angles.Nrows() != 3)
 	{
@@ -95,10 +95,10 @@ Quaternion FromEulerAngles(int choice, const ColumnVector& angles)
 
 	switch (choice)
 	{
-	case (EulerSequenceTypes::E123):
-		Quaternion q1 = QuaternionFactory::FromAngleAxis(angles(1), xaxis);
-		Quaternion q2 = QuaternionFactory::FromAngleAxis(angles(2), yaxis);
-		Quaternion q3 = QuaternionFactory::FromAngleAxis(angles(3), zaxis);
+	case ( XYZ ):
+		Quaternion q1 = QuatFromAngleAxis(angles(1), xaxis);
+		Quaternion q2 = QuatFromAngleAxis(angles(2), yaxis);
+		Quaternion q3 = QuatFromAngleAxis(angles(3), zaxis);
 		q_ret = q3*q2*q1;
 		break;
 	}
@@ -109,7 +109,7 @@ Quaternion FromEulerAngles(int choice, const ColumnVector& angles)
 } // End namespace
 
 
-ReturnMatrix operator* (const sml::math::Quaternion& q, const ColumnVector& v)
+ReturnMatrix operator* (const sml::Quaternion& q, const ColumnVector& v)
 {
 	if(v.Nrows() != 3)
 	{
@@ -120,8 +120,8 @@ ReturnMatrix operator* (const sml::math::Quaternion& q, const ColumnVector& v)
 	ColumnVector qvec(3); qvec << q.R_component_2() << q.R_component_3() << q.R_component_4();
 	ColumnVector uv = crossproduct(qvec,v);
 	ColumnVector uuv = crossproduct(qvec,uv);
-	uv *= (sml::math::two * q.real());
-	uuv *= sml::math::two;
+	uv *= (sml::two * q.real());
+	uuv *= sml::two;
 
 	ColumnVector ret = v + uv + uuv;
 	ret.Release();

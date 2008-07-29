@@ -125,14 +125,14 @@ public:
 	//void attachObject(SceneObject* obj);
 	// Must call this->notify() whenever node's transformation changes
 	*/
-	//! Returns a math::Quaternion representing the nodes orientation.
-	const math::Quaternion& getOrientation () const;
+	//! Returns a Quaternion representing the nodes orientation.
+	const Quaternion& getOrientation () const;
 
-	//! Sets the orientation of this node via a math::Quaternion.
-	void setOrientation (const math::Quaternion &q);
+	//! Sets the orientation of this node via a Quaternion.
+	void setOrientation (const Quaternion &q);
 
-	//! Sets the orientation of this node via math::Quaternion parameters.
-	void setOrientation (math::Real w, math::Real x, math::Real y, math::Real z);
+	//! Sets the orientation of this node via Quaternion parameters.
+	void setOrientation (Real w, Real x, Real y, Real z);
 
 	//! Resets the nodes orientation (local axes as world axes, no rotation).
 	void resetOrientation (void);
@@ -141,7 +141,7 @@ public:
 	void setPosition(const ColumnVector &pos);
 
 	//! Sets the position of the node relative to it's parent.
-	void setPosition(math::Real x, math::Real y, math::Real z);
+	void setPosition(Real x, Real y, Real z);
 
 	//! Gets the position of the node relative to it's parent.
 	const ColumnVector& getPosition(void) const;
@@ -174,22 +174,22 @@ public:
 	//void Node::yaw(const Radian& angle, TransformSpace relativeTo)
 
 	//! Rotate the node around an arbitrary axis.
-	void rotate(const ColumnVector &axis, math::Real angle, TransformSpace relativeTo=TS_LOCAL);
+	void rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo=TS_LOCAL);
 
 	//! Rotate the node around an aritrary axis using a Quarternion.
-	void rotate(const math::Quaternion &q, TransformSpace relativeTo=TS_LOCAL);
+	void rotate(const Quaternion &q, TransformSpace relativeTo=TS_LOCAL);
 
 	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
 	ReturnMatrix getLocalAxes (void) const;
 
 	//! Creates an unnamed new Node as a child of this node.
-	Node* createChild(const ColumnVector& translate=math::VectorFactory::Vector3( math::ZERO ),
-					  const math::Quaternion& rotate=math::QuaternionFactory::Quat( math::IDENTITY ) );
+	Node* createChild(const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
+					  const Quaternion& rotate=QuaternionFactory::IDENTITY );
 
 	//! Creates a new named Node as a child of this node.
 	Node* createChild(const std::string& name,
-					  const ColumnVector& translate=math::VectorFactory::Vector3( math::ZERO ),
-					  const math::Quaternion& rotate=math::QuaternionFactory::Quat( math::IDENTITY ) );
+					  const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
+					  const Quaternion& rotate=QuaternionFactory::IDENTITY );
 
 	//! Adds a (precreated) child scene node to this node.
 	void addChild (Node* child);
@@ -222,7 +222,7 @@ public:
 	void removeAllChildren (void);
 
 	//! Gets the orientation of the node as derived from all parents.
-	math::Quaternion _getDerivedOrientation (void);
+	Quaternion _getDerivedOrientation (void);
 
 	//! Gets the position of the node as derived from all parents.
 	const ColumnVector& _getDerivedPosition (void);
@@ -246,7 +246,7 @@ public:
 	const ColumnVector& getInitialPosition (void) const;
 
 	//! Gets the initial orientation of this node, see setInitialState for more info.
-	const math::Quaternion& getInitialOrientation (void) const;
+	const Quaternion& getInitialOrientation (void) const;
 
 	//! Gets the initial position of this node, see setInitialState for more info.
 	const ColumnVector& getInitialScale (void) const;
@@ -334,7 +334,7 @@ protected:
 	std::string 	name_;
 
 	//! Stores the orientation of the node relative to it's parent.
-	math::Quaternion orientation_;
+	Quaternion orientation_;
 
 	//! Stores the position/translation of the node relative to its parent.
 	ColumnVector position_;
@@ -349,7 +349,7 @@ protected:
 	bool inheritScale_;
 
 	//! Cached combined orientation.
-	math::Quaternion derivedOrientation_;
+	Quaternion derivedOrientation_;
 
 	//! Cached combined position.
 	ColumnVector derivedPosition_;
@@ -361,7 +361,7 @@ protected:
 	ColumnVector initialPosition_;
 
 	//! The orientation to use as a base for keyframe animation.
-	math::Quaternion initialOrientation_;
+	Quaternion initialOrientation_;
 
 	//! The scale to use as a base for keyframe animation.
 	ColumnVector initialScale_;

@@ -32,5 +32,5 @@ BOOST_AUTO_TEST_CASE( basic_test )
 	Variable var1;
 	var1.setType("translation");
 	var1.subscribe(n2);
-	var1.setVector( math::VectorFactory::Vector3( math::UNIT_X ) );
+	var1.setVector( VectorFactory::Vector3( UNIT_X ) );
 }
