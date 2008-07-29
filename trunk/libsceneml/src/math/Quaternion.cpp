@@ -20,32 +20,9 @@
 
 namespace sml {
 
-namespace math {
-
 Quaternion inverse(const Quaternion& q)
 {
 	return Quaternion(q.real(), -q.R_component_2(), -q.R_component_3(), -q.R_component_4() );
 }
 
-}
-
-}
-
-ReturnMatrix operator* (const sml::math::Quaternion& q, const ColumnVector& v)
-{
-	if(v.Nrows() != 3)
-	{
-		SML_EXCEPT(sml::Exception::ERR_INVALIDPARAMS, "Vector must be length 3.");
-	}
-
-	// nVidia SDK implementation - from OGRE implementation
-	ColumnVector qvec(3); qvec << q.R_component_2() << q.R_component_3() << q.R_component_4();
-	ColumnVector uv = crossproduct(qvec,v);
-	ColumnVector uuv = crossproduct(qvec,uv);
-	uv *= (sml::math::two * q.real());
-	uuv *= sml::math::two;
-
-	ColumnVector ret = v + uv + uuv;
-	ret.Release();
-	return ret;
 }
