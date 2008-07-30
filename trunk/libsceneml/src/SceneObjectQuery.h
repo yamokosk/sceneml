@@ -28,8 +28,8 @@ public:
 	virtual ~SceneObjectQuery();
 
 	virtual SceneObjectQuery* clone() const = 0;
-	virtual QueryResult execute(SceneMgr* mgr) = 0;
-	std::string getType() const = 0;
+	virtual QueryResult execute(const SceneMgr* mgr) = 0;
+	virtual std::string getType() const = 0;
 };
 
 }

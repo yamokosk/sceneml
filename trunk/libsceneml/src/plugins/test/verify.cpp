@@ -45,6 +45,12 @@ int main(void)
 	var2.subscribe(n4);
 	var2.setScalar( sml::zero );
 
+	// Create some ODE spaces
+	//PropertyCollection spaceparams;
+	//spaceparams.addPair( RequiredProperty("type", "simple") );
+	//SceneObjectCollection* space1 = sceneMgr->createObjectCollection("space1", "ODE_SPACE", &spaceparams);
+	//SceneObjectCollection* space2 = sceneMgr->createObjectCollection("space2", "ODE_SPACE", &spaceparams);
+
 	// Create some ODE geoms
 	PropertyCollection boxparams;
 	boxparams.addPair( RequiredProperty("type", "box") );
@@ -53,6 +59,7 @@ int main(void)
 	boxparams.addPair( RequiredProperty("height", "2.0") );
 	SceneObject* box = sceneMgr->createSceneObject("box", "ODE", &boxparams);
 	n2->attachObject( box );
+	space1->addObject( box );
 
 	PropertyCollection sphereparams;
 	sphereparams.addPair( RequiredProperty("type", "sphere") );

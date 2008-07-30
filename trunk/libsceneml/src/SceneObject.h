@@ -26,6 +26,7 @@
 namespace sml {
 
 // Forward declaration
+class SceneObjectCollection;
 class SceneObjectFactory;
 class Node;
 class SceneMgr;
@@ -48,6 +49,7 @@ public:
 	virtual SceneObjectFactory* _getCreator(void) const { return creator_; }
 	virtual void _notifyManager(SceneMgr* man) { manager_ = man; }
 	virtual SceneMgr* _getManager(void) const { return manager_; }
+	void _notifyCollection(SceneObjectCollection* collection);
 
 	//! Get obj name
 	std::string getName() const {return name_;}
@@ -77,6 +79,24 @@ protected:
 	std::string name_;
 	//! Creator
 	SceneObjectFactory* creator_;
+	//! Collection
+	SceneObjectCollection* collection_;
+};
+
+class SceneObjectCollection
+{
+public:
+	SceneObjectCollection();
+	SceneObjectCollection(const std::string& name);
+	virtual ~SceneObjectCollection();
+
+	void addSceneObject(SceneObject*);
+	void removeSceneObject(SceneObject*);
+	SceneObject* getSceneObject(const std::string& name);
+
+protected:
+	std::string name_;
+	std::list<SceneObject*> objects_;
 };
 
 class SceneObjectFactory
