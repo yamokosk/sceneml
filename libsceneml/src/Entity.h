@@ -27,32 +27,34 @@ namespace sml {
 
 // Forward declaration
 class SceneObjectCollection;
-class SceneObjectFactory;
+class EntityFactory;
 class Node;
-class SceneMgr;
+class SceneManager;
 
 //! Base class for movable scene objects.
 /** @ingroup xode
  *  Base class for movalbe scene objects.
  */
-class SceneObject
+class Entity
 {
 public:
-	SceneObject();
-	SceneObject(const std::string& name);
-	virtual ~SceneObject();
+	Entity();
+	Entity(const std::string& name);
+	virtual ~Entity();
 
-	virtual SceneObject* clone() const = 0;
+	virtual Entity* clone() const = 0;
 
 	void _notifyAttached(Node* parent);
-	void _notifyCreator(SceneObjectFactory* fact) { creator_ = fact; }
-	virtual SceneObjectFactory* _getCreator(void) const { return creator_; }
-	virtual void _notifyManager(SceneMgr* man) { manager_ = man; }
-	virtual SceneMgr* _getManager(void) const { return manager_; }
-	void _notifyCollection(SceneObjectCollection* collection);
+	void _notifyCreator(EntityFactory* fact) { creator_ = fact; }
+	void _notifyType(const std::string& type) { type_ = type; }
+	virtual EntityFactory* _getCreator(void) const { return creator_; }
+	virtual void _notifyManager(SceneManager* man) { manager_ = man; }
+	virtual SceneManager* _getManager(void) const { return manager_; }
 
 	//! Get obj name
 	std::string getName() const {return name_;}
+	//! Get obj type
+	std::string getType() const {return type_;}
 
 	virtual bool isAttached(void) const;
 
@@ -74,49 +76,27 @@ protected:
 	//! Node to which this object is attached
 	Node* 	parentNode_;
 	//! SceneManager holding this object (if applicable)
-	SceneMgr* 	manager_;
+	SceneManager* 	manager_;
 	//! Objects name
 	std::string name_;
+	//! Object type
+	std::string type_;
 	//! Creator
-	SceneObjectFactory* creator_;
-	//! Collection
-	SceneObjectCollection* collection_;
+	EntityFactory* creator_;
 };
 
-class SceneObjectCollection
-{
-public:
-	SceneObjectCollection();
-	SceneObjectCollection(const std::string& name);
-	virtual ~SceneObjectCollection();
 
-	void addSceneObject(SceneObject*);
-	void removeSceneObject(SceneObject*);
-	SceneObject* getSceneObject(const std::string& name);
-
-protected:
-	std::string name_;
-	std::list<SceneObject*> objects_;
-};
-
-class SceneObjectFactory
+class EntityFactory
 {
 protected:
-	//unsigned long mTypeFlag;
-
-	virtual SceneObject* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0) = 0;
+	virtual Entity* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0) = 0;
 public:
-	SceneObjectFactory() /*: mTypeFlag(0xFFFFFFFF)*/ {}
-	virtual ~SceneObjectFactory() {}
+	EntityFactory();
+	virtual ~EntityFactory();
 	virtual std::string getType(void) const = 0;
 
-	virtual SceneObject* createInstance( const std::string& name, SceneMgr* manager, const PropertyCollection* params = 0);
-	virtual void destroyInstance(SceneObject* obj) = 0;
-
-	//virtual bool requestTypeFlags(void) const { return false; }
-	//void _notifyTypeFlags(unsigned long flag) { mTypeFlag = flag; }
-
-	//unsigned long getTypeFlags(void) const { return mTypeFlag; }
+	virtual Entity* createInstance( const std::string& name, SceneManager* manager, const PropertyCollection* params = 0);
+	virtual void destroyInstance(Entity* obj) = 0;
 };
 
 

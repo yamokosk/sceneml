@@ -33,13 +33,14 @@
 namespace sml
 {
 
-class SceneMgr;
-class SceneObjectFactory;
+class SceneManager;
+class EntityFactory;
 
 class Root : public Singleton<Root>
 {
 public:
-	typedef std::map<std::string, SceneObjectFactory*> SceneObjectFactoryMap;
+	typedef std::map<std::string, EntityFactory*> SceneObjectFactoryMap;
+	typedef std::map<std::string, Plugin*> PluginMap;
 
 	Root();
 	virtual ~Root();
@@ -48,27 +49,30 @@ public:
 	static Root& getSingleton(void);
 	static Root* getSingletonPtr(void);
 
-	SceneMgr* createSceneManager();
-	SceneMgr* getSceneManager();
+	SceneManager* createSceneManager();
+	SceneManager* getSceneManager();
 
-	// Register a new SceneObjectFactory which will create new SceneObject instances of a particular type, as identified by the getType() method.
-	void addSceneObjectFactory (SceneObjectFactory *fact);
-	// Removes a previously registered SceneObjectFactory.
-	void removeSceneObjectFactory (SceneObjectFactory *fact);
-	// Checks whether a factory is registered for a given SceneObject type.
+	// Register a new EntityFactory which will create new Entity instances of a particular type, as identified by the getType() method.
+	void addSceneObjectFactory (EntityFactory *fact);
+	// Removes a previously registered EntityFactory.
+	void removeSceneObjectFactory (EntityFactory *fact);
+	// Checks whether a factory is registered for a given Entity type.
 	bool hasSceneObjectFactory (const std::string &typeName) const;
-	// Get a SceneObjectFactory for the given type.
-	SceneObjectFactory* getSceneObjectFactory (const std::string &typeName);
-	// Allocate the next SceneObject type flag.
+	// Get a EntityFactory for the given type.
+	EntityFactory* getSceneObjectFactory (const std::string &typeName);
+	// Allocate the next Entity type flag.
 	//uint32 	_allocateNextSceneObjectTypeFlag (void);
-	// Return an iterator over all the SceneObjectFactory instances currently registered.
+	// Return an iterator over all the EntityFactory instances currently registered.
 	//SceneObjectFactoryIterator 	getSceneObjectFactoryIterator (void) const;
 
 	// Register a new SceneQuery
-	void addSceneQuery (SceneQuery* query);
-	void removeSceneQuery (SceneQuery* query);
-	bool hasSceneQuery ( const std::string &typeName ) const;
-	SceneQuery* getSceneQuery (const std::string& typeName );
+	void addSceneQueryFactory (SceneQuery* query);
+	void removeSceneQueryFactory (SceneQuery* query);
+	bool hasSceneQueryFactory ( const std::string &typeName ) const;
+	SceneQuery* createSceneQuery (const std::string& typeName );
+
+	// Plugins
+	void registerPlugin( Plugin* );
 
 protected:
 	// List of plugin DLLs loaded.
@@ -77,8 +81,9 @@ protected:
 	//PluginInstanceList 	mPlugins;
 
 	SceneObjectFactoryMap 	sceneObjectFactoryMap_;
-	SceneObjectFactory* 	mEntityFactory;
-	SceneMgr*				sceneMgr_;
+	EntityFactory* 	mEntityFactory;
+	SceneManager*		sceneMgr_;
+	PluginMap pluginMap;
 };
 
 }

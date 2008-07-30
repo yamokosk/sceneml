@@ -18,7 +18,7 @@ namespace smlode {
 
 using namespace sml;
 
-class Geom : public sml::SceneObject {
+class Geom : public sml::Entity {
 public:
 	Geom();
 	Geom(const std::string& name);
@@ -28,7 +28,7 @@ public:
 	dGeomID _getGeomID(void) {return geomID_;}
 	int _getGeomClass() {return dGeomGetClass(geomID_);}
 
-	// Inherited from SceneObject
+	// Inherited from Entity
 	virtual void _notifyMoved(void);
 
 private:
@@ -42,17 +42,17 @@ private:
 	sml::Real alpha_;
 };
 
-class ODEObjectFactory : public SceneObjectFactory
+class ODEObjectFactory : public EntityFactory
 {
 protected:
-	virtual SceneObject* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0);
+	virtual Entity* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0);
 
 public:
 	ODEObjectFactory();
 	virtual ~ODEObjectFactory();
 
 	virtual std::string getType(void) const;
-	virtual void destroyInstance(SceneObject* obj);
+	virtual void destroyInstance(Entity* obj);
 };
 
 }

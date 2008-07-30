@@ -9,9 +9,10 @@
 #define SCENEML_H_
 
 #include <Root.h>
-#include <SceneMgr.h>
+#include <SceneManager.h>
 #include <Node.h>
-#include <SceneObject.h>
+#include <Entity.h>
+#include <EntityCollection.h>
 #include <SceneObjectQuery.h>
 #include <Variable.h>
 

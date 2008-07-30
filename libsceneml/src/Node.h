@@ -26,7 +26,7 @@
 #include <iostream>
 
 // SML includes
-#include <SceneMgr.h>
+#include <SceneManager.h>
 #include <SceneObject.h>
 #include <Observer.h>
 #include <math/Math.h>
@@ -39,7 +39,7 @@ namespace sml {
 
 class Node : public Observer
 {
-	friend class SceneMgr;
+	friend class SceneManager;
 
 // Public types and enums
 public:
@@ -47,7 +47,7 @@ public:
 	typedef ChildNodeMap::iterator			ChildNodeIterator;
 	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
-	typedef std::map<std::string, SceneObject*> ObjectMap;
+	typedef std::map<std::string, Entity*> ObjectMap;
 	typedef ObjectMap::iterator ObjectMapIterator;
 	typedef ObjectMap::const_iterator ObjectMapConstIterator;
 
@@ -63,10 +63,10 @@ public:
 
 public:
 	//! Constructor, only to be called by the creator SceneManager.
-	Node (SceneMgr *creator);
+	Node (SceneManager *creator);
 
 	//! Constructor, only to be called by the creator SceneManager.
-	Node (SceneMgr *creator, const std::string &name);
+	Node (SceneManager *creator, const std::string &name);
 
 	//! Destructor. Cleans up....
 	virtual ~Node();
@@ -75,25 +75,25 @@ public:
 	void update(Subject* subject, int hint);
 
 	//! Adds an instance of a scene object to this node.
-	void attachObject (SceneObject *obj);
+	void attachObject (Entity *obj);
 
 	//! Reports the number of objects attached to this node.
 	unsigned short numAttachedObjects (void) const;
 
 	//! Retrieves a pointer to an attached object.
-	SceneObject* getAttachedObject (unsigned short index);
+	Entity* getAttachedObject (unsigned short index);
 
 	//! Retrieves a pointer to an attached object.
-	SceneObject* getAttachedObject (const std::string &name);
+	Entity* getAttachedObject (const std::string &name);
 
 	//! Detaches the indexed object from this scene node.
-	SceneObject* detachObject (unsigned short index);
+	Entity* detachObject (unsigned short index);
 
 	//! Detaches an object by pointer.
-	void detachObject (SceneObject *obj);
+	void detachObject (Entity *obj);
 
 	//! Detaches the named object from this node and returns a pointer to it.
-	SceneObject* detachObject (const std::string &name);
+	Entity* detachObject (const std::string &name);
 
 	//! Detaches all objects attached to this node.
 	void detachAllObjects (void);
@@ -114,7 +114,7 @@ public:
 	virtual ConstObjectIterator getAttachedObjectIterator (void) const;
  */
 	//! Gets the creator of this scene node.
-	SceneMgr* getManager (void) const;
+	SceneManager* getManager (void) const;
 
 	//! Gets the parent of this SceneNode.
 	Node* getParent(void) const;
@@ -122,7 +122,7 @@ public:
 	//! Returns the name of the node.
 	const std::string& getName (void) const;
  	/*
-	//void attachObject(SceneObject* obj);
+	//void attachObject(Entity* obj);
 	// Must call this->notify() whenever node's transformation changes
 	*/
 	//! Returns a Quaternion representing the nodes orientation.
@@ -298,7 +298,7 @@ protected:
 // Protected Attributes
 protected:
 	//! SceneManager which created this node.
-	SceneMgr* manager_;
+	SceneManager* manager_;
 
 	//! World-Axis aligned bounding box, updated only through _update.
 	//AxisAlignedBox worldAABB_;

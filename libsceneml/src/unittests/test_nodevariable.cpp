@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE( basic_test )
 {
 	BOOST_TEST_MESSAGE( "Node/variable test." );
 
-	SceneMgr mgr;
+	SceneManager mgr;
 
 	Node* n1 = mgr.getRootNode()->createChild();
 	Node* n2 = n1->createChild();

@@ -24,7 +24,7 @@
 
 #include "Root.h"
 
-#include <SceneMgr.h>
+#include <SceneManager.h>
 #include <SceneObject.h>
 
 namespace sml
@@ -49,26 +49,33 @@ Root::Root() :
 
 Root::~Root()
 {
+	// Unload plugins
+	PluginMap::iterator itr = pluginMap_.begin();
+	for (; itr != pluginMap_.end(); ++itr)
+	{
+		(itr->second)->shutdown();
+	}
+
 	if (sceneMgr_) delete sceneMgr_;
 	if (mEntityFactory) delete mEntityFactory;
 }
 
-SceneMgr* Root::createSceneManager()
+SceneManager* Root::createSceneManager()
 {
-	if (!sceneMgr_) sceneMgr_ = new SceneMgr();
+	if (!sceneMgr_) sceneMgr_ = new SceneManager();
 	else
 		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "A scene manager already exists.");
 
 	return sceneMgr_;
 }
 
-SceneMgr* Root::getSceneManager()
+SceneManager* Root::getSceneManager()
 {
 	return sceneMgr_;
 }
 
 //---------------------------------------------------------------------
-void Root::addSceneObjectFactory(SceneObjectFactory* fact)
+void Root::addSceneObjectFactory(EntityFactory* fact)
 {
 	SceneObjectFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
 	/*if (!overrideExisting && facti != sceneObjectFactoryMap_.end())
@@ -99,7 +106,7 @@ bool Root::hasSceneObjectFactory(const std::string& typeName) const
 	return !(sceneObjectFactoryMap_.find(typeName) == sceneObjectFactoryMap_.end());
 }
 //---------------------------------------------------------------------
-SceneObjectFactory* Root::getSceneObjectFactory(const std::string& typeName)
+EntityFactory* Root::getSceneObjectFactory(const std::string& typeName)
 {
 	SceneObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(typeName);
 	if (i == sceneObjectFactoryMap_.end())
@@ -122,7 +129,7 @@ SceneObjectFactory* Root::getSceneObjectFactory(const std::string& typeName)
 
 }*/
 //---------------------------------------------------------------------
-void Root::removeSceneObjectFactory(SceneObjectFactory* fact)
+void Root::removeSceneObjectFactory(EntityFactory* fact)
 {
 	SceneObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(
 		fact->getType());
@@ -159,5 +166,20 @@ SceneQuery* Root::getSceneQuery (const std::string& typeName )
 	return NULL;
 }
 
+void Root::registerPlugin( Plugin* p )
+{
+	std::string type = p->getType();
+	// Check that we don't already have one of this type registered
+	if ( pluginMap_.find( type ) != pluginMap_.end() )
+	{
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"Plugin type " + type + " already registered");
+	}
+
+	p->initialize();
+	p->registerFactories(this);
+	p->registerQueries(this);
+
+	pluginMap_[type] = p;
+}
 
 }

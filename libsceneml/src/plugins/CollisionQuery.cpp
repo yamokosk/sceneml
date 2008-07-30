@@ -12,36 +12,62 @@ namespace smlode {
 
 using namespace sml;
 
-CollisionQuery::CollisionQuery(SceneMgr* mgr) :
-	SceneQuery(mgr)
+CollisionQuery::CollisionQuery(SceneManager* mgr) :
+	SceneQuery(mgr),
+	inCollision_(false)
 {
 	// TODO Auto-generated constructor stub
 
 }
 
-CollisionQuery::~CollisionQuery() {
-	// TODO Auto-generated destructor stub
+CollisionQuery::~CollisionQuery()
+{
+
 }
 
-virtual SceneObjectQuery* CollisionQuery::clone() const
+virtual SceneQuery* CollisionQuery::clone() const
 {
 	return (new CollisionQuery(*this));
 }
 
-virtual QueryResult CollisionQuery::execute(const SceneMgr* mgr)
+virtual void CollisionQuery::execute(const SceneManager* mgr)
 {
-	/*Space* space1 = manager_->getSceneObject(space1, "space");
+	SceneManager::EntityPairsIterator itr = mgr->getEntityPairsIterator();
 
-	Geom* g1; Geom g2; int flags = 0; int skip = 0;
-	dContactGeom contactGeom[MAX_NUM_CONTACT_PTS];
-	int numContactPts = dCollide (g1->getGeomID(), g2->getGeomID(), flags, contactGeom, skip);*/
+	// Reset contactData vector
+	//contactData_.clear();
 
-	return QueryResult;
+	// Now perform space to space collision checks
+	//for (unsigned int n=0; n < spacePairs_.size(); ++n)
+	//		dSpaceCollide2((dGeomID)spacePairs_[n].first, (dGeomID)spacePairs_[n].second, (void*)&contactData_, collisionCallback);
+
+	return QueryResult();
 }
 
 virtual std::string CollisionQuery::getType() const
 {
-	return "ODE_Collision";
+	return "ODE_Collision_Check";
+}
+
+void collisionCallback(void* data, dGeomID o1, dGeomID o2)
+{
+	// TODO: If the Geom is a TriMesh, I might need to be setting the previous
+	// transform with calls to void dGeomTriMeshSetLastTransform( dGeomID g, dMatrix4 last_trans )
+	// and dReal* dGeomTriMeshGetLastTransform( dGeomID g )
+	//bool* bVal = (bool*)data;
+
+	unsigned long col1 = dGeomGetCollideBits(o1);
+	unsigned long col2 = dGeomGetCollideBits(o2);
+
+	int flags = 0;
+	//mBitsOn(flags, NUM_CONTACT_POINTS);
+	dContactGeom dContactPts[NUM_CONTACT_POINTS];
+
+	int numContactPts = dCollide(o1, o2, flags, dContactPts, sizeof(dContactGeom));
+	if (numContactPts > 0) {
+		ContactGeoms_t* pContactData = (ContactGeoms_t*)data;
+		for (int n=0; n < numContactPts; ++n) (*pContactData).push_back( dContactPts[n] );
+	}
 }
 
 }

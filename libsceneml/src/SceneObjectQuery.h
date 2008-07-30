@@ -14,21 +14,14 @@
 
 namespace sml {
 
-typedef std::list<SceneObject*> SceneObjectList;
-
-struct QueryResult
-{
-	SceneObjectList objects_;
-};
-
-class SceneObjectQuery
+class SceneQuery
 {
 public:
-	SceneObjectQuery();
-	virtual ~SceneObjectQuery();
+	SceneQuery();
+	virtual ~SceneQuery();
 
-	virtual SceneObjectQuery* clone() const = 0;
-	virtual QueryResult execute(const SceneMgr* mgr) = 0;
+	virtual SceneQuery* clone() const = 0;
+	virtual void execute(const SceneManager* mgr) = 0;
 	virtual std::string getType() const = 0;
 };
 
