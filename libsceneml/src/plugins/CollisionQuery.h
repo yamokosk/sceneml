@@ -16,19 +16,16 @@
 
 namespace smlode {
 
-struct CollisionResult : public sml::QueryObjectList
-{
-
-};
-
 class CollisionQuery: public sml::SceneObjectQuery
 {
 public:
-	CollisionQuery(sml::SceneMgr* mgr);
+	CollisionQuery();
 	virtual ~CollisionQuery();
 
 	// Inherited from SceneQuery
-	virtual sml::QueryResult* query();
+	virtual SceneObjectQuery* clone() const;
+	virtual QueryResult execute(const SceneMgr* mgr);
+	virtual std::string getType() const;
 };
 
 }

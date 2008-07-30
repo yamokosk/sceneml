@@ -23,7 +23,12 @@ CollisionQuery::~CollisionQuery() {
 	// TODO Auto-generated destructor stub
 }
 
-SceneQueryResult* CollisionQuery::query()
+virtual SceneObjectQuery* CollisionQuery::clone() const
+{
+	return (new CollisionQuery(*this));
+}
+
+virtual QueryResult CollisionQuery::execute(const SceneMgr* mgr)
 {
 	/*Space* space1 = manager_->getSceneObject(space1, "space");
 
@@ -31,8 +36,12 @@ SceneQueryResult* CollisionQuery::query()
 	dContactGeom contactGeom[MAX_NUM_CONTACT_PTS];
 	int numContactPts = dCollide (g1->getGeomID(), g2->getGeomID(), flags, contactGeom, skip);*/
 
-	return NULL;
+	return QueryResult;
 }
 
+virtual std::string CollisionQuery::getType() const
+{
+	return "ODE_Collision";
+}
 
 }
