@@ -73,15 +73,15 @@ int main(void)
 	space2->addGeom( sphere );
 
 	// Update the scene graph
-	sceneMgr->_updateSceneGraph();
-	sceneMgr->_performQuery("ODE_Collision_Check");
+	sceneMgr->update(); // internally calls _updateSceneGraph() and then executes all Queries.. each query executed on its own thread
+	bool* inCollision = sceneMgr->getQueryResult("ODE_Collision_Check"); // returns an auto_ptr
 
 	// Change the variables
 	var2.setScalar( sml::pi );
 
 	// Update the scene graph again to flow variable influence throughout graph
-	sceneMgr->_updateSceneGraph();
-	sceneMgr->_performQuery("ODE_Collision_Check");
+	sceneMgr->update(); // internally calls _updateSceneGraph() and then executes all Queries.. each query executed on its own thread
+	bool* inCollision = sceneMgr->getQueryResult("ODE_Collision_Check");
 
 	// Print some stuff out
 	std::cout << *n1 << *n2 << *n3 << *n4 << *n5 << std::endl;
