@@ -41,6 +41,12 @@ struct VectorFactory
 		}
 		ret.Release(); return ret;
 	};
+	static ReturnMatrix Vector3(Real x, Real y, Real z)
+	{
+		ColumnVector ret(3);
+		ret << x << y << z;
+		ret.Release(); return ret;
+	};
 	static ReturnMatrix Vector4(int choice)
 	{
 		ColumnVector ret(4);

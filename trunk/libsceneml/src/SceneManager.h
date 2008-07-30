@@ -22,11 +22,13 @@
 // std includes
 #include <string>
 #include <map>
+#include <pair>
 
 // sml includes
 #include "Root.h"
 #include "Exception.h"
-#include "SceneObject.h"
+#include "Entity.h"
+//#include "Space.h"
 #include "PropertyCollection.h"
 
 namespace sml {
@@ -34,14 +36,8 @@ namespace sml {
 // Forward declarations
 class Node;
 
-typedef std::map<std::string, SceneObject*> SceneObjectMap;
-struct SceneObjectCollection
-{
-	SceneObjectMap map;
-	//OGRE_MUTEX(mutex)
-};
 
-class SceneMgr
+class SceneManager
 {
 // public types
 public:
@@ -49,13 +45,25 @@ public:
 	typedef NodeMap::iterator				NodeIterator;
 	typedef NodeMap::const_iterator			NodeConstIterator;
 
-	typedef std::map<std::string, SceneObjectCollection*> SceneObjectCollectionMap;
-	//typedef MapIterator<SceneObjectMap> SceneObjectIterator;
+	typedef std::map< std::string, Entity*> EntityMap;
+	typedef EntityMap::iterator EntityIterator;
+	// Collection of one type of Entity objects.. ODE, LINCANNY, etc.
+	struct EntityCollection
+	{
+		EntityMap entities_;
+	};
+	typedef std::map<std::string, EntityCollection*> EntityCollectionMap;
+
+	typedef std::pair<Entity*, Entity*> EntityPair;
+	typedef std::list<EntityPair> EntityPairList;
+	typedef EntityPairList::iterator EntityPairListIterator;
 
 public:
-	SceneMgr();
-	virtual ~SceneMgr();
+	SceneManager();
+	virtual ~SceneManager();
+	void clearScene();
 
+	// Nodes
 	Node* createNode();
 	Node* createNode(const std::string& name);
 	void destroyNode(const std::string& name);
@@ -63,31 +71,32 @@ public:
 	Node* getNode(const std::string& name) const;
 	virtual bool hasSceneNode(const std::string& name) const;
 
-	void clearScene();
+	// Entities
+	Entity* createEntity(const std::string& name,const std::string& typeName, const PropertyCollection* params = 0);
+	void destroyEntity(const std::string& name, const std::string& typeName);
+	void destroyEntity(Entity* m);
+	void destroyAllEntitiesByType(const std::string& typeName);
+	void destroyAllEntities(void);
+	Entity* getEntity(const std::string& name, const std::string& typeName);
+	EntityCollection* getEntitiesByType(const std::string& typeName);
+	bool hasEntity(const std::string& name, const std::string& typeName) const;
+	EntityIterator getEntityIterator(const std::string& typeName);
 
+	// Entity pairs
+	void createEntityPair(Entity* e1, Entity* e2);
+	EntityPairListIterator getEntityPairsIterator();
+
+	// Queries
+	SceneQuery* performQuery(const std::string& typeName);
+
+	// Internal functions
 	void _updateSceneGraph();
 
-	SceneObjectCollection* getSceneObjectCollection(const std::string& typeName);
-	SceneObject* createSceneObject(const std::string& name,const std::string& typeName, const PropertyCollection* params = 0);
-	void destroySceneObject(const std::string& name, const std::string& typeName);
-	void destroySceneObject(SceneObject* m);
-	void destroyAllSceneObjectsByType(const std::string& typeName);
-	void destroyAllSceneObjects(void);
-	SceneObject* getSceneObject(const std::string& name, const std::string& typeName);
-	bool hasSceneObject(const std::string& name, const std::string& typeName) const;
-	//virtual SceneObjectIterator getSceneObjectIterator(const std::string& typeName);
-	//void injectSceneObject(SceneObject* m);
-	//void extractSceneObject(const std::string& name, const std::string& typeName);
-	//void extractSceneObject(SceneObject* m);
-	//void extractAllSceneObjectsByType(const std::string& typeName);
-
-	void _performQueries();
-
 private:
-	NodeMap nodes_;
 	Node* rootNode_;
-	SceneObjectCollectionMap sceneObjectCollectionMap_;
-	//SpaceMap spaces_;
+	NodeMap nodes_;
+	EntityCollectionMap entityTypes_;
+	EntityPairList entityPairs_;
 };
 
 }

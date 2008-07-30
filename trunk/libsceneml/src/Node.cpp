@@ -29,7 +29,7 @@ namespace sml {
 	unsigned long Node::nextGeneratedNameExt_ = 1;
 	Node::QueuedUpdates Node::queuedUpdates_;
 
-	Node::Node (SceneMgr *mgr) :
+	Node::Node (SceneManager *mgr) :
 		manager_(mgr),
 		//worldAABB_(),
 		parent_(NULL),
@@ -62,7 +62,7 @@ namespace sml {
 	}
 
 	//! Constructor, only to be called by the creator SceneManager.
-	Node::Node(SceneMgr* mgr, const std::string& name) :
+	Node::Node(SceneManager* mgr, const std::string& name) :
 		manager_(mgr),
 		//worldAABB_(),
 		parent_(NULL),
@@ -110,7 +110,7 @@ namespace sml {
 		// Detach all objects, do this manually to avoid needUpdate() call
 		// which can fail because of deleted items
 		ObjectMap::iterator itr;
-		SceneObject* ret;
+		Entity* ret;
 		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 		{
 			ret = itr->second;
@@ -169,7 +169,7 @@ namespace sml {
 		}
 	}
 
-	void Node::attachObject (SceneObject *obj)
+	void Node::attachObject (Entity *obj)
 	{
 		if (obj->isAttached())
 		{
@@ -195,7 +195,7 @@ namespace sml {
 	}
 
 	//! Retrieves a pointer to an attached object.
-	SceneObject* Node::getAttachedObject (unsigned short index)
+	Entity* Node::getAttachedObject (unsigned short index)
 	{
 		if (index < sceneObjects_.size())
 		{
@@ -213,7 +213,7 @@ namespace sml {
 	}
 
 	//! Retrieves a pointer to an attached object.
-	SceneObject* Node::getAttachedObject (const std::string &name)
+	Entity* Node::getAttachedObject (const std::string &name)
 	{
 		// Look up
 		ObjectMap::iterator i = sceneObjects_.find(name);
@@ -227,9 +227,9 @@ namespace sml {
 	}
 
 	//! Detaches the indexed object from this scene node.
-	SceneObject* Node::detachObject (unsigned short index)
+	Entity* Node::detachObject (unsigned short index)
 	{
-		SceneObject* ret;
+		Entity* ret;
 		if (index < sceneObjects_.size())
 		{
 
@@ -255,7 +255,7 @@ namespace sml {
 	}
 
 	//! Detaches an object by pointer.
-	void Node::detachObject (SceneObject *obj)
+	void Node::detachObject (Entity *obj)
 	{
 		ObjectMap::iterator i, iend;
 		iend = sceneObjects_.end();
@@ -274,7 +274,7 @@ namespace sml {
 	}
 
 	//! Detaches the named object from this node and returns a pointer to it.
-	SceneObject* Node::detachObject (const std::string &name)
+	Entity* Node::detachObject (const std::string &name)
 	{
 		ObjectMapIterator it = sceneObjects_.find(name);
 		if (it == sceneObjects_.end())
@@ -282,7 +282,7 @@ namespace sml {
 			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
 					"to this node.");
 		}
-		SceneObject* ret = it->second;
+		Entity* ret = it->second;
 		sceneObjects_.erase(it);
 		ret->_notifyAttached((Node*)0);
 		// Make sure bounds get updated (must go right to the top)
@@ -295,7 +295,7 @@ namespace sml {
 	void Node::detachAllObjects (void)
 	{
 		ObjectMapIterator itr;
-		SceneObject* ret;
+		Entity* ret;
 		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 		{
 			ret = itr->second;
@@ -397,7 +397,7 @@ namespace sml {
 	}
 	*/
 	//! Gets the creator of this scene node.
-	SceneMgr* Node::getManager (void) const
+	SceneManager* Node::getManager (void) const
 	{
 		return manager_;
 	}
@@ -414,7 +414,7 @@ namespace sml {
 		return name_;
 	}
 
-	//void attachObject(SceneObject* obj);
+	//void attachObject(Entity* obj);
 	// Must call this->notify() whenever node's transformation changes
 
 	//! Returns a quaternion representing the nodes orientation.
@@ -887,6 +887,7 @@ namespace sml {
 		{
 			n->queuedForUpdate_ = true;
 			queuedUpdates_.push_back(n);
+			std::cout << n->getName() << " queued for update." << std::endl;
 		}
 	}
 
@@ -902,6 +903,7 @@ namespace sml {
 			n->needUpdate(true);
 		}
 		queuedUpdates_.clear();
+		std::cout << "All queued node updates processed and queue cleared." << std::endl;
 	}
 
 	void Node::updateFromParentImpl(void)
@@ -963,7 +965,7 @@ namespace sml {
 		ObjectMapConstIterator i;
 		for (i = sceneObjects_.begin(); i != sceneObjects_.end(); ++i)
 		{
-			SceneObject* object = i->second;
+			Entity* object = i->second;
 			object->_notifyMoved();
 		}
 

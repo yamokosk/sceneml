@@ -5,14 +5,14 @@
  *      Author: yamokosk
  */
 
-#include "Geom.h"
+#include "ODEGeom.h"
 
 namespace smlode {
 
 using namespace sml;
 
 Geom::Geom() :
-	SceneObject(),
+	Entity(),
 	geomID_(NULL),
 	alpha_(1)
 {
@@ -20,7 +20,7 @@ Geom::Geom() :
 }
 
 Geom::Geom(const std::string& name) :
-	SceneObject(name),
+	Entity(name),
 	geomID_(NULL),
 	alpha_(1)
 {
@@ -29,8 +29,7 @@ Geom::Geom(const std::string& name) :
 
 Geom::~Geom()
 {
-	if (geomID_)
-		dGeomDestroy(geomID_);
+	if (geomID_) dGeomDestroy(geomID_);
 }
 
 
@@ -52,22 +51,17 @@ void Geom::_notifyMoved(void)
 	}
 }
 
-//void Geom::_notifySpace(Space* space)
-//{
-	// Tell ODE Geom its part of a new space... is this necessary?
-//}
-
-ODEObjectFactory::ODEObjectFactory()
+GeomFactory::GeomFactory()
 {
 
 }
 
-ODEObjectFactory::~ODEObjectFactory()
+GeomFactory::~GeomFactory()
 {
 
 }
 
-SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params)
+Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params)
 {
 	Geom* g = new Geom( name );
 
@@ -153,12 +147,12 @@ SceneObject* ODEObjectFactory::createInstanceImpl(const std::string& name, const
 	return g;
 }
 
-std::string ODEObjectFactory::getType(void) const
+std::string GeomFactory::getType(void) const
 {
-	return std::string("ODE");
+	return std::string("ODE_GEOM");
 }
 
-void ODEObjectFactory::destroyInstance(SceneObject* obj)
+void GeomFactory::destroyInstance(Entity* obj)
 {
 	delete obj;
 }

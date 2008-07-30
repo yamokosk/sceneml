@@ -46,11 +46,11 @@ typedef std::map<std::string, dRealPtr> StringVariableMap_t;
 /**
  *  The scene manager class.
  */
-class SceneMgr
+class SceneManager
 {	
 public:
-	SceneMgr();
-	~SceneMgr();
+	SceneManager();
+	~SceneManager();
 	
 	//! Get the root node
 	SceneNode* getSceneRootNode() const {return rootNode_;}
