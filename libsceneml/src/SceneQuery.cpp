@@ -15,34 +15,42 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * SceneQuery.cpp
+ *
+ *  Created on: Jul 31, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef SUBJECT_H
-#define SUBJECT_H
+#include "SceneQuery.h"
 
-// Standard includes
-#include <list>
-
-#include <Observer.h>
-
-namespace sml {
-
-class Subject
+namespace sml
 {
-public:
-	typedef std::list<Observer*> Observers;
-	typedef Observers::iterator ObserversIterator;
 
-	Subject();
-	virtual ~Subject();
-
-	void subscribe( Observer* obs );
-	void unsubscribe( Observer* obs );
-	virtual void notify(int hint=0);
-
-private:
-	Observers observers_;
-};
+SceneQuery::SceneQuery()
+{
 
 }
 
-#endif
+SceneQuery::~SceneQuery()
+{
+
+}
+
+QueryResult::QueryResult(SceneQuery* creator) :
+	creator_(creator)
+{
+
+}
+
+QueryResult::~QueryResult()
+{
+
+}
+
+SceneQuery* QueryResult::getCreator()
+{
+	return creator_;
+}
+
+} // Namespace: sml

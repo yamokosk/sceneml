@@ -21,7 +21,7 @@
 
 // std includes
 #include <string>
-#include <map>
+#include <hash_map>
 #include <pair>
 
 // sml includes
@@ -37,26 +37,29 @@ namespace sml {
 class Node;
 
 
-class SceneManager
+class SceneManager : public Observer
 {
 // public types
 public:
-	typedef std::map<std::string, Node*>	NodeMap;
+	typedef std::hash_map<std::string, Node*>	NodeMap;
 	typedef NodeMap::iterator				NodeIterator;
 	typedef NodeMap::const_iterator			NodeConstIterator;
 
-	typedef std::map< std::string, Entity*> EntityMap;
+	typedef std::hash_map< std::string, Entity*> EntityMap;
 	typedef EntityMap::iterator EntityIterator;
 	// Collection of one type of Entity objects.. ODE, LINCANNY, etc.
 	struct EntityCollection
 	{
 		EntityMap entities_;
 	};
-	typedef std::map<std::string, EntityCollection*> EntityCollectionMap;
+	typedef std::hash_map< std::string, EntityCollection*> EntityCollectionMap;
 
 	typedef std::pair<Entity*, Entity*> EntityPair;
 	typedef std::list<EntityPair> EntityPairList;
 	typedef EntityPairList::iterator EntityPairListIterator;
+
+	typedef queue< SceneQuery* > QueryQueue;
+	typedef std::hash_map<std::string, QueryResult*> ResultMap;
 
 public:
 	SceneManager();
@@ -87,16 +90,30 @@ public:
 	EntityPairListIterator getEntityPairsIterator();
 
 	// Queries
-	SceneQuery* performQuery(const std::string& typeName);
+	QueryResult* getQueryResult(const std::string& typeName);
+	void destroyAllQueryResults();
+	void _addResult(QueryResult* result);
+
+	// Update scene
+	void update();
 
 	// Internal functions
+	void _addQuery(SceneQuery* query);
+	void _performQueries();
+
 	void _updateSceneGraph();
+
+	// From Observer class
+	void update(Subject* subject, int hint);
 
 private:
 	Node* rootNode_;
 	NodeMap nodes_;
 	EntityCollectionMap entityTypes_;
 	EntityPairList entityPairs_;
+
+	QueryQueue queries_;
+	ResultMap results_;
 };
 
 }

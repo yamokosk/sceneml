@@ -32,6 +32,8 @@ virtual SceneQuery* CollisionQuery::clone() const
 
 virtual void CollisionQuery::execute(const SceneManager* mgr)
 {
+	this->notify(SceneQuery::QUERY_STARTED);
+
 	SceneManager::EntityPairsIterator itr = mgr->getEntityPairsIterator();
 
 	// Reset contactData vector
@@ -41,12 +43,47 @@ virtual void CollisionQuery::execute(const SceneManager* mgr)
 	//for (unsigned int n=0; n < spacePairs_.size(); ++n)
 	//		dSpaceCollide2((dGeomID)spacePairs_[n].first, (dGeomID)spacePairs_[n].second, (void*)&contactData_, collisionCallback);
 
-	return QueryResult();
+	this->notify(SceneQuery::QUERY_COMPLETE);
 }
 
 virtual std::string CollisionQuery::getType() const
 {
 	return "ODE_Collision_Check";
+}
+
+virtual QueryResult* getResult()
+{
+	SimpleResult* result(this);
+	result->_setCollisionStatus(inCollision_);
+	return result;
+}
+
+virtual void deleteResult( QueryResult* result )
+{
+	delete result;
+}
+
+
+SimpleResult::SimpleResult(sml::SceneQuery* creator) :
+	sml::QueryResult(creator),
+	inCollision(true)
+{
+
+}
+
+SimpleResult::~SimpleResult()
+{
+
+}
+
+bool SimpleResult::inCollision()
+{
+	return inCollision_;
+}
+
+void SimpleResult::_setCollisionStatus(bool status)
+{
+	inCollision_ = status;
 }
 
 void collisionCallback(void* data, dGeomID o1, dGeomID o2)
