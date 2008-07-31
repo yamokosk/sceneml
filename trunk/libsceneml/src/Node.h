@@ -21,7 +21,7 @@
 
 // std inlcudes
 #include <string>
-#include <map>
+#include <hash_map>
 #include <set>
 #include <iostream>
 
@@ -43,11 +43,11 @@ class Node : public Observer
 
 // Public types and enums
 public:
-	typedef std::map<std::string, Node*>	ChildNodeMap;
+	typedef std::hash_map<std::string, Node*>	ChildNodeMap;
 	typedef ChildNodeMap::iterator			ChildNodeIterator;
 	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
-	typedef std::map<std::string, Entity*> ObjectMap;
+	typedef std::hash_map<std::string, Entity*> ObjectMap;
 	typedef ObjectMap::iterator ObjectMapIterator;
 	typedef ObjectMap::const_iterator ObjectMapConstIterator;
 

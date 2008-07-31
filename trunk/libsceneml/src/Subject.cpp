@@ -15,34 +15,47 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * Subject.cpp
+ *
+ *  Created on: Jul 31, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef SUBJECT_H
-#define SUBJECT_H
+#include "Subject.h"
 
-// Standard includes
-#include <list>
-
-#include <Observer.h>
-
-namespace sml {
-
-class Subject
+namespace sml
 {
-public:
-	typedef std::list<Observer*> Observers;
-	typedef Observers::iterator ObserversIterator;
 
-	Subject();
-	virtual ~Subject();
+Subject::Subject() {}
 
-	void subscribe( Observer* obs );
-	void unsubscribe( Observer* obs );
-	virtual void notify(int hint=0);
+Subject::~Subject() {}
 
-private:
-	Observers observers_;
-};
-
+void Subject::subscribe( Observer* obs )
+{
+	observers_.push_back(obs);
 }
 
-#endif
+void Subject::unsubscribe( Observer* obs )
+{
+	ObserversIterator it = observers_.begin();
+	for (; it != observers_.end(); ++it)
+	{
+		if ( (*it) == obs )
+		{
+			observers_.erase(it);
+			return;
+		}
+	}
+}
+
+void Subject::notify(int hint)
+{
+	ObserversIterator it = observers_.begin();
+	for (; it != observers_.end(); ++it)
+	{
+		(*it)->update(this, hint);
+	}
+}
+
+} // Namespace: sml

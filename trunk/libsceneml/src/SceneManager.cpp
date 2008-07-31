@@ -314,11 +314,48 @@ EntityPairListIterator SceneManager::getEntityPairsIterator()
 	return EntityPairListIterator(entityPairs_.being(), entityPairs_.end());
 }
 
+QueryResult* getQueryResult(const std::string& typeName)
+{
+
+}
+
+void destroyAllQueryResults()
+{
+
+}
+
+void _addResult(QueryResult* result)
+{
+
+}
+
+void SceneManager::update()
+{
+	_updateSceneGraph();
+
+}
+
 SceneQuery* performQuery(const std::string& typeName)
 {
-	SceneQuery* query =	Root::getSingleton().createSceneQuery(typeName);
-	query->execute(this);
-	return query;
+
+}
+
+void _addQuery(SceneQuery* query)
+{
+
+}
+
+void _performQueries()
+{
+	// Clean out current query result list
+	destroyAllQueryResults();
+
+	while ( !queries_.empty() )
+	{
+		SceneQuery* q = queries_.front();
+		q->execute(this);
+		queries_.pop();
+	}
 }
 
 void SceneManager::_updateSceneGraph()
@@ -331,6 +368,24 @@ void SceneManager::_updateSceneGraph()
     // Smarter SceneManager subclasses may choose to update only
     //   certain scene graph branches
 	rootNode_->_update(true, false);
+}
+
+void SceneManager::update(Subject* subject, int hint)
+{
+	SceneQuery* query = boost::polymorphic_downcast<SceneQuery*>(sub);
+
+	switch (hint)
+	{
+	case QUERY_STARTED:
+		break;
+	case QUERY_COMPLETED:
+		QueryResult result = query->getResult();
+		_addResult(result);
+		_addQuery(query);
+		break;
+	default:
+		break;
+	}
 }
 
 } // namespace sml

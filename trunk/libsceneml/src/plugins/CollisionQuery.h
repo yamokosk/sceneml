@@ -29,9 +29,23 @@ public:
 	virtual void execute(const SceneManager* mgr);
 	virtual std::string getType() const;
 
-	bool inCollision() {return inCollision_;}
+	virtual QueryResult* getResult();
+	virtual void deleteResult( QueryResult* result );
 
 private:
+	bool inCollision_;
+};
+
+class SimpleResult : public sml::QueryResult
+{
+public:
+	SimpleResult(sml::SceneQuery* creator);
+	virtual ~SimpleResult();
+
+	bool inCollision();
+	void _setCollisionStatus(bool status);
+
+protected:
 	bool inCollision_;
 };
 
