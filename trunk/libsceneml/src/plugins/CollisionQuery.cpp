@@ -86,6 +86,11 @@ void SimpleResult::_setCollisionStatus(bool status)
 	inCollision_ = status;
 }
 
+std::string SimpleResult::getType() const
+{
+	return "ODE_Simple_Result";
+}
+
 void collisionCallback(void* data, dGeomID o1, dGeomID o2)
 {
 	// TODO: If the Geom is a TriMesh, I might need to be setting the previous
