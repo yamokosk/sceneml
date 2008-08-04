@@ -19,12 +19,12 @@ BOOST_AUTO_TEST_CASE( basic_test )
 	BOOST_TEST_MESSAGE( "Basic expression test." );
 
 	std::cout << "Testing: 2.0 * 2.0" << std::endl;
-	math::Real val = math::ExpressionFactory::getAsReal("2.0 * 2.0");
+	sml::Real val = ExpressionFactory::getAsReal("2.0 * 2.0");
 
 	BOOST_CHECK_EQUAL( val, 4.0 );
 
 	std::cout << "Testing: 2.0 2.0*3 3-1" << std::endl;
-	ColumnVector vec = math::ExpressionFactory::getAsVector("2.0 2.0*3 3-1",3);
+	ColumnVector vec = ExpressionFactory::getAsVector("2.0 2.0*3 3-1",3);
 
 	BOOST_CHECK_EQUAL( vec(1), 2.0 );
 	BOOST_CHECK_EQUAL( vec(2), 6.0 );

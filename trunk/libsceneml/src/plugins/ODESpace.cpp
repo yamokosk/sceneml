@@ -5,6 +5,7 @@
  *      Author: yamokosk
  */
 
+#include "ODESpace.h"
 #include "ODEGeom.h"
 
 namespace smlode {
@@ -30,7 +31,12 @@ Space::~Space()
 	if (spaceID_) dSpaceDestroy(spaceID_);
 }
 
-void addGeom(smlode::Geom* g)
+Entity* Space::clone() const
+{
+	return (new Space(*this));
+}
+
+void Space::addGeom(smlode::Geom* g)
 {
 	dSpaceAdd(spaceID_, g->_getGeomID());
 }
@@ -38,7 +44,6 @@ void addGeom(smlode::Geom* g)
 inline
 void Space::_notifyMoved(void)
 {
-
 }
 
 SpaceFactory::SpaceFactory()

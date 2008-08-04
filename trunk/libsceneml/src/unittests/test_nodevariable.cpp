@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
-#include <SceneMgr.h>
+#include <SceneManager.h>
 #include <Node.h>
 #include <Variable.h>
 #include <math/Vector.h>

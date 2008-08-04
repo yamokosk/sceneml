@@ -25,9 +25,13 @@
 #ifndef ROOT_H_
 #define ROOT_H_
 
+// Standard includes
 #include <map>
 
+// Internal includes
 #include <Singleton.h>
+#include <SceneQuery.h>
+#include <Plugin.h>
 #include <Exception.h>
 
 namespace sml
@@ -39,8 +43,8 @@ class EntityFactory;
 class Root : public Singleton<Root>
 {
 public:
-	typedef std::map<std::string, EntityFactory*> SceneObjectFactoryMap;
-	typedef std::map<std::string, Plugin*> PluginMap;
+	typedef std::map<std::string, EntityFactory*> EntityFactoryMap;
+	typedef std::map<std::string, Plugin*> PluginInstanceMap;
 
 	Root();
 	virtual ~Root();
@@ -49,21 +53,18 @@ public:
 	static Root& getSingleton(void);
 	static Root* getSingletonPtr(void);
 
+	// SceneManager
 	SceneManager* createSceneManager();
 	SceneManager* getSceneManager();
 
 	// Register a new EntityFactory which will create new Entity instances of a particular type, as identified by the getType() method.
-	void addSceneObjectFactory (EntityFactory *fact);
+	void addEntityFactory (EntityFactory *fact);
 	// Removes a previously registered EntityFactory.
-	void removeSceneObjectFactory (EntityFactory *fact);
+	void removeEntityFactory (EntityFactory *fact);
 	// Checks whether a factory is registered for a given Entity type.
-	bool hasSceneObjectFactory (const std::string &typeName) const;
+	bool hasEntityFactory (const std::string &typeName) const;
 	// Get a EntityFactory for the given type.
-	EntityFactory* getSceneObjectFactory (const std::string &typeName);
-	// Allocate the next Entity type flag.
-	//uint32 	_allocateNextSceneObjectTypeFlag (void);
-	// Return an iterator over all the EntityFactory instances currently registered.
-	//SceneObjectFactoryIterator 	getSceneObjectFactoryIterator (void) const;
+	EntityFactory* getEntityFactory (const std::string &typeName);
 
 	// Register a new SceneQuery
 	void addSceneQueryFactory (SceneQuery* query);
@@ -75,15 +76,10 @@ public:
 	void registerPlugin( Plugin* );
 
 protected:
-	// List of plugin DLLs loaded.
-	//PluginLibList 	mPluginLibs;
-	// List of Plugin instances registered.
-	//PluginInstanceList 	mPlugins;
-
-	SceneObjectFactoryMap 	sceneObjectFactoryMap_;
+	EntityFactoryMap 	sceneObjectFactoryMap_;
 	EntityFactory* 	mEntityFactory;
 	SceneManager*		sceneMgr_;
-	PluginMap pluginMap;
+	PluginInstanceMap registeredPlugins_;
 };
 
 }

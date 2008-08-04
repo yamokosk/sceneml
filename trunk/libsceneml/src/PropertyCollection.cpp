@@ -58,7 +58,7 @@ void PropertyCollection::addPair(const PropertyPair& pair) throw (sml::Exception
 
 void PropertyCollection::updatePair(const char* key, const char* value, bool isRequired) throw (sml::Exception)
 {
-	std::map<std::string, PropertyPair>::iterator it = pairs_.find(key);
+	PairMap::iterator it = pairs_.find(key);
 
 	if (it != pairs_.end()) {
 		pairs_.erase(it);

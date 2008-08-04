@@ -16,7 +16,7 @@
  *
  *************************************************************************/
 
-#include "SceneMgr.h"
+#include "SceneManager.h"
 #include "Node.h"
 
 namespace sml
@@ -129,14 +129,14 @@ void SceneManager::clearScene(void)
 }
 
 //---------------------------------------------------------------------
-EntityCollection* SceneManager::getEntitiesByType(const std::string& typeName)
+SceneManager::EntityCollection* SceneManager::getEntitiesByType(const std::string& typeName)
 {
-	EntityTypesMap::iterator i = entityTypes_.find(typeName);
-	if ( i == entityTypesCollection_.end() )
+	EntityCollectionMap::iterator i = entityTypes_.find(typeName);
+	if ( i == entityTypes_.end() )
 	{
 		// create
-		EntityCollection* newCollection = new EntityCollection();
-		entityTypesCollection_[typeName] = newCollection;
+		SceneManager::EntityCollection* newCollection = new SceneManager::EntityCollection();
+		entityTypes_[typeName] = newCollection;
 		return newCollection;
 	}
 	else
@@ -239,17 +239,23 @@ bool SceneManager::hasEntity(const std::string& name, const std::string& typeNam
 	return (i->second->entities_.find(name) != i->second->entities_.end());
 }
 
+inline
+bool SceneManager::hasEntity(const Entity* e) const
+{
+	return hasEntity(e->getName(), e->getType());
+}
+
 void SceneManager::destroyEntity(Entity* m)
 {
 	destroyEntity( m->getName(), m->getType() );
 }
 
-EntityIterator SceneManager::getEntityIterator(const std::string& typeName)
+/*SceneManager::EntityIterator SceneManager::getEntityIterator(const std::string& typeName)
 {
-	EntityCollection* collection = getEntitiesByType(typeName);
+	SceneManager::EntityCollection* collection = getEntitiesByType(typeName);
 	// Iterator not thread safe! Warned in header.
-	return EntityIterator(collection->entities_.begin(), collection->entities_.end());
-}
+	return SceneManager::EntityIterator(collection->entities_.begin(), collection->entities_.end());
+}*/
 
 //---------------------------------------------------------------------
 /*
@@ -309,40 +315,39 @@ void SceneManager::createEntityPair(Entity* e1, Entity* e2)
 	entityPairs_.push_back( EntityPair(e1,e2) );
 }
 
-EntityPairListIterator SceneManager::getEntityPairsIterator()
+/*SceneManager::EntityPairListIterator SceneManager::getEntityPairsIterator()
 {
-	return EntityPairListIterator(entityPairs_.being(), entityPairs_.end());
-}
+	return SceneManager::EntityPairListIterator(entityPairs_.being(), entityPairs_.end());
+}*/
 
-QueryResult* getQueryResult(const std::string& typeName)
+QueryResult* SceneManager::getQueryResult(const std::string& typeName)
 {
 	ResultMapIterator itr = results_.find(typeName);
 
 	if ( itr == results_.end() )
 	{
-		SML_ERROR(Exception::ERR_ITEM_NOT_FOUND,"Result type '" + typeName + "' does not exist.");
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"Result type '" + typeName + "' does not exist.");
 	}
 
 	return itr->second;
 }
 
-void destroyAllQueryResults()
+void SceneManager::destroyAllQueryResults()
 {
 	ResultMapIterator itr = results_.begin();
 	for (; itr != results_.end(); ++itr)
 	{
-		SceneQuery q = (itr->second)->getCreator();
-		q->deleteResult( itr->second );
+		(itr->second)->getCreator()->deleteResult( itr->second );
 	}
 	results_.clear();
 }
 
-void _addResult(QueryResult* result)
+void SceneManager::_addResult(QueryResult* result)
 {
 	std::string typeName = result->getType();
-	if ( results_.find() != results.end() )
+	if ( results_.find( typeName ) != results_.end() )
 	{
-		SML_ERROR(Exception::ERR_DUPLICATE_ITEM,"A result of type '" + typeName + "' already exists.");
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"A result of type '" + typeName + "' already exists.");
 	}
 
 	results_[ typeName ] = result;
@@ -354,14 +359,14 @@ void SceneManager::update()
 	_performQueries();
 }
 
-void _addQuery(SceneQuery* query)
+void SceneManager::_addQuery(SceneQuery* query)
 {
 	// Lock query
 	queries_.push(query);
 	// Unlock query
 }
 
-void _performQueries()
+void SceneManager::_performQueries()
 {
 	// Lock the mutex
 
@@ -370,9 +375,8 @@ void _performQueries()
 
 	while ( !queries_.empty() )
 	{
-		SceneQuery* q = queryqueue.front();
-		q->execute();
-		queryqueue.pop();
+		queries_.front()->execute( this );
+		queries_.pop();
 	}
 
 	// Unlock the mutex
@@ -390,9 +394,9 @@ void SceneManager::_updateSceneGraph()
 	rootNode_->_update(true, false);
 }
 
-void SceneManager::update(Subject* subject, int hint)
+void SceneManager::update(int hint)
 {
-	SceneQuery* query = boost::polymorphic_downcast<SceneQuery*>(sub);
+	/*SceneQuery* query = boost::polymorphic_downcast<SceneQuery*>(sub);
 
 	switch (hint)
 	{
@@ -405,7 +409,7 @@ void SceneManager::update(Subject* subject, int hint)
 		break;
 	default:
 		break;
-	}
+	}*/
 }
 
 } // namespace sml

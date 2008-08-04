@@ -32,6 +32,10 @@ Geom::~Geom()
 	if (geomID_) dGeomDestroy(geomID_);
 }
 
+Entity* Geom::clone() const
+{
+	return (new Geom(*this));
+}
 
 void Geom::_notifyMoved(void)
 {

@@ -20,7 +20,7 @@
 #define PROPERTYCOLLECTION_H
 
 #include <string>
-#include <map>
+#include <hash_map>
 #include "PropertyPair.h"
 #include "Exception.h"
 
@@ -33,7 +33,8 @@ namespace sml {
 class PropertyCollection
 {
 public:
-	typedef std::map<std::string, PropertyPair>::const_iterator PropertyIterator;
+	typedef stdext::hash_map<std::string, PropertyPair> PairMap;
+	typedef PairMap::const_iterator PropertyIterator;
 
 	PropertyCollection() {}
 	~PropertyCollection() {}
@@ -46,7 +47,7 @@ public:
 	std::string getValue(const char* key) const throw (sml::Exception);
 
 private:
-	std::map<std::string, PropertyPair> pairs_;
+	PairMap pairs_;
 };
 
 } // Namespace

@@ -46,18 +46,18 @@ ODEPlugin::~ODEPlugin()
 void ODEPlugin::initialize()
 {
 	dInitODE();
-	worldID_ = dWorldCreate();
+	world_ = dWorldCreate();
 }
 
 void ODEPlugin::registerFactories(Root* r)
 {
-	r->addSceneObjectFactory( &geomFactory_ );
-	r->addSceneObjectFactory( &spaceFactory_ );
+	r->addEntityFactory( &geomFactory_ );
+	r->addEntityFactory( &spaceFactory_ );
 }
 
-virtual void registerQueries(Root* r)
+void ODEPlugin::registerQueries(Root* r)
 {
-	r->addSceneQuery( &collisionQuery_ );
+	r->addSceneQueryFactory( &collisionQuery_ );
 }
 
 std::string ODEPlugin::getType()
@@ -67,7 +67,7 @@ std::string ODEPlugin::getType()
 
 void ODEPlugin::shutdown()
 {
-	dWorldDestroy(worldID_);
+	dWorldDestroy(world_);
 	dCloseODE();
 }
 

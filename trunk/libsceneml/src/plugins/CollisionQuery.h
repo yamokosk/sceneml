@@ -25,12 +25,12 @@ public:
 	virtual ~CollisionQuery();
 
 	// Inherited from SceneQuery
-	virtual SceneQuery* clone() const;
-	virtual void execute(const SceneManager* mgr);
+	virtual sml::SceneQuery* clone() const;
+	virtual void execute(const sml::SceneManager* mgr);
 	virtual std::string getType() const;
 
-	virtual QueryResult* getResult();
-	virtual void deleteResult( QueryResult* result );
+	virtual sml::QueryResult* getResult();
+	virtual void deleteResult( sml::QueryResult* result );
 
 private:
 	bool inCollision_;
