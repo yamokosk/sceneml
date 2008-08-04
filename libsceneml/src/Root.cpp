@@ -25,7 +25,7 @@
 #include "Root.h"
 
 #include <SceneManager.h>
-#include <SceneObject.h>
+#include <Entity.h>
 
 namespace sml
 {
@@ -50,8 +50,8 @@ Root::Root() :
 Root::~Root()
 {
 	// Unload plugins
-	PluginMap::iterator itr = pluginMap_.begin();
-	for (; itr != pluginMap_.end(); ++itr)
+	PluginInstanceMap::iterator itr = registeredPlugins_.begin();
+	for (; itr != registeredPlugins_.end(); ++itr)
 	{
 		(itr->second)->shutdown();
 	}
@@ -75,9 +75,9 @@ SceneManager* Root::getSceneManager()
 }
 
 //---------------------------------------------------------------------
-void Root::addSceneObjectFactory(EntityFactory* fact)
+void Root::addEntityFactory(EntityFactory* fact)
 {
-	SceneObjectFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
+	EntityFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
 	/*if (!overrideExisting && facti != sceneObjectFactoryMap_.end())
 	{
 		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"A factory of type '" + fact->getType() + "' already exists.");
@@ -93,7 +93,7 @@ void Root::addSceneObjectFactory(EntityFactory* fact)
 		else
 		{
 			// Allocate new
-			fact->_notifyTypeFlags(_allocateNextSceneObjectTypeFlag());
+			fact->_notifyTypeFlags(_allocateNextEntityTypeFlag());
 		}
 	}*/
 
@@ -101,37 +101,37 @@ void Root::addSceneObjectFactory(EntityFactory* fact)
 	sceneObjectFactoryMap_[fact->getType()] = fact;
 }
 //---------------------------------------------------------------------
-bool Root::hasSceneObjectFactory(const std::string& typeName) const
+bool Root::hasEntityFactory(const std::string& typeName) const
 {
 	return !(sceneObjectFactoryMap_.find(typeName) == sceneObjectFactoryMap_.end());
 }
 //---------------------------------------------------------------------
-EntityFactory* Root::getSceneObjectFactory(const std::string& typeName)
+EntityFactory* Root::getEntityFactory(const std::string& typeName)
 {
-	SceneObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(typeName);
+	EntityFactoryMap::iterator i = sceneObjectFactoryMap_.find(typeName);
 	if (i == sceneObjectFactoryMap_.end())
 	{
-		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"SceneObjectFactory of type " + typeName + " does not exist");
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"EntityFactory of type " + typeName + " does not exist");
 	}
 	return i->second;
 }
 //---------------------------------------------------------------------
-/*uint32 Root::_allocateNextSceneObjectTypeFlag(void)
+/*uint32 Root::_allocateNextEntityTypeFlag(void)
 {
-	if (mNextSceneObjectTypeFlag == SceneManager::USER_TYPE_MASK_LIMIT)
+	if (mNextEntityTypeFlag == SceneManager::USER_TYPE_MASK_LIMIT)
 	{
 		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Cannot allocate a type flag since all the available flags have been used.");
 
 	}
-	uint32 ret = mNextSceneObjectTypeFlag;
-	mNextSceneObjectTypeFlag <<= 1;
+	uint32 ret = mNextEntityTypeFlag;
+	mNextEntityTypeFlag <<= 1;
 	return ret;
 
 }*/
 //---------------------------------------------------------------------
-void Root::removeSceneObjectFactory(EntityFactory* fact)
+void Root::removeEntityFactory(EntityFactory* fact)
 {
-	SceneObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(
+	EntityFactoryMap::iterator i = sceneObjectFactoryMap_.find(
 		fact->getType());
 	if (i != sceneObjectFactoryMap_.end())
 	{
@@ -140,37 +140,37 @@ void Root::removeSceneObjectFactory(EntityFactory* fact)
 
 }
 //---------------------------------------------------------------------
-/*Root::SceneObjectFactoryIterator Root::getSceneObjectFactoryIterator(void) const
+/*Root::EntityFactoryIterator Root::getEntityFactoryIterator(void) const
 {
-	return SceneObjectFactoryIterator(sceneObjectFactoryMap_.begin(),
+	return EntityFactoryIterator(sceneObjectFactoryMap_.begin(),
 		sceneObjectFactoryMap_.end());
 }*/
 
-void Root::addSceneQuery (SceneQuery* query)
+void Root::addSceneQueryFactory (SceneQuery* query)
 {
 	return;
 }
 
-void Root::removeSceneQuery (SceneQuery* query)
+void Root::removeSceneQueryFactory (SceneQuery* query)
 {
 	return;
 }
 
-bool Root::hasSceneQuery ( const std::string &typeName ) const
+bool Root::hasSceneQueryFactory ( const std::string &typeName ) const
 {
 	return false;
 }
 
-SceneQuery* Root::getSceneQuery (const std::string& typeName )
+/*SceneQuery* Root::getSceneQueryFactory (const std::string& typeName )
 {
 	return NULL;
-}
+}*/
 
 void Root::registerPlugin( Plugin* p )
 {
 	std::string type = p->getType();
 	// Check that we don't already have one of this type registered
-	if ( pluginMap_.find( type ) != pluginMap_.end() )
+	if ( registeredPlugins_.find( type ) != registeredPlugins_.end() )
 	{
 		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"Plugin type " + type + " already registered");
 	}
@@ -179,7 +179,7 @@ void Root::registerPlugin( Plugin* p )
 	p->registerFactories(this);
 	p->registerQueries(this);
 
-	pluginMap_[type] = p;
+	registeredPlugins_[type] = p;
 }
 
 }

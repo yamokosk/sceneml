@@ -12,8 +12,7 @@
 #include <SceneManager.h>
 #include <Node.h>
 #include <Entity.h>
-#include <EntityCollection.h>
-#include <SceneObjectQuery.h>
+#include <SceneQuery.h>
 #include <Variable.h>
 
 #include <math/Math.h>

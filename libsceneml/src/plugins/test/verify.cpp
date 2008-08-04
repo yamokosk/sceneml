@@ -17,8 +17,7 @@ int main(void)
 	Root root;
 
 	// Register ODE Framework and its factories with SceneML
-	ODEPlugin odePlugin();
-	root.registerPlugin( &odePlugin );
+	root.registerPlugin( new smlode::ODEPlugin() );
 
 	// Create various SceneML Managers
 	SceneManager* sceneMgr = root.createSceneManager();
@@ -74,14 +73,14 @@ int main(void)
 
 	// Update the scene graph
 	sceneMgr->update(); // internally calls _updateSceneGraph() and then executes all Queries.. each query executed on its own thread
-	bool* inCollision = sceneMgr->getQueryResult("ODE_Collision_Check"); // returns an auto_ptr
+	//bool* inCollision = sceneMgr->getQueryResult("ODE_Collision_Check"); // returns an auto_ptr
 
 	// Change the variables
 	var2.setScalar( sml::pi );
 
 	// Update the scene graph again to flow variable influence throughout graph
 	sceneMgr->update(); // internally calls _updateSceneGraph() and then executes all Queries.. each query executed on its own thread
-	bool* inCollision = sceneMgr->getQueryResult("ODE_Collision_Check");
+	//bool* inCollision = sceneMgr->getQueryResult("ODE_Collision_Check");
 
 	// Print some stuff out
 	std::cout << *n1 << *n2 << *n3 << *n4 << *n5 << std::endl;

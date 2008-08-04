@@ -25,7 +25,6 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
-//#include "Subject.h"
 //#include <boost/bind.hpp>
 
 namespace sml
@@ -36,23 +35,14 @@ class Subject;
 class Observer
 {
 public:
-	Observer()
-	{
-		//connection_ = subject_.connect( boost::bind(&Listener::notify, this, _1) );
-    }
+	Observer();
+    virtual ~Observer();
 
-    virtual ~Observer()
-	{
-		//subject_.disconnect(connection_);
-	}
-
-	virtual void update(Subject* subject, int hint) = 0;
+    virtual void listen(Subject* sub);
+	virtual void update(int hint) = 0;
 
 protected:
-	//Subject& subject_;
-
-private:
-	//Subject::connection_t  connection_;
+	Subject* subject_;
 };
 
 }

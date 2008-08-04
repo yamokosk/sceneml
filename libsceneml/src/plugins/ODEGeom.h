@@ -24,6 +24,8 @@ public:
 	Geom(const std::string& name);
 	virtual ~Geom();
 
+	virtual Entity* clone() const;
+
 	void _setGeomID(dGeomID g) {geomID_ = g;}
 	dGeomID _getGeomID(void) {return geomID_;}
 	int _getGeomClass() {return dGeomGetClass(geomID_);}

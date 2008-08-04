@@ -54,7 +54,7 @@ void Subject::notify(int hint)
 	ObserversIterator it = observers_.begin();
 	for (; it != observers_.end(); ++it)
 	{
-		(*it)->update(this, hint);
+		(*it)->update(hint);
 	}
 }
 

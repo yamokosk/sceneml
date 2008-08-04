@@ -25,9 +25,9 @@
 #include <set>
 #include <iostream>
 
-// SML includes
+// Internal includes
 #include <SceneManager.h>
-#include <SceneObject.h>
+#include <Entity.h>
 #include <Observer.h>
 #include <math/Math.h>
 #include <math/Vector.h>
@@ -43,11 +43,11 @@ class Node : public Observer
 
 // Public types and enums
 public:
-	typedef std::hash_map<std::string, Node*>	ChildNodeMap;
+	typedef stdext::hash_map<std::string, Node*>	ChildNodeMap;
 	typedef ChildNodeMap::iterator			ChildNodeIterator;
 	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
-	typedef std::hash_map<std::string, Entity*> ObjectMap;
+	typedef stdext::hash_map<std::string, Entity*> ObjectMap;
 	typedef ObjectMap::iterator ObjectMapIterator;
 	typedef ObjectMap::const_iterator ObjectMapConstIterator;
 
@@ -72,7 +72,7 @@ public:
 	virtual ~Node();
 
 	// From Observer class
-	void update(Subject* subject, int hint);
+	void update(int hint);
 
 	//! Adds an instance of a scene object to this node.
 	void attachObject (Entity *obj);

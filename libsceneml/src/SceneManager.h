@@ -22,14 +22,15 @@
 // std includes
 #include <string>
 #include <hash_map>
-#include <pair>
+#include <utility>
+#include <queue>
 
-// sml includes
-#include "Root.h"
-#include "Exception.h"
-#include "Entity.h"
-//#include "Space.h"
-#include "PropertyCollection.h"
+// Internal includes
+#include <Root.h>
+#include <Exception.h>
+#include <Entity.h>
+#include <PropertyCollection.h>
+
 
 namespace sml {
 
@@ -41,25 +42,32 @@ class SceneManager : public Observer
 {
 // public types
 public:
-	typedef std::hash_map<std::string, Node*>	NodeMap;
+	// Nodes
+	typedef stdext::hash_map<std::string, Node*>	NodeMap;
 	typedef NodeMap::iterator				NodeIterator;
 	typedef NodeMap::const_iterator			NodeConstIterator;
 
-	typedef std::hash_map< std::string, Entity*> EntityMap;
+	// Entities
+	typedef stdext::hash_map< std::string, Entity*> EntityMap;
 	typedef EntityMap::iterator EntityIterator;
 	// Collection of one type of Entity objects.. ODE, LINCANNY, etc.
 	struct EntityCollection
 	{
 		EntityMap entities_;
 	};
-	typedef std::hash_map< std::string, EntityCollection*> EntityCollectionMap;
+	typedef stdext::hash_map< std::string, EntityCollection*> EntityCollectionMap;
 
+	// Entity pairs
 	typedef std::pair<Entity*, Entity*> EntityPair;
 	typedef std::list<EntityPair> EntityPairList;
 	typedef EntityPairList::iterator EntityPairListIterator;
 
-	typedef queue< SceneQuery* > QueryQueue;
-	typedef std::hash_map<std::string, QueryResult*> ResultMap;
+	// Queries
+	typedef std::queue< SceneQuery* > QueryQueue;
+
+	// Query results
+	typedef stdext::hash_map<std::string, QueryResult*> ResultMap;
+	typedef ResultMap::iterator ResultMapIterator;
 
 public:
 	SceneManager();
@@ -83,11 +91,12 @@ public:
 	Entity* getEntity(const std::string& name, const std::string& typeName);
 	EntityCollection* getEntitiesByType(const std::string& typeName);
 	bool hasEntity(const std::string& name, const std::string& typeName) const;
-	EntityIterator getEntityIterator(const std::string& typeName);
+	bool hasEntity(const Entity* e) const;
+	//EntityIterator getEntityIterator(const std::string& typeName);
 
 	// Entity pairs
 	void createEntityPair(Entity* e1, Entity* e2);
-	EntityPairListIterator getEntityPairsIterator();
+	//EntityPairListIterator getEntityPairsIterator();
 
 	// Queries
 	QueryResult* getQueryResult(const std::string& typeName);
@@ -104,7 +113,7 @@ public:
 	void _updateSceneGraph();
 
 	// From Observer class
-	void update(Subject* subject, int hint);
+	void update(int hint);
 
 private:
 	Node* rootNode_;

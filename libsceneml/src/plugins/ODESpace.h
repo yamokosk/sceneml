@@ -25,12 +25,19 @@
 #ifndef ODESPACE_H_
 #define ODESPACE_H_
 
+// SceneML
 #include <SceneML.h>
+
+// ODE library
+#include <ode/ode.h>
 
 namespace smlode
 {
 
 using namespace sml;
+
+// Forward declarations
+class Geom;
 
 class Space: public sml::Entity
 {

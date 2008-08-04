@@ -123,9 +123,9 @@ namespace sml {
 		}*/
 	}
 
-	void Node::update(Subject* sub, int hint)
+	void Node::update(int hint)
 	{
-		Variable* var = boost::polymorphic_downcast<Variable*>(sub);
+		Variable* var = boost::polymorphic_downcast<Variable*>(subject_);
 
 		std::string type = var->getType(); //type of variable we are listening to
 

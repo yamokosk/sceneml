@@ -25,12 +25,14 @@
 #ifndef PLUGIN_H_
 #define PLUGIN_H_
 
+// Standard includes
 #include <string>
-
-#include <Root.h>
 
 namespace sml
 {
+
+// Forward declarations
+class Root;
 
 class Plugin
 {

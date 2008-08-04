@@ -40,13 +40,15 @@ endif ( WIN32 )
 set(name test_nodevariable)
 set(srcs ${name}.cpp
          ${PROJECT_SOURCE_DIR}/src/Root.cpp
-		 ${PROJECT_SOURCE_DIR}/src/SceneMgr.cpp
+		 ${PROJECT_SOURCE_DIR}/src/SceneManager.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Node.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Variable.cpp
 		 ${PROJECT_SOURCE_DIR}/src/PropertyCollection.cpp
-		 ${PROJECT_SOURCE_DIR}/src/CommandStack.cpp
 		 ${PROJECT_SOURCE_DIR}/src/math/Quaternion.cpp
-		 ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Entity.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Subject.cpp
+		 ${PROJECT_SOURCE_DIR}/src/Plugin.cpp
+		 ${PROJECT_SOURCE_DIR}/src/SceneQuery.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
     add_executable(unit${name} ${srcs})
@@ -60,6 +62,7 @@ endif ( WIN32 )
 # TEST OBSERVER
 set(name test_observer)
 set(srcs ${name}.cpp
+         ${PROJECT_SOURCE_DIR}/src/Subject.cpp
 		 ${PROJECT_SOURCE_DIR}/src/Exception.cpp)
 if ( WIN32 )
     add_executable(unit${name} ${srcs})
@@ -67,7 +70,7 @@ else ( WIN32 )
     add_executable(unit${name} ${srcs})
 endif ( WIN32 )
 
-# TEST OBSERVER
+# TEST MATH FACTORIES
 set(name test_mathfactories)
 set(srcs ${name}.cpp
          ${PROJECT_SOURCE_DIR}/src/math/Quaternion.cpp
