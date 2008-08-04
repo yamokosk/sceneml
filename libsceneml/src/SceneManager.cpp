@@ -316,46 +316,66 @@ EntityPairListIterator SceneManager::getEntityPairsIterator()
 
 QueryResult* getQueryResult(const std::string& typeName)
 {
+	ResultMapIterator itr = results_.find(typeName);
 
+	if ( itr == results_.end() )
+	{
+		SML_ERROR(Exception::ERR_ITEM_NOT_FOUND,"Result type '" + typeName + "' does not exist.");
+	}
+
+	return itr->second;
 }
 
 void destroyAllQueryResults()
 {
-
+	ResultMapIterator itr = results_.begin();
+	for (; itr != results_.end(); ++itr)
+	{
+		SceneQuery q = (itr->second)->getCreator();
+		q->deleteResult( itr->second );
+	}
+	results_.clear();
 }
 
 void _addResult(QueryResult* result)
 {
+	std::string typeName = result->getType();
+	if ( results_.find() != results.end() )
+	{
+		SML_ERROR(Exception::ERR_DUPLICATE_ITEM,"A result of type '" + typeName + "' already exists.");
+	}
 
+	results_[ typeName ] = result;
 }
 
 void SceneManager::update()
 {
 	_updateSceneGraph();
-
-}
-
-SceneQuery* performQuery(const std::string& typeName)
-{
-
+	_performQueries();
 }
 
 void _addQuery(SceneQuery* query)
 {
-
+	// Lock query
+	queries_.push(query);
+	// Unlock query
 }
 
 void _performQueries()
 {
+	// Lock the mutex
+
 	// Clean out current query result list
 	destroyAllQueryResults();
 
 	while ( !queries_.empty() )
 	{
-		SceneQuery* q = queries_.front();
-		q->execute(this);
-		queries_.pop();
+		SceneQuery* q = queryqueue.front();
+		q->execute();
+		queryqueue.pop();
 	}
+
+	// Unlock the mutex
 }
 
 void SceneManager::_updateSceneGraph()

@@ -44,6 +44,7 @@ public:
 	virtual ~QueryResult();
 
 	SceneQuery* getCreator();
+	virtual std::string getTypeName() = 0;
 
 protected:
 	SceneQuery* creator_;

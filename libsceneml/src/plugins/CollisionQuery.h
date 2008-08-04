@@ -44,6 +44,7 @@ public:
 
 	bool inCollision();
 	void _setCollisionStatus(bool status);
+	virtual std::string getType() const;
 
 protected:
 	bool inCollision_;
