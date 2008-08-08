@@ -22,12 +22,12 @@
 #include <string>
 #include <fstream>
 
-namespace sml {
+namespace tinysg {
 
 /**
  * Returns the property pair with specified index.
  */
-PropertyPair PropertyCollection::getPair(size_t index) const throw (sml::Exception)
+PropertyPair PropertyCollection::getPair(size_t index) const throw (tinysg::Exception)
 {
    PropertyIterator it = pairs_.begin();
    if (index >= pairs_.size())
@@ -44,7 +44,7 @@ PropertyPair PropertyCollection::getPair(size_t index) const throw (sml::Excepti
 /**
  * Adds a new pair to the current contents.
  */
-void PropertyCollection::addPair(const PropertyPair& pair) throw (sml::Exception)
+void PropertyCollection::addPair(const PropertyPair& pair) throw (tinysg::Exception)
 {
 	if (pairs_.find( pair.getPropertyName() ) != pairs_.end())
 	{
@@ -56,7 +56,7 @@ void PropertyCollection::addPair(const PropertyPair& pair) throw (sml::Exception
 	pairs_[pair.getPropertyName()] = pair;
 }
 
-void PropertyCollection::updatePair(const char* key, const char* value, bool isRequired) throw (sml::Exception)
+void PropertyCollection::updatePair(const char* key, const char* value, bool isRequired) throw (tinysg::Exception)
 {
 	PairMap::iterator it = pairs_.find(key);
 
@@ -74,7 +74,7 @@ void PropertyCollection::updatePair(const char* key, const char* value, bool isR
 /**
  * Get value of the specified key (property).
  */
-std::string PropertyCollection::getValue(const char* key) const throw (sml::Exception)
+std::string PropertyCollection::getValue(const char* key) const throw (tinysg::Exception)
 {
 	PropertyIterator it;
 	it = pairs_.find(key);

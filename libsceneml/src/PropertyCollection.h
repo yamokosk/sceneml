@@ -28,7 +28,7 @@
 #pragma warning(disable: 4290)
 #endif
 
-namespace sml {
+namespace tinysg {
 
 class PropertyCollection
 {
@@ -39,12 +39,12 @@ public:
 	PropertyCollection() {}
 	~PropertyCollection() {}
 
-	void addPair(const PropertyPair& pair) throw (sml::Exception);
-	void updatePair(const char* key, const char* value, bool isRequired) throw (sml::Exception);
-	PropertyPair getPair(size_t index) const throw (sml::Exception);
+	void addPair(const PropertyPair& pair) throw (tinysg::Exception);
+	void updatePair(const char* key, const char* value, bool isRequired) throw (tinysg::Exception);
+	PropertyPair getPair(size_t index) const throw (tinysg::Exception);
 
 	size_t size() const {return pairs_.size();}
-	std::string getValue(const char* key) const throw (sml::Exception);
+	std::string getValue(const char* key) const throw (tinysg::Exception);
 
 private:
 	PairMap pairs_;

@@ -15,36 +15,21 @@
  * more details.
  *
  *************************************************************************/
-/*
- * Observer.cpp
- *
- *  Created on: Aug 4, 2008
- *      Author: yamokosk
- */
 
-#include "Observer.h"
-#include "Subject.h"
+#include "MeshManager.h"
+#include "Mesh.h"
 
 namespace tinysg
 {
 
-Observer::Observer() :
-	subject_(NULL)
-{}
-
-Observer::~Observer()
+MeshManager::MeshManager()
 {
-	if (subject_) subject_->unsubscribe(this);
+
 }
 
-void Observer::listen(Subject* sub)
+MeshManager::~MeshManager()
 {
-	if (subject_)
-	{
-		subject_->unsubscribe(this);
-	}
-	subject_ = sub;
-	subject_->subscribe(this);
+
 }
 
-} // Namespace: tinysg
+} // End tinysg namespace

@@ -18,7 +18,7 @@
 
 #include "Quaternion.h"
 
-namespace sml {
+namespace tinysg {
 
 Quaternion QuaternionFactory::ZERO(zero, zero, zero, zero);
 Quaternion QuaternionFactory::IDENTITY(one, zero, zero, zero);

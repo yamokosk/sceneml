@@ -9,7 +9,7 @@
 
 namespace smlode {
 
-using namespace sml;
+using namespace tinysg;
 
 Geom::Geom() :
 	Entity(),
@@ -75,26 +75,26 @@ Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyC
 	std::string type = params->getValue("type");
 
 	if (!type.compare("box")) {
-		sml::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
-		sml::Real width = ExpressionFactory::getAsReal( params->getValue("width") );
-		sml::Real height = ExpressionFactory::getAsReal( params->getValue("height") );
+		tinysg::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		tinysg::Real width = ExpressionFactory::getAsReal( params->getValue("width") );
+		tinysg::Real height = ExpressionFactory::getAsReal( params->getValue("height") );
 		geomID = dCreateBox(NULL, (dReal)length, (dReal)width, (dReal)height);
 	} else if (!type.compare("ccylinder")) {
-		sml::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
-		sml::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
+		tinysg::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		tinysg::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateCCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("cylinder")) {
-		sml::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
-		sml::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
+		tinysg::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		tinysg::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("sphere")) {
-		sml::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
+		tinysg::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateSphere(NULL, (dReal)radius);
 	} else if (!type.compare("plane")) {
-		sml::Real nx = ExpressionFactory::getAsReal( params->getValue("normal_x") );
-		sml::Real ny = ExpressionFactory::getAsReal( params->getValue("normal_y") );
-		sml::Real nz = ExpressionFactory::getAsReal( params->getValue("normal_z") );
-		sml::Real d = ExpressionFactory::getAsReal( params->getValue("d") );
+		tinysg::Real nx = ExpressionFactory::getAsReal( params->getValue("normal_x") );
+		tinysg::Real ny = ExpressionFactory::getAsReal( params->getValue("normal_y") );
+		tinysg::Real nz = ExpressionFactory::getAsReal( params->getValue("normal_z") );
+		tinysg::Real d = ExpressionFactory::getAsReal( params->getValue("d") );
 		geomID = dCreatePlane(NULL, (dReal)nx, (dReal)ny, (dReal)nz, (dReal)d);
 	} else if (!type.compare("mesh")) {
 		// Got to make a TriMeshObj!.. tough one.
@@ -110,7 +110,7 @@ Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyC
 			{
 				std::ostringstream msg;
 				msg << "importOBJ(): Returned an error!" << std::endl;
-				// TODO change to SML error
+				// TODO change to tinysg error
 				throw std::runtime_error(msg.str());
 			}
 		} else if (!extension.compare("stl")) {
@@ -120,13 +120,13 @@ Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyC
 			{
 				std::ostringstream msg;
 				msg << "importOBJ(): Returned an error!" << std::endl;
-				// TODO change to SML error
+				// TODO change to tinysg error
 				throw std::runtime_error(msg.str());
 			}
 		} else {
 			std::ostringstream msg;
 			msg << extension << " is an unrecognized 3D model type. Currently only stl and obj files are supported." << std::endl;
-			// TODO change to SML error
+			// TODO change to tinysg error
 			throw std::runtime_error(msg.str());
 		}
 
@@ -138,7 +138,7 @@ Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyC
 	} else {
 		std::ostringstream msg;
 		msg << type << " is an unrecognized geom type. Currently only stl and obj files are supported." << std::endl;
-		// TODO change to SML error
+		// TODO change to tinysg error
 		throw std::runtime_error(msg.str());
 	}
 

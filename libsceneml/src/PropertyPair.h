@@ -29,7 +29,7 @@
 #include <newmat/newmat.h>
 
 
-namespace sml {
+namespace tinysg {
 
 struct PropertyPair
 {

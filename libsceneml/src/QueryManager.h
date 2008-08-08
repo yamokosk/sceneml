@@ -25,7 +25,7 @@
 #ifndef QUERYMANAGER_H_
 #define QUERYMANAGER_H_
 
-namespace sml
+namespace tinysg
 {
 
 class QueryManager

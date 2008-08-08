@@ -24,7 +24,7 @@
 
 #include <Observer.h>
 
-namespace sml {
+namespace tinysg {
 
 class Subject
 {

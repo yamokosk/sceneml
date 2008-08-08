@@ -18,28 +18,28 @@
 
 namespace smlode {
 
-class CollisionQuery: public sml::SceneQuery
+class CollisionQuery: public tinysg::SceneQuery
 {
 public:
 	CollisionQuery();
 	virtual ~CollisionQuery();
 
 	// Inherited from SceneQuery
-	virtual sml::SceneQuery* clone() const;
-	virtual void execute(const sml::SceneManager* mgr);
+	virtual tinysg::SceneQuery* clone() const;
+	virtual void execute(const tinysg::SceneManager* mgr);
 	virtual std::string getType() const;
 
-	virtual sml::QueryResult* getResult();
-	virtual void deleteResult( sml::QueryResult* result );
+	virtual tinysg::QueryResult* getResult();
+	virtual void deleteResult( tinysg::QueryResult* result );
 
 private:
 	bool inCollision_;
 };
 
-class SimpleResult : public sml::QueryResult
+class SimpleResult : public tinysg::QueryResult
 {
 public:
-	SimpleResult(sml::SceneQuery* creator);
+	SimpleResult(tinysg::SceneQuery* creator);
 	virtual ~SimpleResult();
 
 	bool inCollision();

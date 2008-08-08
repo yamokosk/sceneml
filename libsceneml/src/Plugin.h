@@ -28,7 +28,7 @@
 // Standard includes
 #include <string>
 
-namespace sml
+namespace tinysg
 {
 
 // Forward declarations
@@ -37,14 +37,19 @@ class Root;
 class Plugin
 {
 public:
-	Plugin();
+	Plugin(const std::string& type) : type_(type) {};
 	virtual ~Plugin();
 
+	// Functions to be implemented by child classes
 	virtual void initialize() = 0;
 	virtual void registerFactories(Root* r) = 0;
-	virtual void registerQueries(Root* r) = 0;
-	virtual std::string getType() = 0;
-	virtual void shutdown() = 0;
+	virtual void unload() = 0;
+
+	// Returns plugin type.. needs to be a unique identifier
+	const std::string& getType();
+
+private:
+	const std::string type_;
 };
 
 }

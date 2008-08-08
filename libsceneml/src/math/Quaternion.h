@@ -28,7 +28,7 @@
 #include <newmat/newmatap.h>                // need matrix applications
 #include <newmat/newmatio.h>                // need matrix output routines
 
-namespace sml {
+namespace tinysg {
 
 typedef ::boost::math::quaternion<Real> Quaternion;
 
@@ -40,7 +40,7 @@ struct QuaternionFactory
 
 Quaternion inverse(const Quaternion& q);
 
-} // sml
+} // tinysg
 
 
 

@@ -24,7 +24,7 @@
 
 #include "Variable.h"
 
-namespace sml
+namespace tinysg
 {
 
 Variable::Variable() :

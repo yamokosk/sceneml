@@ -32,7 +32,7 @@
 #include <PropertyCollection.h>
 
 
-namespace sml {
+namespace tinysg {
 
 // Forward declarations
 class Node;
@@ -46,21 +46,6 @@ public:
 	typedef stdext::hash_map<std::string, Node*>	NodeMap;
 	typedef NodeMap::iterator				NodeIterator;
 	typedef NodeMap::const_iterator			NodeConstIterator;
-
-	// Entities
-	typedef stdext::hash_map< std::string, Entity*> EntityMap;
-	typedef EntityMap::iterator EntityIterator;
-	// Collection of one type of Entity objects.. ODE, LINCANNY, etc.
-	struct EntityCollection
-	{
-		EntityMap entities_;
-	};
-	typedef stdext::hash_map< std::string, EntityCollection*> EntityCollectionMap;
-
-	// Entity pairs
-	typedef std::pair<Entity*, Entity*> EntityPair;
-	typedef std::list<EntityPair> EntityPairList;
-	typedef EntityPairList::iterator EntityPairListIterator;
 
 	// Queries
 	typedef std::queue< SceneQuery* > QueryQueue;
@@ -82,21 +67,6 @@ public:
 	Node* getNode(const std::string& name) const;
 	virtual bool hasSceneNode(const std::string& name) const;
 
-	// Entities
-	Entity* createEntity(const std::string& name,const std::string& typeName, const PropertyCollection* params = 0);
-	void destroyEntity(const std::string& name, const std::string& typeName);
-	void destroyEntity(Entity* m);
-	void destroyAllEntitiesByType(const std::string& typeName);
-	void destroyAllEntities(void);
-	Entity* getEntity(const std::string& name, const std::string& typeName);
-	EntityCollection* getEntitiesByType(const std::string& typeName);
-	bool hasEntity(const std::string& name, const std::string& typeName) const;
-	bool hasEntity(const Entity* e) const;
-	//EntityIterator getEntityIterator(const std::string& typeName);
-
-	// Entity pairs
-	void createEntityPair(Entity* e1, Entity* e2);
-	//EntityPairListIterator getEntityPairsIterator();
 
 	// Queries
 	QueryResult* getQueryResult(const std::string& typeName);
@@ -118,8 +88,6 @@ public:
 private:
 	Node* rootNode_;
 	NodeMap nodes_;
-	EntityCollectionMap entityTypes_;
-	EntityPairList entityPairs_;
 
 	QueryQueue queries_;
 	ResultMap results_;

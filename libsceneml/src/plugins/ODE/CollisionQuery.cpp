@@ -9,7 +9,7 @@
 
 namespace smlode {
 
-using namespace sml;
+using namespace tinysg;
 
 CollisionQuery::CollisionQuery() :
 	inCollision_(false)
@@ -59,8 +59,8 @@ void CollisionQuery::deleteResult( QueryResult* result )
 }
 
 
-SimpleResult::SimpleResult(sml::SceneQuery* creator) :
-	sml::QueryResult(creator),
+SimpleResult::SimpleResult(tinysg::SceneQuery* creator) :
+	tinysg::QueryResult(creator),
 	inCollision_(true)
 {
 

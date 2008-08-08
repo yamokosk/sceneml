@@ -18,7 +18,7 @@
 
 #include "Exception.h"
 
-namespace sml {
+namespace tinysg {
 
 	Exception::Exception(int num, const std::string& desc, const std::string& src) :
 		line( 0 ),
@@ -60,7 +60,7 @@ namespace sml {
 		{
 			std::stringstream desc;
 
-			desc <<  "SML EXCEPTION(" << number << ":" << typeName << "): "
+			desc <<  "tinysg EXCEPTION(" << number << ":" << typeName << "): "
 				 << description << " in " << source;
 
 			if( line > 0 )

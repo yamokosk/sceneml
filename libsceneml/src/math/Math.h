@@ -34,7 +34,7 @@
 #include <boost/math/complex/acos.hpp>
 #include <boost/math/complex/atan.hpp>
 
-namespace sml {
+namespace tinysg {
 
 #ifdef USE_DOUBLE_PRECISION
 typedef double Real;
@@ -55,6 +55,6 @@ enum EulerSequences {
 	XYZ=0
 };
 
-} // namespace sml
+} // namespace tinysg
 
 #endif

@@ -24,7 +24,7 @@
 
 #include "Plugin.h"
 
-namespace sml
+namespace tinysg
 {
 
 Plugin::Plugin()

@@ -16,9 +16,9 @@
 
 namespace smlode {
 
-using namespace sml;
+using namespace tinysg;
 
-class Geom : public sml::Entity {
+class Geom : public tinysg::Entity {
 public:
 	Geom();
 	Geom(const std::string& name);
@@ -41,7 +41,7 @@ private:
 	//! Geom color
 	ColumnVector rgb_;
 	//! Geom alpha (transperancy)
-	sml::Real alpha_;
+	tinysg::Real alpha_;
 };
 
 class GeomFactory : public EntityFactory

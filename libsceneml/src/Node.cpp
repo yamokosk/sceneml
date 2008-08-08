@@ -24,7 +24,7 @@
 #include <boost/cast.hpp>
 #include <iostream>
 
-namespace sml {
+namespace tinysg {
 
 	unsigned long Node::nextGeneratedNameExt_ = 1;
 	Node::QueuedUpdates Node::queuedUpdates_;
@@ -1013,9 +1013,9 @@ namespace sml {
 	{
 		updateFromParentImpl();
 	}
-} // Namespace: sml
+} // Namespace: tinysg
 
-ostream& operator << (ostream& os, sml::Node& s)
+ostream& operator << (ostream& os, tinysg::Node& s)
 {
 	return os << "Name: " << s.getName() << std::endl
 	   << "Tmatrix: " << std::endl << s._getFullTransform() << std::endl;

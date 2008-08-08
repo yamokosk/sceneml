@@ -15,36 +15,37 @@
  * more details.
  *
  *************************************************************************/
-/*
- * Observer.cpp
- *
- *  Created on: Aug 4, 2008
- *      Author: yamokosk
- */
 
-#include "Observer.h"
-#include "Subject.h"
+#include "MeshLoaderPlugin.h"
 
-namespace tinysg
+namespace meshloader
 {
 
-Observer::Observer() :
-	subject_(NULL)
-{}
-
-Observer::~Observer()
+MeshLoaderPlugin::MeshLoaderPlugin() :
+	tinysg::Plugin("MeshLoader")
 {
-	if (subject_) subject_->unsubscribe(this);
+
 }
 
-void Observer::listen(Subject* sub)
+MeshLoaderPlugin::~MeshLoaderPlugin()
 {
-	if (subject_)
-	{
-		subject_->unsubscribe(this);
-	}
-	subject_ = sub;
-	subject_->subscribe(this);
+
 }
 
-} // Namespace: tinysg
+inline
+void MeshLoaderPlugin::initialize()
+{
+
+}
+
+void MeshLoaderPlugin::registerFactories(tinysg::Root* r)
+{
+	r->addMeshFactory( &meshLoader_ );
+}
+
+void MeshLoaderPlugin::unload()
+{
+
+}
+
+} // End meshloader namespace

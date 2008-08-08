@@ -10,7 +10,7 @@
 
 namespace smlode {
 
-using namespace sml;
+using namespace tinysg;
 
 Space::Space() :
 	Entity(),
@@ -75,7 +75,7 @@ Entity* SpaceFactory::createInstanceImpl(const std::string& name, const Property
 	} else if (spaceType.compare("hash") == 0) {
 		ColumnVector center = ExpressionFactory::getAsVector( params->getValue("center"), 3 );
 		ColumnVector extents = ExpressionFactory::getAsVector( params->getValue("extents"), 3 );
-		sml::Real depth = ExpressionFactory::getAsReal( params->getValue("depth") );
+		tinysg::Real depth = ExpressionFactory::getAsReal( params->getValue("depth") );
 
 		dVector3 dCenter = {0}, dExtents = {0};
 		for (int n=0; n<3; ++n) {

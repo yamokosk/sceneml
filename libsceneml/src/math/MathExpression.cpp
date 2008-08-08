@@ -26,13 +26,13 @@
 #include <cstring>
 #include <muParser.h>
 
-namespace sml
+namespace tinysg
 {
 
-//mu::Parser ExpressionFactory::parser_.DefineConst("pi", sml::pi);
-//mu::Parser ExpressionFactory::parser_.DefineConst("e", sml::e);
+//mu::Parser ExpressionFactory::parser_.DefineConst("pi", tinysg::pi);
+//mu::Parser ExpressionFactory::parser_.DefineConst("e", tinysg::e);
 
-sml::Real ExpressionFactory::getAsReal(const std::string& expr)
+tinysg::Real ExpressionFactory::getAsReal(const std::string& expr)
 {
 	return parseValue( expr.c_str() );
 }
@@ -47,23 +47,23 @@ ReturnMatrix ExpressionFactory::getAsVector(const std::string& expr, unsigned in
 	return parseVector( expr.c_str() );
 }
 
-sml::Real ExpressionFactory::parseValue(const char* str)
+tinysg::Real ExpressionFactory::parseValue(const char* str)
 {
 	mu::Parser parser_;
-	parser_.DefineConst("pi", sml::pi);
-	parser_.DefineConst("e", sml::e);
+	parser_.DefineConst("pi", tinysg::pi);
+	parser_.DefineConst("e", tinysg::e);
 
 	// Give expression to parser
 	parser_.SetExpr(str);
 	// Evaluate string
-	return (sml::Real)parser_.Eval();
+	return (tinysg::Real)parser_.Eval();
 }
 
 ReturnMatrix ExpressionFactory::parseVector(const char* str)
 {
 	mu::Parser parser_;
-	parser_.DefineConst("pi", sml::pi);
-	parser_.DefineConst("e", sml::e);
+	parser_.DefineConst("pi", tinysg::pi);
+	parser_.DefineConst("e", tinysg::e);
 
 	// Copy incoming char buffer to local one
 	int length = strlen(str);
@@ -72,14 +72,14 @@ ReturnMatrix ExpressionFactory::parseVector(const char* str)
 	memset(buf, '\0', (length+1)*sizeof(char));
 	memcpy(buf, str, length*sizeof(char));
 
-	std::vector<sml::Real> values;
+	std::vector<tinysg::Real> values;
 
 	// Step through each token, evaluate it, and store it in our return vector
 	char* tok = strtok(buf, " ,");
 	while (tok != NULL)
 	{
 		try {
-			sml::Real val = parseValue(tok);
+			tinysg::Real val = parseValue(tok);
 			values.push_back( val );
 		} catch (mu::Parser::exception_type &e) {
 			std::cout << e.GetMsg() << std::endl;

@@ -12,7 +12,7 @@
 #include <math/Math.h>
 #include <newmat/newmat.h>
 
-namespace sml {
+namespace tinysg {
 
 struct VectorFactory
 {

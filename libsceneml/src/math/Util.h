@@ -30,7 +30,7 @@
 #include <math/Matrix.h>
 #include <math/Quaternion.h>
 
-namespace sml
+namespace tinysg
 {
 	// Quaternion construction utility functions
 	Quaternion QuatFromAngleAxis(Real angle, const ColumnVector& axis);
@@ -39,6 +39,6 @@ namespace sml
 }
 
 // Global operators
-ReturnMatrix operator* (const sml::Quaternion& q, const ColumnVector& v);
+ReturnMatrix operator* (const tinysg::Quaternion& q, const ColumnVector& v);
 
 #endif /* UTIL_H_ */

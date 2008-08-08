@@ -38,18 +38,18 @@
 namespace smlode
 {
 
-class ODEPlugin : public sml::Plugin
+class ODEPlugin : public tinysg::Plugin
 {
 public:
 	ODEPlugin();
 	virtual ~ODEPlugin();
 
+	// Inhereted from tinysg::Plugin
 	virtual void initialize();
 	virtual void registerFactories(Root* r);
-	virtual void registerQueries(Root* r);
-	virtual std::string getType();
-	virtual void shutdown();
+	virtual void unload();
 
+private:
 	GeomFactory geomFactory_;
 	SpaceFactory spaceFactory_;
 	CollisionQuery collisionQuery_;

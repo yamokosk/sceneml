@@ -29,19 +29,19 @@
 #include <math/Math.h>
 #include <newmat/newmat.h>
 
-namespace sml
+namespace tinysg
 {
 
 class ExpressionFactory
 {
 public:
-	static sml::Real getAsReal(const std::string& expr);
+	static tinysg::Real getAsReal(const std::string& expr);
 	static int getAsInt(const std::string& expr);
 	static ReturnMatrix getAsVector(const std::string& expr, unsigned int length);
 
 private:
 
-	static sml::Real parseValue(const char* str);
+	static tinysg::Real parseValue(const char* str);
 	static ReturnMatrix parseVector(const char* str);
 };
 

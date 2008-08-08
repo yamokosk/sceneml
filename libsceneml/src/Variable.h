@@ -28,7 +28,7 @@
 #include "PropertyCollection.h"
 #include "Subject.h"
 
-namespace sml
+namespace tinysg
 {
 
 class Variable : public Subject
