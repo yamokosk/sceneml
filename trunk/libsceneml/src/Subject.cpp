@@ -24,7 +24,7 @@
 
 #include "Subject.h"
 
-namespace sml
+namespace tinysg
 {
 
 Subject::Subject() {}
@@ -58,4 +58,4 @@ void Subject::notify(int hint)
 	}
 }
 
-} // Namespace: sml
+} // Namespace: tinysg

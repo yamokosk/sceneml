@@ -13,7 +13,7 @@
 #include <math/Quaternion.h>
 #include <newmat/newmat.h>
 
-namespace sml {
+namespace tinysg {
 
 namespace math {
 

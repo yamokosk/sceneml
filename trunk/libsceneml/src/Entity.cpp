@@ -25,7 +25,7 @@
 #include "Entity.h"
 #include "Node.h"
 
-namespace sml
+namespace tinysg
 {
 
 Entity::Entity() :
@@ -81,4 +81,4 @@ Entity* EntityFactory::createInstance(const std::string& name, SceneManager* man
         return m;
 }
 
-} // Namespace sml
+} // Namespace tinysg

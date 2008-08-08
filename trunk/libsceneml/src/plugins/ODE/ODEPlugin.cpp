@@ -16,63 +16,51 @@
  *
  *************************************************************************/
 /*
- * ODESpace.h
+ * ODEPlugin.cpp
  *
  *  Created on: Jul 30, 2008
  *      Author: yamokosk
  */
 
-#ifndef ODESPACE_H_
-#define ODESPACE_H_
-
-// SceneML
-#include <SceneML.h>
-
-// ODE library
-#include <ode/ode.h>
+#include "ODEPlugin.h"
 
 namespace smlode
 {
 
-using namespace sml;
-
-// Forward declarations
-class Geom;
-
-class Space: public sml::Entity
+ODEPlugin::ODEPlugin() :
+	tinysg::Plugin("ODE"),
+	geomFactory_(),
+	spaceFactory_(),
+	collisionQuery_(),
+	world_(NULL)
 {
-public:
-	Space();
-	Space(const std::string& name);
-	virtual ~Space();
-
-	virtual Entity* clone() const;
-
-	void _setSpaceID(dSpaceID s) {spaceID_ = s;}
-	dSpaceID _getGeomID(void) {return spaceID_;}
-	void addGeom(smlode::Geom* g);
-
-	// Inherited from Entity
-	virtual void _notifyMoved(void);
-
-private:
-	//! ODE object pointer
-	dSpaceID spaceID_;
-};
-
-class SpaceFactory : public EntityFactory
-{
-protected:
-	virtual Entity* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0);
-
-public:
-	SpaceFactory();
-	virtual ~SpaceFactory();
-
-	virtual std::string getType(void) const;
-	virtual void destroyInstance(Entity* obj);
-};
+	// TODO Auto-generated constructor stub
 
 }
 
-#endif /* ODESPACE_H_ */
+ODEPlugin::~ODEPlugin()
+{
+	// TODO Auto-generated destructor stub
+}
+
+void ODEPlugin::initialize()
+{
+	dInitODE();
+	world_ = dWorldCreate();
+}
+
+void ODEPlugin::registerFactories(Root* r)
+{
+	r->addEntityFactory( &geomFactory_ );
+	r->addEntityFactory( &spaceFactory_ );
+	r->addSceneQueryFactory( &collisionQuery_ );
+}
+
+void ODEPlugin::unload()
+{
+	dWorldDestroy(world_);
+	dCloseODE();
+}
+
+
+}

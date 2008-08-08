@@ -24,7 +24,7 @@
 
 #include "Util.h"
 
-namespace sml
+namespace tinysg
 {
 
 Quaternion QuatFromAngleAxis(Real angle, const ColumnVector& axis)
@@ -109,19 +109,19 @@ Quaternion QuatFromEulerAngles(int choice, const ColumnVector& angles)
 } // End namespace
 
 
-ReturnMatrix operator* (const sml::Quaternion& q, const ColumnVector& v)
+ReturnMatrix operator* (const tinysg::Quaternion& q, const ColumnVector& v)
 {
 	if(v.Nrows() != 3)
 	{
-		SML_EXCEPT(sml::Exception::ERR_INVALIDPARAMS, "Vector must be length 3.");
+		SML_EXCEPT(tinysg::Exception::ERR_INVALIDPARAMS, "Vector must be length 3.");
 	}
 
 	// nVidia SDK implementation - from OGRE implementation
 	ColumnVector qvec(3); qvec << q.R_component_2() << q.R_component_3() << q.R_component_4();
 	ColumnVector uv = crossproduct(qvec,v);
 	ColumnVector uuv = crossproduct(qvec,uv);
-	uv *= (sml::two * q.real());
-	uuv *= sml::two;
+	uv *= (tinysg::two * q.real());
+	uuv *= tinysg::two;
 
 	ColumnVector ret = v + uv + uuv;
 	ret.Release();

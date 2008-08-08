@@ -35,7 +35,7 @@
 #include <math/Quaternion.h>
 
 
-namespace sml {
+namespace tinysg {
 
 class Node : public Observer
 {
@@ -367,10 +367,10 @@ protected:
 	ColumnVector initialScale_;
 
 	//! Cached derived transform as a 4x4 matrix.
-	Matrix cachedTransform_;
+	mutable Matrix cachedTransform_;
 
 	//! Cached derived transform as a 4x4 matrix.
-	bool cachedTransformOutOfDate_;
+	mutable bool cachedTransformOutOfDate_;
 
 // Protected static data
 protected:
@@ -379,8 +379,8 @@ protected:
 	static QueuedUpdates queuedUpdates_;
 };
 
-} // namespace sml
+} // namespace tinysg
 
-ostream& operator << (ostream& os, sml::Node& s);
+ostream& operator << (ostream& os, tinysg::Node& s);
 
  #endif

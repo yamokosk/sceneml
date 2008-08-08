@@ -16,35 +16,36 @@
  *
  *************************************************************************/
 /*
- * Observer.cpp
+ * MeshLoaderPlugin.h
  *
- *  Created on: Aug 4, 2008
+ *  Created on: Aug 08, 2008
  *      Author: yamokosk
  */
 
-#include "Observer.h"
-#include "Subject.h"
+#ifndef MESHLOADERPLUGIN_H_
+#define MESHLOADERPLUGIN_H_
 
-namespace tinysg
+// SceneML
+#include <SceneML.h>
+
+namespace meshloader
 {
 
-Observer::Observer() :
-	subject_(NULL)
-{}
-
-Observer::~Observer()
+class MeshLoaderPlugin : public tinysg::Plugin
 {
-	if (subject_) subject_->unsubscribe(this);
+public:
+	MeshLoaderPlugin();
+	virtual ~MeshLoaderPlugin();
+
+	// Inhereted from tinysg::Plugin
+	virtual void initialize();
+	virtual void registerFactories(tinysg::Root* r);
+	virtual void unload();
+
+private:
+	MeshLoader meshLoader_;
+};
+
 }
 
-void Observer::listen(Subject* sub)
-{
-	if (subject_)
-	{
-		subject_->unsubscribe(this);
-	}
-	subject_ = sub;
-	subject_->subscribe(this);
-}
-
-} // Namespace: tinysg
+#endif /* ODEPLUGIN_H_ */

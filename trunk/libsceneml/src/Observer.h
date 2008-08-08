@@ -27,7 +27,7 @@
 
 //#include <boost/bind.hpp>
 
-namespace sml
+namespace tinysg
 {
 
 class Subject;

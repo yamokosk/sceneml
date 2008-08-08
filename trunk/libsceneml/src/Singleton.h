@@ -34,7 +34,7 @@
 #include <assert.h>
 #include <Exception.h>
 
-namespace sml
+namespace tinysg
 {
 
 template <typename T> class Singleton

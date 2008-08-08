@@ -24,7 +24,7 @@
 
 #include "SceneQuery.h"
 
-namespace sml
+namespace tinysg
 {
 
 SceneQuery::SceneQuery()
@@ -53,4 +53,4 @@ SceneQuery* QueryResult::getCreator()
 	return creator_;
 }
 
-} // Namespace: sml
+} // Namespace: tinysg

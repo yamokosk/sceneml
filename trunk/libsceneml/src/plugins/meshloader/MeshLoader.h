@@ -15,36 +15,19 @@
  * more details.
  *
  *************************************************************************/
-/*
- * Observer.cpp
- *
- *  Created on: Aug 4, 2008
- *      Author: yamokosk
- */
 
-#include "Observer.h"
-#include "Subject.h"
+#include <TinySG.h>
 
-namespace tinysg
+namespace meshloader
 {
 
-Observer::Observer() :
-	subject_(NULL)
-{}
-
-Observer::~Observer()
+class MeshLoader : public TinySG::MeshFactory
 {
-	if (subject_) subject_->unsubscribe(this);
-}
+public:
 
-void Observer::listen(Subject* sub)
-{
-	if (subject_)
-	{
-		subject_->unsubscribe(this);
-	}
-	subject_ = sub;
-	subject_->subscribe(this);
-}
+private:
+	void _loadFromOBJ(TinySG::Mesh* mesh, float scale);
+	void _loadFromSTL(TinySG::Mesh* mesh, float scale);
+};
 
-} // Namespace: tinysg
+} // End meshloader namespace

@@ -23,7 +23,7 @@
 #include <Exception.h>
 #include <PropertyCollection.h>
 
-namespace sml {
+namespace tinysg {
 
 // Forward declaration
 class SceneObjectCollection;

@@ -1,7 +1,7 @@
 #ifndef HPP_DOUBLE_CONSTANTS
 #define HPP_DOUBLE_CONSTANTS
 
-namespace sml {
+namespace tinysg {
 
 // A collection of basic mathematical constants, accurate to 40 decimal digits.
 // C++ floating-point type is double.
@@ -165,7 +165,7 @@ static const double cf10 = 1.030640834100712935881776094116936840925; // Continu
 static const double zetaTwo = 1.644934066848226436472415166646025189219; // Zeta(2) or Pi^(2/6) = sum(1/n**2, n=1..infinity
 static const double zetaThree = 1.202056903159594285399738161511449990765; // zeta(3)
 
-} // namespace sml
+} // namespace tinysg
 
 #endif
 // End of double_constants.hpp

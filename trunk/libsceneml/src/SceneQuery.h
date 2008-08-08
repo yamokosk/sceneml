@@ -10,7 +10,7 @@
 
 #include <Subject.h>
 
-namespace sml {
+namespace tinysg {
 
 // Forward declarations
 class SceneManager;
