@@ -5,8 +5,8 @@
  *      Author: yamokosk
  */
 
-#include <Node.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <TinySG/Node.h>
 
 #ifndef NODETEST_H_
 #define NODETEST_H_
@@ -14,12 +14,11 @@
 class NodeTest : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE( NodeTest );
-	CPPUNIT_TEST( testEquality );
-	CPPUNIT_TEST( testAddition );
+	CPPUNIT_TEST( testCreateChild );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
-	Node *n1, *n2, *n3;
+	Node *n1, *n2, *unnamed;
 
 public:
 	void setUp();
@@ -27,8 +26,7 @@ public:
 
 protected:
 	// Test cases
-	void testEquality();
-	void testAddition();
+	void testCreateChild();
 };
 
 #endif /* NODETEST_H_ */

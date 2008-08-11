@@ -183,13 +183,13 @@ public:
 	ReturnMatrix getLocalAxes (void) const;
 
 	//! Creates an unnamed new Node as a child of this node.
-	Node* createChild(const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
+	/*Node* createChild(const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
 					  const Quaternion& rotate=QuaternionFactory::IDENTITY );
 
 	//! Creates a new named Node as a child of this node.
 	Node* createChild(const std::string& name,
 					  const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
-					  const Quaternion& rotate=QuaternionFactory::IDENTITY );
+					  const Quaternion& rotate=QuaternionFactory::IDENTITY );*/
 
 	//! Adds a (precreated) child scene node to this node.
 	void addChild (Node* child);

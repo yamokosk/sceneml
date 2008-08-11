@@ -12,21 +12,21 @@ CPPUNIT_TEST_SUITE_REGISTRATION( NodeTest );
 
 void NodeTest::setUp()
 {
-
+	n1 = new Node("n1");
+	n2 = new Node("n2");
+	unnamed = new Node();
 }
 
 void NodeTest::tearDown()
 {
-
+	delete n1;
+	delete n2;
+	delete unnamed;
 }
 
 // Test cases
-void NodeTest::testEquality()
+void NodeTest::testAddChild()
 {
-
-}
-
-void NodeTest::testAddition()
-{
-
+	n1->addChild(n2);
+	CPPUNIT_ASSERT(  );
 }
