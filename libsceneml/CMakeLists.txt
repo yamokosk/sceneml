@@ -80,6 +80,14 @@ message( STATUS "	Libs: ${NEWMAT_LIBRARIES}" )
 message( STATUS "	LDFlags: ${NEWMAT_LDFLAGS}" )
 message( STATUS "	CFlags: ${NEWMAT_CFLAGS}" )
 
+pkg_check_modules (CPPUNIT REQUIRED cppunit)
+message( STATUS "Found CppUnit." )
+message( STATUS "	Include dirs: ${CPPUNIT_INCLUDE_DIRS}" )
+message( STATUS "	Library dirs: ${CPPUNIT_LIBRARY_DIRS}" )
+message( STATUS "	Libs: ${CPPUNIT_LIBRARIES}" )
+message( STATUS "	LDFlags: ${CPPUNIT_LDFLAGS}" )
+message( STATUS "	CFlags: ${CPPUNIT_CFLAGS}" )
+
 # ------------------------------------------------------------------------------
 # Finally, recurse in the sub directories
 # ------------------------------------------------------------------------------
@@ -95,10 +103,10 @@ else (NOT DEPENDENCY_CHECK)
 	endif (WIN32)
 
 	# We have all of our dependencies... so build it!
-	subdirs( src )
-	
-	if (BUILD_TESTS)
-		subdirs( tests )
-	endif (BUILD_TESTS)
+	#subdirs( src )
+	add_subdirectory(unittest)
+	#if (BUILD_TESTS)
+	#	subdirs( tests )
+	#endif (BUILD_TESTS)
 	include ( ${PROJECT_SOURCE_DIR}/cmake/WriteMatlabCompile.cmake )
 endif (NOT DEPENDENCY_CHECK)

@@ -9,3 +9,18 @@
 #include "EntityTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( EntityTest );
+
+void EntityTest::setUp()
+{
+
+}
+
+void EntityTest::tearDown()
+{
+
+}
+
+void EntityTest::testfunc()
+{
+
+}

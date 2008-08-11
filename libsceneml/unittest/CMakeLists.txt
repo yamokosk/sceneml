@@ -1,5 +1,12 @@
-CMakeLists.txt
-
- Created on: Aug 11, 2008
-     Author: yamokosk
-
+enable_testing()
+include_directories( ${PROJECT_SOURCE_DIR}/include
+					 ${CPPUNIT_INCLUDE_DIRS})
+link_directories( ${CPPUNIT_LIBRARY_DIRS} )
+link_libraries( ${CPPUNIT_LIBRARIES} )
+file(GLOB UnitTests_SRCS "*Test.cpp" )
+foreach(test ${UnitTests_SRCS})
+    get_filename_component(TestName ${test} NAME_WE)
+    message("Adding test ${TestName}")
+    add_executable(${TestName} main.cpp ${test})
+    add_test(${TestName} ${TestName}.exe)
+endforeach(test)

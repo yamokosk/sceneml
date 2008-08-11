@@ -589,7 +589,7 @@ namespace tinysg {
 	}
 
 	//! Creates an unnamed new Node as a child of this node.
-	Node* Node::createChild(const ColumnVector& translate, const Quaternion& rotate)
+	/*Node* Node::createChild(const ColumnVector& translate, const Quaternion& rotate)
 	{
 		Node* newNode = createChildImpl();
 		newNode->translate(translate);
@@ -608,7 +608,7 @@ namespace tinysg {
 		this->addChild(newNode);
 
 		return newNode;
-	}
+	}*/
 
 	//! Adds a (precreated) child scene node to this node.
 	void Node::addChild (Node* child)
@@ -971,7 +971,7 @@ namespace tinysg {
 
 	}
 
-	Node*  Node::createChildImpl(void)
+	/*Node*  Node::createChildImpl(void)
 	{
 		if (!manager_)
 		{
@@ -987,7 +987,7 @@ namespace tinysg {
 			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
 		}
         return manager_->createNode(name);
-	}
+	}*/
 
 	void Node::setParent(Node *parent)
 	{
