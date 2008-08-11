@@ -26,61 +26,58 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#include "OgreStableHeaders.h"
-#include "OgreHardwareIndexBuffer.h"
-#include "OgreHardwareBufferManager.h"
-#include "OgreDefaultHardwareBufferManager.h"
+#include "HardwareIndexBuffer.h"
+#include "HardwareBufferManager.h"
 
+namespace TinySG
+{
 
-namespace Ogre {
+//-----------------------------------------------------------------------------
+HardwareIndexBuffer::HardwareIndexBuffer(IndexType idxType,
+	size_t numIndexes, HardwareBuffer::Usage usage,
+	bool useSystemMemory, bool useShadowBuffer)
+	: HardwareBuffer(usage, useSystemMemory, useShadowBuffer), mIndexType(idxType), mNumIndexes(numIndexes)
+{
+	// Calculate the size of the indexes
+	switch (mIndexType)
+	{
+	case IT_16BIT:
+		mIndexSize = sizeof(unsigned short);
+		break;
+	case IT_32BIT:
+		mIndexSize = sizeof(unsigned int);
+		break;
+	}
+	mSizeInBytes = mIndexSize * mNumIndexes;
 
-    //-----------------------------------------------------------------------------
-    HardwareIndexBuffer::HardwareIndexBuffer(IndexType idxType, 
-        size_t numIndexes, HardwareBuffer::Usage usage, 
-        bool useSystemMemory, bool useShadowBuffer) 
-        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer), mIndexType(idxType), mNumIndexes(numIndexes)
-    {
-        // Calculate the size of the indexes
-        switch (mIndexType)
-        {
-        case IT_16BIT:
-            mIndexSize = sizeof(unsigned short);
-            break;
-        case IT_32BIT:
-            mIndexSize = sizeof(unsigned int);
-            break;
-        }
-        mSizeInBytes = mIndexSize * mNumIndexes;
+	// Create a shadow buffer if required
+	if (mUseShadowBuffer)
+	{
+		mpShadowBuffer = new DefaultHardwareIndexBuffer(mIndexType,
+			mNumIndexes, HardwareBuffer::HBU_DYNAMIC);
+	}
+}
 
-        // Create a shadow buffer if required
-        if (mUseShadowBuffer)
-        {
-            mpShadowBuffer = new DefaultHardwareIndexBuffer(mIndexType, 
-                mNumIndexes, HardwareBuffer::HBU_DYNAMIC);
-        }
+//-----------------------------------------------------------------------------
+HardwareIndexBuffer::~HardwareIndexBuffer()
+{
+	HardwareBufferManager* mgr = HardwareBufferManager::getSingletonPtr();
+	if (mgr)
+	{
+		mgr->_notifyIndexBufferDestroyed(this);
+	}
 
+	if (mpShadowBuffer)
+	{
+		delete mpShadowBuffer;
+	}
+}
+//-----------------------------------------------------------------------------
+HardwareIndexBufferSharedPtr::HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf)
+	: SharedPtr<HardwareIndexBuffer>(buf)
+{
 
-    }
-    //-----------------------------------------------------------------------------
-    HardwareIndexBuffer::~HardwareIndexBuffer()
-    {
-		HardwareBufferManager* mgr = HardwareBufferManager::getSingletonPtr();
-		if (mgr)
-		{
-			mgr->_notifyIndexBufferDestroyed(this);
-		}
-
-        if (mpShadowBuffer)
-        {
-            delete mpShadowBuffer;
-        }
-    }
-    //-----------------------------------------------------------------------------
-    HardwareIndexBufferSharedPtr::HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf)
-        : SharedPtr<HardwareIndexBuffer>(buf)
-    {
-
-    }
+}
 
 }
 

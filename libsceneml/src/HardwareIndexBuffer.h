@@ -26,53 +26,76 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef __HardwareIndexBuffer__
-#define __HardwareIndexBuffer__
+#ifndef _HARDWAREINDEXBUFFER_H_
+#define _HARDWAREINDEXBUFFER_H_
 
-// Precompiler options
-#include "OgrePrerequisites.h"
-#include "OgreHardwareBuffer.h"
-#include "OgreSharedPtr.h"
+namespace TinySG
+{
 
-namespace Ogre {
+/** Specialisation of HardwareBuffer for vertex index buffers, still abstract. */
+class HardwareIndexBuffer : public HardwareBuffer
+{
+public:
+	enum IndexType {
+		IT_16BIT,
+		IT_32BIT
+	};
 
-    /** Specialisation of HardwareBuffer for vertex index buffers, still abstract. */
-    class _OgreExport HardwareIndexBuffer : public HardwareBuffer
-    {
-	    public:
-		    enum IndexType {
-			    IT_16BIT,
-			    IT_32BIT
-		    };
+protected:
+	IndexType mIndexType;
+	size_t mNumIndexes;
+	size_t mIndexSize;
 
-	    protected:
-		    IndexType mIndexType;
-		    size_t mNumIndexes;
-            size_t mIndexSize;
+public:
+	/// Should be called by HardwareBufferManager
+	HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage,
+		bool useSystemMemory, bool useShadowBuffer);
+	~HardwareIndexBuffer();
+	/// Get the type of indexes used in this buffer
+	IndexType getType(void) const { return mIndexType; }
+	/// Get the number of indexes in this buffer
+	size_t getNumIndexes(void) const { return mNumIndexes; }
+	/// Get the size in bytes of each index
+	size_t getIndexSize(void) const { return mIndexSize; }
 
-	    public:
-		    /// Should be called by HardwareBufferManager
-		    HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage,
-                bool useSystemMemory, bool useShadowBuffer);
-            ~HardwareIndexBuffer();
-    		/// Get the type of indexes used in this buffer
-            IndexType getType(void) const { return mIndexType; }
-            /// Get the number of indexes in this buffer
-            size_t getNumIndexes(void) const { return mNumIndexes; }
-            /// Get the size in bytes of each index
-            size_t getIndexSize(void) const { return mIndexSize; }
-
-		    // NB subclasses should override lock, unlock, readData, writeData
-    };
+	// NB subclasses should override lock, unlock, readData, writeData
+};
 
 
-    /** Shared pointer implementation used to share index buffers. */
-    class _OgreExport HardwareIndexBufferSharedPtr : public SharedPtr<HardwareIndexBuffer>
-    {
-    public:
-        HardwareIndexBufferSharedPtr() : SharedPtr<HardwareIndexBuffer>() {}
-        explicit HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf);
-    };
+/** Shared pointer implementation used to share index buffers. */
+class HardwareIndexBufferSharedPtr : public SharedPtr<HardwareIndexBuffer>
+{
+public:
+	HardwareIndexBufferSharedPtr() : SharedPtr<HardwareIndexBuffer>() {}
+	explicit HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf);
+};
+
+
+/// Specialisation of HardwareIndexBuffer for emulation
+class DefaultHardwareIndexBuffer : public HardwareIndexBuffer
+{
+protected:
+	unsigned char* mpData;
+	/** See HardwareBuffer. */
+	void* lockImpl(size_t offset, size_t length, LockOptions options);
+	/** See HardwareBuffer. */
+	void unlockImpl(void);
+public:
+	DefaultHardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage);
+	~DefaultHardwareIndexBuffer();
+	/** See HardwareBuffer. */
+	void readData(size_t offset, size_t length, void* pDest);
+	/** See HardwareBuffer. */
+	void writeData(size_t offset, size_t length, const void* pSource,
+			bool discardWholeBuffer = false);
+	/** Override HardwareBuffer to turn off all shadowing. */
+	void* lock(size_t offset, size_t length, LockOptions options);
+	/** Override HardwareBuffer to turn off all shadowing. */
+	void unlock(void);
+
+};
+
+
 }
 #endif
 

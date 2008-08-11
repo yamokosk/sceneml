@@ -25,25 +25,38 @@ namespace TinySG {
 // Forward declarations
 class MeshFactory;
 
-class Buffer
-{
-
-};
 
 class Mesh
 {
 public:
 	//! Constructor, only to be called by the creator MeshFactory.
-	Mesh (MeshFactory *creator);
-	Mesh (MeshFactory *creator, const std::string &name);
+	Mesh();
+	Mesh(const std::string &name);
 
 	//! Returns factory which created this mesh
 	const MeshFactory* getCreator() const {return creator_;}
 
+	//! Notify object of creator
+	void _notifyCreator(MeshFactory* creator) {creator_ = creator;}
+	//! Notify object of manager
+	void _notifyManager(MeshManager* mgr) {mgr_ = mgr;}
+	void _notifyType(const std::string& type) { type_ = type; }
+	//! Get obj name
+	const std::string& getName() const {return name_;}
+	//! Get obj type
+	const std::string& getType() const {return type_;}
+
+
+
 protected:
+	HardwareVertexBuffer* vertexBuffer_;
+	HardwareIndexBuffer* indexBuffer_;
 
 private:
-	const MeshFactory* creator_;
+	MeshFactory* creator_;
+	MeshManager* mgr_;
+	std::string name_;
+	std::string type_;
 };
 
 
