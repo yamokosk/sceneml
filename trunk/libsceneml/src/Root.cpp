@@ -27,7 +27,7 @@
 #include <SceneManager.h>
 #include <Entity.h>
 
-namespace tinysg
+namespace TinySG
 {
 
 template<> Root* Singleton<Root>::ms_Singleton = 0;

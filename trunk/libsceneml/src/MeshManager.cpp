@@ -19,7 +19,7 @@
 #include "MeshManager.h"
 #include "Mesh.h"
 
-namespace tinysg
+namespace TinySG
 {
 
 MeshManager::MeshManager()
@@ -32,4 +32,4 @@ MeshManager::~MeshManager()
 
 }
 
-} // End tinysg namespace
+} // End TinySG namespace

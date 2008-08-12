@@ -19,7 +19,7 @@
 #include "SceneManager.h"
 #include "Node.h"
 
-namespace tinysg
+namespace TinySG
 {
 
 SceneManager::SceneManager()
@@ -219,4 +219,4 @@ void SceneManager::update(int hint)
 	}*/
 }
 
-} // namespace tinysg
+} // namespace TinySG
