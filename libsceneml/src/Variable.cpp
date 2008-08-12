@@ -24,7 +24,7 @@
 
 #include "Variable.h"
 
-namespace tinysg
+namespace TinySG
 {
 
 Variable::Variable() :

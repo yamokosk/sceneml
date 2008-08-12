@@ -24,7 +24,7 @@
 
 #include "Plugin.h"
 
-namespace tinysg
+namespace TinySG
 {
 
 Plugin::Plugin()

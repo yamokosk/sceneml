@@ -25,7 +25,7 @@
 #include "Observer.h"
 #include "Subject.h"
 
-namespace tinysg
+namespace TinySG
 {
 
 Observer::Observer() :
@@ -47,4 +47,4 @@ void Observer::listen(Subject* sub)
 	subject_->subscribe(this);
 }
 
-} // Namespace: tinysg
+} // Namespace: TinySG

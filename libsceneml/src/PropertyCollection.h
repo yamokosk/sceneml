@@ -28,7 +28,7 @@
 #pragma warning(disable: 4290)
 #endif
 
-namespace tinysg {
+namespace TinySG {
 
 class PropertyCollection
 {
@@ -39,12 +39,12 @@ public:
 	PropertyCollection() {}
 	~PropertyCollection() {}
 
-	void addPair(const PropertyPair& pair) throw (tinysg::Exception);
-	void updatePair(const char* key, const char* value, bool isRequired) throw (tinysg::Exception);
-	PropertyPair getPair(size_t index) const throw (tinysg::Exception);
+	void addPair(const PropertyPair& pair) throw (TinySG::Exception);
+	void updatePair(const char* key, const char* value, bool isRequired) throw (TinySG::Exception);
+	PropertyPair getPair(size_t index) const throw (TinySG::Exception);
 
 	size_t size() const {return pairs_.size();}
-	std::string getValue(const char* key) const throw (tinysg::Exception);
+	std::string getValue(const char* key) const throw (TinySG::Exception);
 
 private:
 	PairMap pairs_;

@@ -19,7 +19,7 @@
 #include "EntityManager.h"
 #include "Entity.h"
 
-namespace tinysg
+namespace TinySG
 {
 
 EntityManager::EntityManager()
@@ -181,4 +181,4 @@ void EntityManager::createEntityPair(Entity* e1, Entity* e2)
 	return EntityManager::EntityPairListIterator(entityPairs_.being(), entityPairs_.end());
 }*/
 
-} // End namespace tinysg
+} // End namespace TinySG

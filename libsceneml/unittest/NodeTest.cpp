@@ -28,5 +28,4 @@ void NodeTest::tearDown()
 void NodeTest::testAddChild()
 {
 	n1->addChild(n2);
-	CPPUNIT_ASSERT(  );
 }

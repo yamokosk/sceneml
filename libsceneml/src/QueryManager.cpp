@@ -24,7 +24,7 @@
 
 #include "QueryManager.h"
 
-namespace tinysg
+namespace TinySG
 {
 
 QueryManager::QueryManager()

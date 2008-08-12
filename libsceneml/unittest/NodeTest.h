@@ -5,11 +5,11 @@
  *      Author: yamokosk
  */
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <TinySG/Node.h>
-
 #ifndef NODETEST_H_
 #define NODETEST_H_
+
+#include <cppunit/extensions/HelperMacros.h>
+#include <Node.h>
 
 class NodeTest : public CppUnit::TestFixture
 {
