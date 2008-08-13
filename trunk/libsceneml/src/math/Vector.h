@@ -11,6 +11,7 @@
 #include <Exception.h>
 #include <math/Math.h>
 #include <newmat/newmat.h>
+#include <newmat/newmatio.h>
 
 namespace TinySG {
 

@@ -10,6 +10,16 @@
 
 namespace TinySG
 {
+
+using namespace log4cxx;
+
+LoggerPtr CoordinateTransform::logger(Logger::getLogger("TinySG.CoordinateTransform"));
+LoggerPtr CompositeTransform::logger(Logger::getLogger("TinySG.CompositeTransform"));
+LoggerPtr MarkerTransform::logger(Logger::getLogger("TinySG.MarkerTransform"));
+LoggerPtr SimpleRotation::logger(Logger::getLogger("TinySG.SimpleRotation"));
+LoggerPtr EulerRotation::logger(Logger::getLogger("TinySG.EulerRotation"));
+LoggerPtr SimpleTranslation::logger(Logger::getLogger("TinySG.SimpleTranslation"));
+
 // ------------------------------------------------------------------
 CoordinateTransform::CoordinateTransform() :
 	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
@@ -27,16 +37,24 @@ CoordinateTransform::~CoordinateTransform()
 inline
 void CoordinateTransform::_updateTransform()
 {
+	//LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
+
 	// Default behavior is to notify our listener that we have changed
-	if (listener_) listener_->_notifyUpdate();
+	//if (listener_) {
+	//	listener_->_notifyUpdate();
+	//	LOG4CXX_DEBUG(logger, "Notified listener that I am about to update.");
+	//}
 }
 
 const Matrix& CoordinateTransform::getTransform()
 {
 	if (cachedTransformOutOfDate_)
 	{
+		LOG4CXX_DEBUG(logger, "Cached transform out of date. Calling update method.");
 		this->_updateTransform();
 		cachedTransformOutOfDate_ = false;
+	} else {
+		LOG4CXX_DEBUG(logger, "Cached transform is OK.");
 	}
 	return cachedTransform_;
 }
@@ -52,7 +70,6 @@ void CoordinateTransform::_notifyUpdate()
 	// Base class does nothing. Meant to be overridden by child classes.
 }
 
-
 // ------------------------------------------------------------------
 CompositeTransform::CompositeTransform()
 	: CoordinateTransform()
@@ -62,14 +79,17 @@ CompositeTransform::CompositeTransform()
 
 CompositeTransform::~CompositeTransform()
 {
-
+	/*CoordinateTransformList::iterator it = transforms_.begin();
+	for (; it != transforms_.end(); ++it)
+	{
+		delete (*it);
+	}*/
 }
 
-inline
-void CompositeTransform::add(CoordinateTransform t)
+void CompositeTransform::add(CoordinateTransformPtr t)
 {
 	// Let this transform know we are listening
-	t.setListener(this);
+	t->setListener(this);
 	// Add new transform to the collection
 	transforms_.push_back(t);
 	// Invalidate the cached transform
@@ -97,13 +117,15 @@ void CompositeTransform::_updateTransform()
 	// Parent implementation
 	CoordinateTransform::_updateTransform();
 
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
+
 	// Reset the transform matrix
 	cachedTransform_ = MatrixFactory::Matrix4x4( IDENTITY );
 
 	CoordinateTransformList::iterator it = transforms_.begin();
 	for (; it != transforms_.end(); ++it)
 	{
-		cachedTransform_ *= (*it).getTransform();
+		cachedTransform_ *= (*it)->getTransform();
 	}
 }
 
@@ -123,6 +145,8 @@ void MarkerTransform::_updateTransform()
 {
 	// Parent implementation
 	CoordinateTransform::_updateTransform();
+
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
 	// Number of local and global coords is ASSUMED to be the same.. no error
 	// checking done here
@@ -163,6 +187,12 @@ SimpleRotation::~SimpleRotation()
 
 void SimpleRotation::setAngle(Real ang)
 {
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
+
+	if (listener_) {
+		listener_->_notifyUpdate();
+		LOG4CXX_DEBUG(logger, "Notified listener that I need an update.");
+	}
 	angle_ = ang;
 	cachedTransformOutOfDate_ = true;
 }
@@ -171,6 +201,8 @@ void SimpleRotation::_updateTransform()
 {
 	// Parent implementation
 	CoordinateTransform::_updateTransform();
+
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
 	// Reset matrix
 	cachedTransform_ = RotFromAngleAxis(angle_, VectorFactory::Vector3(axisNumber_) );
@@ -191,6 +223,11 @@ SimpleTranslation::~SimpleTranslation()
 
 void SimpleTranslation::setVector(Real x, Real y, Real z)
 {
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
+	if (listener_) {
+		listener_->_notifyUpdate();
+		LOG4CXX_DEBUG(logger, "Notified listener that I need an update.");
+	}
 	x_ = x; y_ = y; z_ = z;
 	cachedTransformOutOfDate_ = true;
 }
@@ -199,6 +236,8 @@ void SimpleTranslation::_updateTransform()
 {
 	// Parent implementation
 	CoordinateTransform::_updateTransform();
+
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
 	cachedTransform_(1,4) = x_;
 	cachedTransform_(2,4) = y_;
@@ -221,6 +260,11 @@ EulerRotation::~EulerRotation()
 
 void EulerRotation::setAngles(Real tx, Real ty, Real tz)
 {
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
+	if (listener_) {
+		listener_->_notifyUpdate();
+		LOG4CXX_DEBUG(logger, "Notified listener that I need an update.");
+	}
 	tx_ = tx; ty_ = ty; tz_ = tz;
 	cachedTransformOutOfDate_ = true;
 }
@@ -229,6 +273,8 @@ void EulerRotation::_updateTransform()
 {
 	// Parent implementation
 	CoordinateTransform::_updateTransform();
+
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
 	cachedTransform_ = RotFromEulerSequence(seqType_, tx_, ty_, tz_);
 }

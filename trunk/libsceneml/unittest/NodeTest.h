@@ -9,16 +9,16 @@
 #define NODETEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <Node.h>
+//#include <Node.h>
 
 class NodeTest : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE( NodeTest );
-	CPPUNIT_TEST( testCreateChild );
+	CPPUNIT_TEST( testAddChild );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
-	Node *n1, *n2, *unnamed;
+//	Node *n1, *n2, *unnamed;
 
 public:
 	void setUp();
@@ -26,7 +26,7 @@ public:
 
 protected:
 	// Test cases
-	void testCreateChild();
+	void testAddChild();
 };
 
 #endif /* NODETEST_H_ */

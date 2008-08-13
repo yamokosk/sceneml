@@ -140,30 +140,30 @@ ReturnMatrix RotFromEulerSequence(int seqType, Real tx, Real ty, Real tz)
 	switch (seqType)
 	{
 	case XYZ:
-		r11 = cy*cz;
-		r12 = cx*sz+sx*sy*cz;
-		r13 = sx*sz-cx*sy*cz;
-
-		r21 = -cy*sz;
-		r22 = cx*cz-sx*sy*sz;
-		r23 = sx*cz+cx*sy*sz;
-
-		r31 = sy;
-		r32 = -sx*cy;
-		r33 = cx*cy;
+		/*
+		 * author yamokosk
+		 *
+		 * From Matlab:
+		 *
+		 * T[0][0] = cos(y)*cos(z);      T[0][1] = -cos(y)*sin(z);      T[0][2] = sin(y);
+		 * T[1][0] = sin(x)*sin(y)*cos(z)+cos(x)*sin(z);      T[1][1] = -sin(x)*sin(y)*sin(z)+cos(x)*cos(z);      T[1][2] = -sin(x)*cos(y);
+		 * T[2][0] = -cos(x)*sin(y)*cos(z)+sin(x)*sin(z);      T[2][1] = cos(x)*sin(y)*sin(z)+sin(x)*cos(z);      T[2][2] = cos(x)*cos(y);
+		 */
+		r11 = cy*cz;			r12 = -cy*sz;			r13 = sy;
+		r21 = sx*sy*cz+cx*sz;	r22 = -sx*sy*sz+cx*cz;	r23 = -sx*cy;
+		r31 = -cx*sy*cz+sx*sz;	r32 = cx*sy*sz+sx*cz;	r33 = cx*cy;
 		break;
 	case ZXY:
-		r11 = cz*cy-sz*sx*sy;
-		r12 = cy*sz+sy*sx*cz;
-		r13 = -sy*cx;
-
-		r21 = -cx*sz;
-		r22 = cz*cx;
-		r23 = sx;
-
-		r31 = sy*cz+cy*sx*sz;
-		r32 = sz*sy-sx*cz*cy;
-		r33 = cy*cx;
+		/*
+		 * author yamokosk
+		 *
+		 * T[0][0] = cos(y)*cos(z)-sin(x)*sin(y)*sin(z);      T[0][1] = -cos(x)*sin(z);      T[0][2] = cos(z)*sin(y)+sin(x)*sin(z)*cos(y);
+		 * T[1][0] = cos(y)*sin(z)+sin(x)*sin(y)*cos(z);      T[1][1] = cos(x)*cos(z);      T[1][2] = sin(z)*sin(y)-sin(x)*cos(z)*cos(y);
+		 * T[2][0] = -cos(x)*sin(y);      T[2][1] = sin(x);      T[2][2] = cos(x)*cos(y);
+		 */
+		r11 = cy*cz-sx*sy*sz;	r12 = -cx*sz;			r13 = cz*sy+sx*sz*cy;
+		r21 = cy*sz+sx*sy*cz;	r22 = cx*cz;			r23 = sz*sy-sx*cz*cy;
+		r31 = -cx*sy;			r32 = sx;				r33 = cx*cy;
 		break;
 	default:
 		SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid Euler sequence.");
@@ -171,17 +171,9 @@ ReturnMatrix RotFromEulerSequence(int seqType, Real tx, Real ty, Real tz)
 	}
 
 	Matrix r = MatrixFactory::Matrix4x4( IDENTITY );
-	r(1,1) = r11;
-	r(1,2) = r12;
-	r(1,3) = r13;
-
-	r(2,1) = r21;
-	r(2,2) = r22;
-	r(2,3) = r23;
-
-	r(3,1) = r31;
-	r(3,2) = r32;
-	r(3,3) = r33;
+	r(1,1) = r11;	r(1,2) = r12;	r(1,3) = r13;
+	r(2,1) = r21;	r(2,2) = r22;	r(2,3) = r23;
+	r(3,1) = r31;	r(3,2) = r32;	r(3,3) = r33;
 	r.Release(); return r;
 }
 
