@@ -19,6 +19,18 @@ option( BUILD_MATLAB "Build the mex interface to the SceneML library." ON )
 option( BUILD_STATIC_LIB "Build static library?" ON)
 option( PERFORM_UNIT_TESTS "Perform unit tests." ON)
 
+# Easier to read error messages in Eclipse CDT
+IF(CMAKE_COMPILER_IS_GNUCC)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
+ENDIF(CMAKE_COMPILER_IS_GNUCC)
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
+# Throwing another bone at eclipse - helps "discover" include paths
+SET(CMAKE_VERBOSE_MAKEFILE ON)
+
+
 # ------------------------------------------------------------------------------
 # Project directories
 # ------------------------------------------------------------------------------
@@ -87,6 +99,50 @@ message( STATUS "	Library dirs: ${CPPUNIT_LIBRARY_DIRS}" )
 message( STATUS "	Libs: ${CPPUNIT_LIBRARIES}" )
 message( STATUS "	LDFlags: ${CPPUNIT_LDFLAGS}" )
 message( STATUS "	CFlags: ${CPPUNIT_CFLAGS}" )
+
+pkg_check_modules (LOG4CXX REQUIRED liblog4cxx)
+message( STATUS "Found CppUnit." )
+message( STATUS "	Include dirs: ${LOG4CXX_INCLUDE_DIRS}" )
+message( STATUS "	Library dirs: ${LOG4CXX_LIBRARY_DIRS}" )
+message( STATUS "	Libs: ${LOG4CXX_LIBRARIES}" )
+message( STATUS "	LDFlags: ${LOG4CXX_LDFLAGS}" )
+message( STATUS "	CFlags: ${LOG4CXX_CFLAGS}" )
+
+# ------------------------------------------------------------------------------
+# Build unittests
+# ------------------------------------------------------------------------------
+#enable_testing()
+
+#if ( NOT WIN32 AND NOT APPLE)
+#	MEMORYCHECK_COMMAND:FILEPATH=/usr/bin/valgrind
+#endif ( NOT WIN32 AND NOT APPLE)
+
+#include_directories( ${PROJECT_SOURCE_DIR}/src
+#					 ${CPPUNIT_INCLUDE_DIRS}
+#					 ${Boost_INCLUDE_DIRS}
+#					 ${NEWMAT_INCLUDE_DIRS}
+#					 ${MUPARSER_HOME}/include)
+#link_directories( ${CPPUNIT_LIBRARY_DIRS}
+#                  ${Boost_LIBRARY_DIRS}
+#				  ${NEWMAT_LIBRARY_DIRS}
+#				  ${MUPARSER_HOME}/lib )
+#link_libraries( ${CPPUNIT_LIBRARIES} )
+#file(GLOB UnitTests_SRCS "${PROJECT_SOURCE_DIR}/unittest/*Test.cpp" )
+
+#foreach(test ${UnitTests_SRCS})
+#    get_filename_component(TestName ${test} NAME_WE)
+#    include( ${PROJECT_SOURCE_DIR}/unittest/${TestName}.inc )
+#    set( srcs ${PROJECT_SOURCE_DIR}/unittest/main.cpp ${test} ${test_srcs} )
+#    add_executable(${TestName} ${srcs})
+#    if ( WIN32 )
+#        target_link_libraries(${TestName} debug muparser_static_D optimized muparser_static
+#                                      debug newmatD optimized newmat)
+#    else ( WIN32 )
+#        target_link_libraries(${TestName} muparser newmat)
+#    endif ( WIN32 )
+#    add_test(${TestName} ${TestName}${CMAKE_EXECUTABLE_SUFFIX} )
+#endforeach(test)
+
 
 # ------------------------------------------------------------------------------
 # Finally, recurse in the sub directories

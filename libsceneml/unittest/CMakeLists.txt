@@ -3,15 +3,17 @@ include_directories( ${PROJECT_SOURCE_DIR}/src
 					 ${CPPUNIT_INCLUDE_DIRS}
 					 ${Boost_INCLUDE_DIRS}
 					 ${NEWMAT_INCLUDE_DIRS}
-					 ${MUPARSER_HOME}/include)
+					 ${MUPARSER_HOME}/include
+					 ${LOG4CXX_INCLUDE_DIRS})
 link_directories( ${CPPUNIT_LIBRARY_DIRS}
+				  ${LOG4CXX_LIBRARY_DIRS}
                   ${Boost_LIBRARY_DIRS}
 				  ${NEWMAT_LIBRARY_DIRS}
 				  ${MUPARSER_HOME}/lib )
 if ( WIN32 )
     link_libraries( libcppunit.dll.a )
 else ( WIN32 )
-    link_libraries( ${CPPUNIT_LIBRARIES} )
+    link_libraries( ${CPPUNIT_LIBRARIES} ${LOG4CXX_LIBRARIES})
 endif ( WIN32 )
 
 file(GLOB UnitTests_SRCS "*Test.cpp" )
@@ -28,5 +30,5 @@ foreach(test ${UnitTests_SRCS})
     else ( WIN32 )
         target_link_libraries(${TestName} muparser newmat)
     endif ( WIN32 )
-    add_test(${TestName} ${TestName}.exe)
+    add_test(${TestName} ${TestName}${CMAKE_EXECUTABLE_SUFFIX} )
 endforeach(test)

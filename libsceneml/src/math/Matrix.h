@@ -12,6 +12,7 @@
 #include <math/Math.h>
 #include <math/Quaternion.h>
 #include <newmat/newmat.h>
+#include <newmat/newmatio.h>
 
 namespace TinySG {
 

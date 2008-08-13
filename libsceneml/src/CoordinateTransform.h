@@ -9,16 +9,26 @@
 #define COORDINATETRANSFORM_H_
 
 // Standard includes
-#include <vector>
+#include <list>
 
+// Boost
+#include <boost/shared_ptr.hpp>
+
+// Logging
+#include <log4cxx/logger.h>
+
+// Internal
 #include <math/Matrix.h>
 #include <Observer.h>
+
 
 namespace TinySG
 {
 
 class CoordinateTransform
 {
+	static log4cxx::LoggerPtr logger;
+
 public:
 	CoordinateTransform();
 	virtual ~CoordinateTransform();
@@ -50,16 +60,22 @@ protected:
 	CoordinateTransform* listener_;
 };
 
+typedef boost::shared_ptr<CoordinateTransform> CoordinateTransformPtr;
+#define NEW_TRANSFORM(x) \
+	TinySG::CoordinateTransformPtr( new x )
+
 
 class CompositeTransform : public CoordinateTransform
 {
+	static log4cxx::LoggerPtr logger;
+
 public:
-	typedef std::vector<CoordinateTransform> CoordinateTransformList;
+	typedef std::list<CoordinateTransformPtr> CoordinateTransformList;
 
 	CompositeTransform();
 	virtual ~CompositeTransform();
 	//! Adds the transform to the composition.
-	void add(CoordinateTransform t);
+	void add(CoordinateTransformPtr t);
 	//! Get number of child transforms
 	size_t size();
 	//! Inherited from CoordinateTransform
@@ -75,6 +91,8 @@ private:
 
 class MarkerTransform : public CoordinateTransform
 {
+	static log4cxx::LoggerPtr logger;
+
 public:
 	MarkerTransform();
 	~MarkerTransform();
@@ -87,6 +105,8 @@ protected:
 
 class SimpleRotation : public CoordinateTransform
 {
+	static log4cxx::LoggerPtr logger;
+
 public:
 	SimpleRotation(int axisType, Real ang);
 	virtual ~SimpleRotation();
@@ -102,6 +122,8 @@ private:
 
 class SimpleTranslation : public CoordinateTransform
 {
+	static log4cxx::LoggerPtr logger;
+
 public:
 	SimpleTranslation(Real x, Real y, Real z);
 	virtual ~SimpleTranslation();
@@ -116,6 +138,8 @@ private:
 
 class EulerRotation : public CoordinateTransform
 {
+	static log4cxx::LoggerPtr logger;
+
 public:
 	EulerRotation(int seqType, Real tx, Real ty, Real tz);
 	virtual ~EulerRotation();
