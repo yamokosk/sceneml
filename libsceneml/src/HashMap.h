@@ -16,51 +16,28 @@
  *
  *************************************************************************/
 /*
- * Variable.h
+ * HashMap.h
  *
- *  Created on: Jul 16, 2008
+ *  Created on: Aug 27, 2008
  *      Author: yamokosk
  */
 
-#ifndef VARIABLE_H_
-#define VARIABLE_H_
+#ifndef HASHMAP_H_
+#define HASHMAP_H_
 
-#include "PropertyCollection.h"
-#include "Subject.h"
+#ifdef __GNUC__
 
-namespace TinySG
-{
+#include <map>
 
-class Variable : public Subject
-{
-public:
-	enum VariableHint
-	{
-		ScalarUpdate=100,
-		VectorUpdate
-	};
+#define HASH_MAP std::map
 
-	Variable();
-	virtual ~Variable();
+#else
 
-	virtual void setType(const std::string&);
-	virtual std::string getType();
+#include <hash_map>
 
-	virtual void setSubType(const std::string&);
-	virtual std::string getSubType();
+//#define HASH_MAP stdext::hash_map
+#define HASH_MAP std::map
 
-	virtual void setScalar(Real s);
-	virtual Real getScalar();
+#endif
 
-	virtual void setVector(const ColumnVector& v);
-	virtual ReturnMatrix getVector();
-
-protected:
-	PropertyCollection pc_;
-	ColumnVector data_;
-
-};
-
-}
-
-#endif /* VARIABLE_H_ */
+#endif /* HASHMAP_H_ */

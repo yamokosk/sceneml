@@ -63,7 +63,6 @@ struct OptionalProperty : public PropertyPair
 		PropertyPair(prop, value, false) {}
 };
 
-
 }
 
 #endif

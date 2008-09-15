@@ -16,51 +16,46 @@
  *
  *************************************************************************/
 /*
- * Variable.h
+ * Serializer.h
  *
- *  Created on: Jul 16, 2008
+ *  Created on: Sep 15, 2008
  *      Author: yamokosk
  */
 
-#ifndef VARIABLE_H_
-#define VARIABLE_H_
+#ifndef SERIALIZER_H_
+#define SERIALIZER_H_
 
-#include "PropertyCollection.h"
-#include "Subject.h"
+#include "Serializable.h"
+
+#include <tinyxml/tinyxml.h>
+
+// Logging
+#include <log4cxx/logger.h>
 
 namespace TinySG
 {
 
-class Variable : public Subject
+class Serializer
 {
+	static log4cxx::LoggerPtr logger;
+
 public:
-	enum VariableHint
-	{
-		ScalarUpdate=100,
-		VectorUpdate
-	};
+	Serializer();
+	virtual ~Serializer();
 
-	Variable();
-	virtual ~Variable();
+	void save(const std::string& filename);
 
-	virtual void setType(const std::string&);
-	virtual std::string getType();
+	// a single item
+	bool serialize(Serializable*);
+	//int	deserialize(ObjectFactory*, CPtrList& objList);
 
-	virtual void setSubType(const std::string&);
-	virtual std::string getSubType();
+private:
+	void serializeObject(Serializable* obj, TiXmlElement* parent);
+	//int deserializeObject(ObjectFactory*, CPtrList& objList,MSXML::IXMLDOMNode* parent=NULL);
 
-	virtual void setScalar(Real s);
-	virtual Real getScalar();
-
-	virtual void setVector(const ColumnVector& v);
-	virtual ReturnMatrix getVector();
-
-protected:
-	PropertyCollection pc_;
-	ColumnVector data_;
-
+	TiXmlElement* root_;
 };
 
 }
 
-#endif /* VARIABLE_H_ */
+#endif /* SERIALIZER_H_ */

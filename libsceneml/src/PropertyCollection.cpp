@@ -24,6 +24,41 @@
 
 namespace TinySG {
 
+using namespace log4cxx;
+
+LoggerPtr PropertyCollection::logger(Logger::getLogger("PropertyCollection"));
+
+PropertyCollection::PropertyCollection()
+{
+	pairs_.clear();
+	//LOG4CXX_INFO(logger, "Constructor. Size: " << this->size());
+}
+
+PropertyCollection::PropertyCollection(const PropertyCollection& pc)
+{
+	//LOG4CXX_INFO(logger, "Copy constructor incoming size: " << pc.size());
+	for (unsigned int n=0; n < pc.size(); ++n)
+	{
+		this->addPair( pc.getPair(n) );
+	}
+	//LOG4CXX_INFO(logger, "Copy constructor. Size: " << this->size());
+}
+
+PropertyCollection& PropertyCollection::operator= (const PropertyCollection& other)
+{
+	//LOG4CXX_INFO(logger, "Assignment operator. incoming size: " << other.size());
+	if (this != &other) // protect against invalid self-assignment
+	{
+		this->pairs_.clear();
+		for (unsigned int n=0; n < other.size(); ++n)
+		{
+			this->addPair( other.getPair(n) );
+		}
+	}
+	//LOG4CXX_INFO(logger, "Assignment operator. Size: " << this->size());
+	return *this;
+}
+
 /**
  * Returns the property pair with specified index.
  */
@@ -62,7 +97,7 @@ void PropertyCollection::updatePair(const char* key, const char* value, bool isR
 
 	if (it != pairs_.end()) {
 		pairs_.erase(it);
-		PropertyPair pair(key,value, isRequired);
+		PropertyPair pair(key, value, isRequired);
 		pairs_[key] = pair;
 	} else {
 		std::ostringstream msg;

@@ -173,8 +173,8 @@ void CoordinateTransformTest::testTransformUpdate()
 	CPPUNIT_ASSERT( c2.getTransform() != c1.getTransform() );
 
 	// Change c1 angles to match c2
-	r1->setAngle(a3);
-	r2->setAngle(a4);
+	//r1->setAngle(a3);
+	//r2->setAngle(a4);
 
 	// Should be equal
 	LOG4CXX_INFO(logger, "Comparing c1 and c2");

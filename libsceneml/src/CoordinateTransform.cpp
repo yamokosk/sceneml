@@ -23,7 +23,7 @@ LoggerPtr SimpleTranslation::logger(Logger::getLogger("TinySG.SimpleTranslation"
 // ------------------------------------------------------------------
 CoordinateTransform::CoordinateTransform() :
 	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
-	cachedTransformOutOfDate_(true),
+	cachedTransformOutOfDate_(false),
 	listener_(NULL)
 {
 
@@ -70,11 +70,22 @@ void CoordinateTransform::_notifyUpdate()
 	// Base class does nothing. Meant to be overridden by child classes.
 }
 
+void CoordinateTransform::update(int hint)
+{
+	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
+
+	if (listener_) {
+		listener_->_notifyUpdate();
+		LOG4CXX_DEBUG(logger, "Notified listener that I need an update.");
+	}
+	cachedTransformOutOfDate_ = true;
+}
+
 // ------------------------------------------------------------------
 CompositeTransform::CompositeTransform()
 	: CoordinateTransform()
 {
-
+	cachedTransformOutOfDate_ = true;
 }
 
 CompositeTransform::~CompositeTransform()
@@ -141,6 +152,13 @@ MarkerTransform::~MarkerTransform()
 
 }
 
+void MarkerTransform::update(int hint)
+{
+	CoordinateTransform::update(hint);
+
+
+}
+
 void MarkerTransform::_updateTransform()
 {
 	// Parent implementation
@@ -174,10 +192,9 @@ void MarkerTransform::_updateTransform()
 // ------------------------------------------------------------------
 SimpleRotation::SimpleRotation(int axisType, Real ang) :
 	CoordinateTransform(),
-	angle_(ang),
 	axisNumber_(axisType)
 {
-
+	cachedTransform_ = RotFromAngleAxis(ang, VectorFactory::Vector3(axisNumber_) );
 }
 
 SimpleRotation::~SimpleRotation()
@@ -185,7 +202,8 @@ SimpleRotation::~SimpleRotation()
 
 }
 
-void SimpleRotation::setAngle(Real ang)
+//! Method from Observer
+void SimpleRotation::update(int hint)
 {
 	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
@@ -193,7 +211,6 @@ void SimpleRotation::setAngle(Real ang)
 		listener_->_notifyUpdate();
 		LOG4CXX_DEBUG(logger, "Notified listener that I need an update.");
 	}
-	angle_ = ang;
 	cachedTransformOutOfDate_ = true;
 }
 
@@ -205,15 +222,17 @@ void SimpleRotation::_updateTransform()
 	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
 	// Reset matrix
-	cachedTransform_ = RotFromAngleAxis(angle_, VectorFactory::Vector3(axisNumber_) );
+	cachedTransform_ = RotFromAngleAxis(subject_->getValue(), VectorFactory::Vector3(axisNumber_) );
 }
+
 
 // ------------------------------------------------------------------
 SimpleTranslation::SimpleTranslation(Real x, Real y, Real z) :
-	CoordinateTransform(),
-	x_(x), y_(y), z_(z)
+	CoordinateTransform()
 {
-
+	cachedTransform_(1,4) = x;
+	cachedTransform_(2,4) = y;
+	cachedTransform_(3,4) = z;
 }
 
 SimpleTranslation::~SimpleTranslation()
@@ -221,14 +240,13 @@ SimpleTranslation::~SimpleTranslation()
 
 }
 
-void SimpleTranslation::setVector(Real x, Real y, Real z)
+void SimpleTranslation::update(int hint)
 {
 	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 	if (listener_) {
 		listener_->_notifyUpdate();
 		LOG4CXX_DEBUG(logger, "Notified listener that I need an update.");
 	}
-	x_ = x; y_ = y; z_ = z;
 	cachedTransformOutOfDate_ = true;
 }
 
@@ -239,18 +257,16 @@ void SimpleTranslation::_updateTransform()
 
 	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
-	cachedTransform_(1,4) = x_;
-	cachedTransform_(2,4) = y_;
-	cachedTransform_(3,4) = z_;
+	cachedTransform_.SubMatrix(1,3,4,4) = subject_->getVector();
 }
+
 
 // ------------------------------------------------------------------
 EulerRotation::EulerRotation(int seqType, Real tx, Real ty, Real tz) :
 	CoordinateTransform(),
-	tx_(tx), ty_(ty), tz_(tz),
 	seqType_(seqType)
 {
-
+	cachedTransform_ = RotFromEulerSequence(seqType_, tx, ty, tz);
 }
 
 EulerRotation::~EulerRotation()
@@ -258,14 +274,13 @@ EulerRotation::~EulerRotation()
 
 }
 
-void EulerRotation::setAngles(Real tx, Real ty, Real tz)
+void EulerRotation::update(int hint)
 {
 	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 	if (listener_) {
 		listener_->_notifyUpdate();
 		LOG4CXX_DEBUG(logger, "Notified listener that I need an update.");
 	}
-	tx_ = tx; ty_ = ty; tz_ = tz;
 	cachedTransformOutOfDate_ = true;
 }
 
@@ -276,7 +291,8 @@ void EulerRotation::_updateTransform()
 
 	LOG4CXX_TRACE(logger, "Running " << __FUNCTION__);
 
-	cachedTransform_ = RotFromEulerSequence(seqType_, tx_, ty_, tz_);
+	ColumnVector angles = subject_->getVector();
+	cachedTransform_ = RotFromEulerSequence(seqType_, angles(1), angles(2), angles(3));
 }
 
 } // namespace TinySG
