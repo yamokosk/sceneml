@@ -21,11 +21,10 @@
 #include <math/Matrix.h>
 #include <Observer.h>
 
-
 namespace TinySG
 {
 
-class CoordinateTransform
+class CoordinateTransform : public Observer
 {
 	static log4cxx::LoggerPtr logger;
 
@@ -39,6 +38,8 @@ public:
 	void setListener(CoordinateTransform* ct);
 	//! Internal method to notify this object that somebody he was listening to changed.
 	virtual void _notifyUpdate();
+	//! Method from Observer
+	virtual void update(int hint);
 
 protected:
 	//! Internal method called to update the cached transform
@@ -95,8 +96,10 @@ class MarkerTransform : public CoordinateTransform
 
 public:
 	MarkerTransform();
-	~MarkerTransform();
+	virtual ~MarkerTransform();
 
+	//! Method from Observer - needs to override CoordinateTransform behavior
+	virtual void update(int hint);
 protected:
 	//! Internal method called to update the cached transform
 	virtual void _updateTransform();
@@ -110,12 +113,10 @@ class SimpleRotation : public CoordinateTransform
 public:
 	SimpleRotation(int axisType, Real ang);
 	virtual ~SimpleRotation();
-	void setAngle(Real ang);
 protected:
 	//! Internal method called to update the cached transform
 	virtual void _updateTransform();
 private:
-	Real angle_;
 	int axisNumber_;
 };
 
@@ -127,12 +128,9 @@ class SimpleTranslation : public CoordinateTransform
 public:
 	SimpleTranslation(Real x, Real y, Real z);
 	virtual ~SimpleTranslation();
-	void setVector(Real x, Real y, Real z);
 protected:
 	//! Internal method called to update the cached transform
 	virtual void _updateTransform();
-private:
-	Real x_, y_, z_;
 };
 
 
@@ -143,12 +141,10 @@ class EulerRotation : public CoordinateTransform
 public:
 	EulerRotation(int seqType, Real tx, Real ty, Real tz);
 	virtual ~EulerRotation();
-	void setAngles(Real x, Real y, Real z);
 protected:
 	//! Internal method called to update the cached transform
 	virtual void _updateTransform();
 private:
-	Real tx_, ty_, tz_;
 	int seqType_;
 };
 

@@ -15,48 +15,41 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * SignalsTest.h
+ *
+ *  Created on: Aug 27, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef PROPERTYCOLLECTION_H
-#define PROPERTYCOLLECTION_H
+#ifndef SIGNALSTEST_H_
+#define SIGNALSTEST_H_
 
 // Logging
 #include <log4cxx/logger.h>
 
-#include <string>
-#include "HashMap.h"
-#include "PropertyPair.h"
-#include "Exception.h"
+#include <cppunit/extensions/HelperMacros.h>
+#include <Subject.h>
+#include <Observer.h>
 
-#if defined(_WIN32)
-#pragma warning(disable: 4290)
-#endif
-
-namespace TinySG {
-
-class PropertyCollection
+class CoordinateTransformTest: public CPPUNIT_NS::TestFixture
 {
 	static log4cxx::LoggerPtr logger;
-public:
-	typedef HASH_MAP<std::string, PropertyPair> PairMap;
-	typedef PairMap::const_iterator PropertyIterator;
 
-	PropertyCollection();
-	PropertyCollection(const PropertyCollection& pc);
-	~PropertyCollection() {}
-
-	PropertyCollection& operator= (const PropertyCollection& other);
-
-	void addPair(const PropertyPair& pair) throw (TinySG::Exception);
-	void updatePair(const char* key, const char* value, bool isRequired) throw (TinySG::Exception);
-	PropertyPair getPair(size_t index) const throw (TinySG::Exception);
-
-	unsigned int size() const {return (unsigned int)pairs_.size();}
-	std::string getValue(const char* key) const throw (TinySG::Exception);
-
+	CPPUNIT_TEST_SUITE(CoordinateTransformTest);
+	CPPUNIT_TEST(testSimpleObserver);
+	CPPUNIT_TEST(testComplexObserver);
+	CPPUNIT_TEST_SUITE_END();
 private:
-	PairMap pairs_;
+	// Member variables here
+public:
+	void setUp();
+	void tearDown();
+protected:
+	// Unittest declarations
+	void testSimpleObserver();
+	void testComplexObserver();
+
 };
 
-} // Namespace
-
-#endif
+#endif /* SIGNALSTEST_H_ */

@@ -16,51 +16,40 @@
  *
  *************************************************************************/
 /*
- * Variable.h
+ * Serialize.h
  *
- *  Created on: Jul 16, 2008
+ *  Created on: Sep 15, 2008
  *      Author: yamokosk
  */
 
-#ifndef VARIABLE_H_
-#define VARIABLE_H_
+#ifndef SERIALIZE_H_
+#define SERIALIZE_H_
 
 #include "PropertyCollection.h"
-#include "Subject.h"
+
+#include <string>
+#include <vector>
 
 namespace TinySG
 {
 
-class Variable : public Subject
+class Serializable
 {
 public:
-	enum VariableHint
-	{
-		ScalarUpdate=100,
-		VectorUpdate
-	};
+	typedef std::vector<Serializable*> ComplexProperties;
 
-	Variable();
-	virtual ~Variable();
+	virtual void getAttributes(PropertyCollection& pc) = 0;
+	virtual ComplexProperties getProperties() = 0;
+	virtual std::string getClassName() = 0;
+};
 
-	virtual void setType(const std::string&);
-	virtual std::string getType();
-
-	virtual void setSubType(const std::string&);
-	virtual std::string getSubType();
-
-	virtual void setScalar(Real s);
-	virtual Real getScalar();
-
-	virtual void setVector(const ColumnVector& v);
-	virtual ReturnMatrix getVector();
-
-protected:
-	PropertyCollection pc_;
-	ColumnVector data_;
-
+class ObjectFactory
+{
+public:
+	virtual Serializable* create() = 0;
+	void destroy(Serializable* obj) {delete obj;}
 };
 
 }
 
-#endif /* VARIABLE_H_ */
+#endif /* SERIALIZE_H_ */
