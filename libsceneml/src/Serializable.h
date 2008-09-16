@@ -25,29 +25,28 @@
 #ifndef SERIALIZE_H_
 #define SERIALIZE_H_
 
-#include "PropertyCollection.h"
-
 #include <string>
-#include <vector>
 
 namespace TinySG
 {
 
 class Serializable
 {
-public:
-	typedef std::vector<Serializable*> ComplexProperties;
-
-	virtual void getAttributes(PropertyCollection& pc) = 0;
-	virtual ComplexProperties getProperties() = 0;
-	virtual std::string getClassName() = 0;
-};
-
-class ObjectFactory
-{
-public:
-	virtual Serializable* create() = 0;
-	void destroy(Serializable* obj) {delete obj;}
+protected:
+	template
+	void save(Archive & ar, const unsigned int version) const
+	    {
+	        // note, version is always the latest when saving
+	        ar  & driver_name;
+	        ar  & stops;
+	    }
+	    template<class Archive>
+	    void load(Archive & ar, const unsigned int version)
+	    {
+	        if(version > 0)
+	            ar & driver_name;
+	        ar  & stops;
+	    }
 };
 
 }

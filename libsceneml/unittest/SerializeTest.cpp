@@ -8,6 +8,18 @@
 #include <cppunit/config/SourcePrefix.h>
 #include "SerializeTest.h"
 #include <sstream>
+#include <string>
+#include <iomanip>
+#include <iostream>
+#include <fstream>
+
+// Boost stuff
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 
 using namespace log4cxx;
 
@@ -15,31 +27,48 @@ LoggerPtr SerializeTest::logger(Logger::getLogger("SerializeTest"));
 
 CPPUNIT_TEST_SUITE_REGISTRATION( SerializeTest );
 
-
-struct Node : public TinySG::Serializable
+class base
 {
-	Node(const std::string& name, double val=0.0, Node* parent=NULL) :
-		name_(name), val_(val), parent_(parent) {}
-	virtual void getAttributes(TinySG::PropertyCollection& pc)
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int file_version)
 	{
-		pc.addPair( TinySG::PropertyPair("name", name_.c_str()) );
-		stringstream str; str << val_;
-		pc.addPair( TinySG::PropertyPair("value", str.str().c_str()) );
-		if ( parent_ != NULL )
-			pc.addPair( TinySG::PropertyPair("parent", parent_->name_.c_str()) );
+		ar & BOOST_SERIALIZATION_NVP(adouble);
 	}
+public:
+	derived(double b) : adouble(b) {}
+	double adouble;
+};
 
-	virtual ComplexProperties getProperties()
-	{
-		ComplexProperties props;
-		return props;
+class derived : public base
+{
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int file_version){
+		boost::serialization::void_cast_register<derived, base>(static_cast<derived *>(NULL),static_cast<base *>(NULL));
+		ar & BOOST_SERIALIZATION_NVP(aint);
 	}
+public:
+	derived(int a, double b) : base(b), aint(a) {}
+	int aint;
+};
 
-	virtual std::string getClassName() {return "node";}
+BOOST_CLASS_EXPORT_GUID(derived, "derived")
 
-	std::string name_;
-	double val_;
-	Node* parent_;
+class manager
+{
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int file_version){
+		ar & BOOST_SERIALIZATION_NVP(objs);
+	}
+public:
+	void save(const std::string);
+	void load();
+
+	std::list<base*> objs;
 };
 
 void SerializeTest::setUp()
@@ -56,21 +85,40 @@ void SerializeTest::testSerialize()
 {
 	LOG4CXX_INFO(logger, "Running " << __FUNCTION__);
 
+	manager mgr;
+
 	// Creat some data to save
-	Node n1("n1",3.2);
-	Node n2("n2",-1.2,&n1);
-	Node n3("n3",1103.2,&n2);
-	Node n4("n4",103.0,&n1);
+	mgr.objs.push_back( derived(1, 1.0) );
+	mgr.objs.push_back( derived(2, 3.0) );
+	mgr.objs.push_back( derived(3, 5.0) );
+	mgr.objs.push_back( derived(4, 7.0) );
 
-	// Now lets save some data
-	TinySG::Serializer serializer;
+	std::string filename("out.xml");
 
-	serializer.serialize(&n1);
-	serializer.serialize(&n2);
-	serializer.serialize(&n3);
-	serializer.serialize(&n4);
+	{
+		std::ofstream ofs(filename);
+		assert(ofs.good());
+		boost::archive::xml_oarchive oa(ofs);
+		oa << BOOST_SERIALIZATION_NVP(mgr);
+	}
 
-	serializer.save("out.xml");
+	manager new_mgr;
+
+	{
+		std::ifstream ifs(filename);
+		assert(ifs.good());
+		boost::archive::xml_iarchive ia(ifs);
+		// restore the schedule from the archive
+		ia >> BOOST_SERIALIZATION_NVP(new_mgr);
+	}
+
+	filename = "check.xml";
+	{
+		std::ofstream ofs(filename);
+		assert(ofs.good());
+		boost::archive::xml_oarchive oa(ofs);
+		oa << BOOST_SERIALIZATION_NVP(new_mgr);
+	}
 
 	LOG4CXX_INFO(logger, "Exiting " << __FUNCTION__);
 }
