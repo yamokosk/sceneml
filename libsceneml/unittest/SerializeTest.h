@@ -12,14 +12,14 @@
 #include <log4cxx/logger.h>
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <Serializer.h>
 
 class SerializeTest: public CPPUNIT_NS::TestFixture
 {
 	static log4cxx::LoggerPtr logger;
 
 	CPPUNIT_TEST_SUITE(SerializeTest);
-	CPPUNIT_TEST(testSerialize);
+	CPPUNIT_TEST(testSimpleClass);
+	CPPUNIT_TEST(testManagerClass);
 	CPPUNIT_TEST_SUITE_END();
 private:
 	// Member variables here
@@ -28,7 +28,8 @@ public:
 	void tearDown();
 protected:
 	// Unittest declarations
-	void testSerialize();
+	void testSimpleClass();
+	void testManagerClass();
 
 };
 

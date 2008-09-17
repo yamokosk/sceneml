@@ -49,6 +49,12 @@ public:
 	bool serialize(Serializable*);
 	//int	deserialize(ObjectFactory*, CPtrList& objList);
 
+	template<class T>
+	Serializer& operator<<(const T& obj)
+	{
+		obj.serialize(this);
+		return *this;
+	}
 private:
 	void serializeObject(Serializable* obj, TiXmlElement* parent);
 	//int deserializeObject(ObjectFactory*, CPtrList& objList,MSXML::IXMLDOMNode* parent=NULL);
