@@ -60,12 +60,19 @@ void Serializer::load(const std::string& filename)
 	LOG4CXX_INFO(logger, "Loading file: " << filename);
 
 	TiXmlDocument doc(pFilename);
-	if (!doc.LoadFile()) return;
+	if (!doc.LoadFile())
+	{
+		// Throw error
+		return;
+	}
 
-	TiXmlHandle hDoc(&doc);
-	TiXmlElement* pElem;
-	TiXmlHandle hRoot(0);
+	if ( (root_ = doc_.RootElement()) == NULL )
+	{
+		// Throw error
+		return;
+	}
 
+	deserialize(root_);
 
 	LOG4CXX_INFO(logger, "Loaded file: " << filename);
 }
@@ -73,67 +80,6 @@ void Serializer::load(const std::string& filename)
 bool Serializer::serialize(Serializable* obj)
 {
 	serializeObject(obj, root_);
-}
-
-int	Serializer::deserialize(ObjectFactory*, CPtrList& objList)
-{
-	// block: name
-	{
-		pElem=hDoc.FirstChildElement().Element();
-		// should always have a valid root but handle gracefully if it does
-		if (!pElem) return;
-		m_name=pElem->Value();
-
-		// save this for later
-		hRoot=TiXmlHandle(pElem);
-	}
-
-	// block: string table
-	{
-		m_messages.clear(); // trash existing table
-
-		pElem=hRoot.FirstChild( "Messages" ).FirstChild().Element();
-		for( pElem; pElem; pElem=pElem->NextSiblingElement())
-		{
-			const char *pKey=pElem->Value();
-			const char *pText=pElem->GetText();
-			if (pKey && pText)
-			{
-				m_messages[pKey]=pText;
-			}
-		}
-	}
-
-	// block: windows
-	{
-		m_windows.clear(); // trash existing list
-
-		TiXmlElement* pWindowNode=hRoot.FirstChild( "Windows" ).FirstChild().Element();
-		for( pWindowNode; pWindowNode; pWindowNode=pWindowNode->NextSiblingElement())
-		{
-			WindowSettings w;
-			const char *pName=pWindowNode->Attribute("name");
-			if (pName) w.name=pName;
-
-			pWindowNode->QueryIntAttribute("x", &w.x); // If this fails, original value is left as-is
-			pWindowNode->QueryIntAttribute("y", &w.y);
-			pWindowNode->QueryIntAttribute("w", &w.w);
-			pWindowNode->QueryIntAttribute("hh", &w.h);
-
-			m_windows.push_back(w);
-		}
-	}
-
-	// block: connection
-	{
-		pElem=hRoot.FirstChild("Connection").Element();
-		if (pElem)
-		{
-			m_connection.ip=pElem->Attribute("ip");
-			pElem->QueryDoubleAttribute("timeout",&m_connection.timeout);
-		}
-	}
-
 }
 
 void Serializer::serializeObject(Serializable* obj, TiXmlElement* parent)
@@ -170,6 +116,23 @@ void Serializer::serializeObject(Serializable* obj, TiXmlElement* parent)
 		serializeObject(cmplx[n], child);
 	}
 }
+
+Serializable* Serializer::deserialize(std::string objclass)
+{
+	// Get object class - need to have valid classes registered here?
+	std::string objclass( node->Value() );
+
+	// Get property builder
+	PropertiesBuilderPtr propBuilder = getRegisteredPropertyBuilder(objclass, node);
+	propertyDirector_.setBuilderAndBuild( &propBuilder );
+	PropertyCollectionPtr properties = propertyDirector_.getProperties();
+
+	// Create object
+	// Get the correct object factory?
+	return fact->createObject( properties );
+}
+
+
 
 /*int Serializer::deserializeObject(ObjectFactory*, CPtrList& objList,MSXML::IXMLDOMNode* parent=NULL)
 {

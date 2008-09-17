@@ -33,20 +33,21 @@ namespace TinySG
 class Serializable
 {
 protected:
-	template
-	void save(Archive & ar, const unsigned int version) const
-	    {
-	        // note, version is always the latest when saving
-	        ar  & driver_name;
-	        ar  & stops;
-	    }
-	    template<class Archive>
-	    void load(Archive & ar, const unsigned int version)
-	    {
-	        if(version > 0)
-	            ar & driver_name;
-	        ar  & stops;
-	    }
+	virtual std::string getClassName() = 0;
+	virtual void getAttributes(PropertyCollectionPtr& ptr) = 0;
+	virtual void getParameters(PropertyCollectionPtr& ptr) = 0;
+};
+
+class ObjectFactory
+{
+protected:
+	virtual Serializable* createObjectImpl( const PropertyCollectionPtr& pc ) = 0;
+public:
+	Serializable* createObject( const PropertyCollectionPtr& pc )
+	{
+		return this->createObjectImpl( pc );
+	}
+	virtual std::string getClassName() = 0;
 };
 
 }
