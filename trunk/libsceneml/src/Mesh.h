@@ -46,8 +46,6 @@ public:
 	//! Get obj type
 	const std::string& getType() const {return type_;}
 
-
-
 protected:
 	HardwareVertexBuffer* vertexBuffer_;
 	HardwareIndexBuffer* indexBuffer_;

@@ -16,27 +16,27 @@
  *
  *************************************************************************/
 /*
- * HashMap.h
+ * Map.h
  *
  *  Created on: Aug 27, 2008
  *      Author: yamokosk
  */
 
-#ifndef HASHMAP_H_
-#define HASHMAP_H_
+#ifndef MAP_H_
+#define MAP_H_
 
 #ifdef __GNUC__
 
 #include <map>
 
-#define HASH_MAP std::map
+#define MAP std::map
 
 #else
 
 #include <hash_map>
 
-//#define HASH_MAP stdext::hash_map
-#define HASH_MAP std::map
+#define MAP stdext::hash_map
+//#define MAP std::map
 
 #endif
 

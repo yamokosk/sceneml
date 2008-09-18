@@ -24,24 +24,12 @@
 namespace TinySG
 {
 
-template<class Archive>
-void SceneManager::serialize(Archive & ar, const unsigned int version)
-{
-	// In this library, these classes are never serialized directly but rather
-	// through a pointer to the base class bus_stop. So we need a way to be
-	// sure that the archive contains information about these derived classes.
-	//ar.template register_type<bus_stop_corner>();
-	ar.register_type(static_cast<bus_stop_corner *>(NULL));
-	//ar.template register_type<bus_stop_destination>();
-	ar.register_type(static_cast<bus_stop_destination *>(NULL));
-	// serialization of stl collections is already defined
-	// in the header
-	ar & BOOST_SERIALIZATION_NVP(rootNode_);
-	ar & BOOST_SERIALIZATION_NVP(nodes_);
-}
+unsigned long SceneManager::nextGeneratedNameExt_ = 1;
 
 SceneManager::SceneManager()
 {
+	registerFactory( new NodeFactory() );
+
 	rootNode_ = new Node(this, "WORLD");
 }
 
@@ -54,45 +42,20 @@ SceneManager::~SceneManager()
 
 Node* SceneManager::createNode()
 {
-    Node* n = new Node(this);
-    assert(nodes_.find(n->getName()) == nodes_.end());
-    nodes_[n->getName()] = n;
-    return n;
+	// Generate a name
+	std::stringstream sname;
+	sname << "Unnamed_" << nextGeneratedNameExt_++;
+	return (Node*)createObject(sname.str(), "TinySG_Node");
 }
 
 Node* SceneManager::createNode(const std::string& name)
 {
-	// Check name not used
-	if (nodes_.find(name) != nodes_.end())
-	{
-		std::ostringstream msg;
-		msg << "A node with the name " << name << " already exists.";
-		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, msg.str());
-	}
-
-	Node* n = new Node(this, name);
-	nodes_[n->getName()] = n;
-	return n;
+	return (Node*)createObject(name, "TinySG_Node");
 }
 
 void SceneManager::destroyNode(const std::string& name)
 {
-	NodeIterator i = nodes_.find(name);
-
-	if (i == nodes_.end())
-	{
-		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node '" + name + "' not found.");
-	}
-
-	// detach from parent (don't do this in destructor since bulk destruction
-	// behaves differently)
-	Node* parentNode = i->second->getParent();
-	if (parentNode)
-	{
-		parentNode->removeChild(i->second);
-	}
-	delete i->second;
-	nodes_.erase(i);
+	destroyObject(name, "TinySG_Node");
 }
 
 Node* SceneManager::getRootNode() const
@@ -102,14 +65,7 @@ Node* SceneManager::getRootNode() const
 
 Node* SceneManager::getNode(const std::string& name) const
 {
-	NodeConstIterator i = nodes_.find(name);
-
-    if (i == nodes_.end())
-    {
-        SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.");
-    }
-
-    return i->second;
+	return (Node*)getObject(name, "TinySG_Node") const;
 }
 
 bool SceneManager::hasSceneNode(const std::string& name) const
@@ -119,30 +75,11 @@ bool SceneManager::hasSceneNode(const std::string& name) const
 
 void SceneManager::clearScene(void)
 {
-	//destroyAllStaticGeometry();
-
 	// Clear root node of all children
 	rootNode_->removeAllChildren();
-	//rootNode_->detachAllObjects();
 
 	// Delete all SceneNodes, except root that is
-	for (NodeIterator i = nodes_.begin(); i != nodes_.end(); ++i)
-	{
-		delete i->second;
-	}
-	nodes_.clear();
-	//mAutoTrackingSceneNodes.clear();
-
-	// Clear animations
-    //destroyAllAnimations();
-
-    // Remove sky nodes since they've been deleted
-    //mSkyBoxNode = mSkyPlaneNode = mSkyDomeNode = 0;
-    //mSkyBoxEnabled = mSkyPlaneEnabled = mSkyDomeEnabled = false;
-
-	// Clear render queue, empty completely
-	//if (mRenderQueue)
-	//	mRenderQueue->clear(true);
+	destroyAllObjects( "TinySG_Node" );
 }
 
 QueryResult* SceneManager::getQueryResult(const std::string& typeName)
