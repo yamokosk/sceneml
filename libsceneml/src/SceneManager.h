@@ -19,45 +19,28 @@
 #ifndef _TINYSG_SCENEMGR_H_FILE_
 #define _TINYSG_SCENEMGR_H_FILE_
 
-// std library includes
+// External includes
 #include <string>
 #include <utility>
 #include <queue>
 
-// Boost includes
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/split_member.hpp>
-
 // Internal includes
-#include "Root.h"
-#include "HashMap.h"
 #include "Exception.h"
+#include "ObjectManager.h"
+#include "Root.h"
+#include "Map.h"
 #include "Entity.h"
-#include "PropertyCollection.h"
-
 
 namespace TinySG {
 
 // Forward declarations
 class Node;
 
-class SceneManager : public Observer
+class SceneManager : public Observer, public ObjectManager
 {
-	// For serialization
-	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version);
+	static unsigned long nextGeneratedNameExt_;
 
-// public types
 public:
-	// Nodes
-	typedef stdext::hash_map<std::string, Node*>	NodeMap;
-	typedef NodeMap::iterator				NodeIterator;
-	typedef NodeMap::const_iterator			NodeConstIterator;
-
 	// Queries
 	typedef std::queue< SceneQuery* > QueryQueue;
 
@@ -65,7 +48,6 @@ public:
 	typedef stdext::hash_map<std::string, QueryResult*> ResultMap;
 	typedef ResultMap::iterator ResultMapIterator;
 
-public:
 	SceneManager();
 	virtual ~SceneManager();
 	void clearScene();
@@ -74,9 +56,9 @@ public:
 	Node* createNode();
 	Node* createNode(const std::string& name);
 	void destroyNode(const std::string& name);
-	Node* getRootNode() const;
 	Node* getNode(const std::string& name) const;
-	virtual bool hasSceneNode(const std::string& name) const;
+	Node* getRootNode() const;
+	bool hasSceneNode(const std::string& name) const;
 
 	// Queries
 	QueryResult* getQueryResult(const std::string& typeName);
@@ -97,13 +79,10 @@ public:
 
 private:
 	Node* rootNode_;
-	NodeMap nodes_;
 
 	QueryQueue queries_;
 	ResultMap results_;
 };
-
-BOOST_CLASS_VERSION(SceneManager, TINYSG_VERSION)
 
 }
 

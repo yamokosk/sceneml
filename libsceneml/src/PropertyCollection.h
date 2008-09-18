@@ -23,7 +23,9 @@
 #include <log4cxx/logger.h>
 
 #include <string>
-#include "HashMap.h"
+
+// Internal
+#include "Map.h"
 #include "PropertyPair.h"
 #include "Exception.h"
 
@@ -37,7 +39,7 @@ class PropertyCollection
 {
 	static log4cxx::LoggerPtr logger;
 public:
-	typedef HASH_MAP<std::string, PropertyPair> PairMap;
+	typedef MAP<std::string, PropertyPair> PairMap;
 	typedef PairMap::const_iterator PropertyIterator;
 
 	PropertyCollection();

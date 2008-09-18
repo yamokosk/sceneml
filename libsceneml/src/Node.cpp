@@ -26,19 +26,13 @@
 
 namespace TinySG {
 
-	unsigned long Node::nextGeneratedNameExt_ = 1;
 	Node::QueuedUpdates Node::queuedUpdates_;
 
-	Node::Node (SceneManager *mgr) :
-		manager_(mgr),
+	Node::Node () :
+		Object(),
 		//worldAABB_(),
 		parent_(NULL),
 		//childrenToUpdate_(false),
-		needParentUpdate_(false),
-		needChildUpdate_(false),
-		parentNotified_(false),
-		queuedForUpdate_(false),
-		name_(""),
 		orientation_( QuaternionFactory::IDENTITY ),
 		position_( VectorFactory::Vector3( ZERO ) ),
 		scale_( VectorFactory::Vector3( ONES ) ),
@@ -50,42 +44,11 @@ namespace TinySG {
 		initialPosition_( VectorFactory::Vector3( ZERO ) ),
 		initialOrientation_( QuaternionFactory::IDENTITY ),
 		initialScale_( VectorFactory::Vector3( ONES ) ),
+		flags_(0),
 		cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
 		cachedTransformOutOfDate_(true)
 	{
-		// Generate a name
-		std::stringstream str;
-		str << "Unnamed_" << nextGeneratedNameExt_++;
-		name_ = str.str();
-
 		//needUpdate();
-	}
-
-	//! Constructor, only to be called by the creator SceneManager.
-	Node::Node(SceneManager* mgr, const std::string& name) :
-		manager_(mgr),
-		//worldAABB_(),
-		parent_(NULL),
-		//childrenToUpdate_(false),
-		needParentUpdate_(false),
-		needChildUpdate_(false),
-		parentNotified_(false),
-		queuedForUpdate_(false),
-		name_(name),
-		orientation_( QuaternionFactory::IDENTITY ),
-		position_( VectorFactory::Vector3( ZERO ) ),
-		scale_( VectorFactory::Vector3( ONES ) ),
-		inheritOrientation_(true),
-		inheritScale_(true),
-		derivedOrientation_( QuaternionFactory::IDENTITY ),
-		derivedPosition_( VectorFactory::Vector3( ZERO ) ),
-		derivedScale_( VectorFactory::Vector3( ONES ) ),
-		initialPosition_( VectorFactory::Vector3( ZERO ) ),
-		initialOrientation_( QuaternionFactory::IDENTITY ),
-		initialScale_( VectorFactory::Vector3( ONES ) ),
-		cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
-		cachedTransformOutOfDate_(true)
-	{
 	}
 
 	Node::~Node()
@@ -117,57 +80,9 @@ namespace TinySG {
 			ret->_notifyAttached((Node*)0);
 		}
 		sceneObjects_.clear();
-
-		/*if (mWireBoundingBox) {
-			delete mWireBoundingBox;
-		}*/
 	}
 
-	void Node::update(int hint)
-	{
-		Variable* var = boost::polymorphic_downcast<Variable*>(subject_);
 
-		std::string type = var->getType(); //type of variable we are listening to
-
-		if ( !type.compare("translation") )
-		{
-			ColumnVector transl = var->getVector();
-			this->translate(transl, TS_PARENT);
-		} else if ( !type.compare("rotation") ) {
-
-			std::string subtype = var->getSubType(); //type of variable we are listening to
-
-			if ( !subtype.compare("x") )
-			{
-				Real angle = var->getScalar();
-				ColumnVector axis = VectorFactory::Vector3( UNIT_X );
-				this->rotate(axis, angle, TS_PARENT);
-			}
-			else if ( !subtype.compare("y") ) {
-				Real angle = var->getScalar();
-				ColumnVector axis = VectorFactory::Vector3( UNIT_Y );
-				this->rotate(axis, angle, TS_PARENT);
-			}
-			else if ( !subtype.compare("z") ) {
-				Real angle = var->getScalar();
-				ColumnVector axis = VectorFactory::Vector3( UNIT_Z );
-				this->rotate(axis, angle, TS_PARENT);
-			}
-			else if ( !subtype.compare("e123") ) {
-				ColumnVector angles = var->getVector();
-				Quaternion q = QuatFromEulerAngles( XYZ, angles);
-				this->rotate(q, TS_PARENT);
-			}
-			else if ( !subtype.compare("t123") ) {
-				//dTFromEuler123(tmatrix_, -(data_.get())[0], -(data_.get())[1], -(data_.get())[2]);
-			}
-			else {
-				SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unknown variable subtype: " + subtype);
-			}
-		} else {
-			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unknown variable type: " + type);
-		}
-	}
 
 	void Node::attachObject (Entity *obj)
 	{
@@ -306,116 +221,7 @@ namespace TinySG {
 		needUpdate();
 	}
 
-	//! Internal method to update the Node.
-	void Node::_update (bool updateChildren, bool parentHasChanged)
-	{
-		std::cout << getName() << "::_update()" << std::endl;
 
-		// always clear information about parent notification
-		parentNotified_ = false ;
-
-		// Short circuit the off case
-		if (!updateChildren_ && !needParentUpdate_ && !needChildUpdate_ && !parentHasChanged_ )
-		{
-			return;
-		}
-
-		// See if we should process everyone
-		if (needParentUpdate_ || parentHasChanged_)
-		{
-			// Update transforms from parent
-			_updateFromParent();
-		}
-
-		if (needChildUpdate_ || parentHasChanged_)
-		{
-			ChildNodeMap::iterator it, itend;
-			itend = children_.end();
-			for (it = children_.begin(); it != itend; ++it)
-			{
-				Node* child = it->second;
-				child->_update(true, true);
-			}
-			childrenToUpdate_.clear();
-		}
-		else
-		{
-			// Just update selected children
-			ChildUpdateSet::iterator it, itend;
-			itend = childrenToUpdate_.end();
-			for(it = childrenToUpdate_.begin(); it != itend; ++it)
-			{
-				Node* child = *it;
-				child->_update(true, false);
-			}
-
-			childrenToUpdate_.clear();
-		}
-
-		needChildUpdate_ = false;
-	}
-
-/*	//! Tells the SceneNode to update the world bound info it stores.
-	void Node::_updateBounds (void)
-	{
-		// Reset bounds first
-		mWorldAABB.setNull();
-
-		// Update bounds from own attached objects
-		ObjectMap::iterator i;
-		for (i = sceneObjects_.begin(); i != sceneObjects_.end(); ++i)
-		{
-			// Merge world bounds of each object
-			mWorldAABB.merge(i->second->getWorldBoundingBox(true));
-		}
-
-		// Merge with children
-		ChildNodeMap::iterator child;
-		for (child = children_.begin(); child != children_.end(); ++child)
-		{
-			SceneNode* sceneChild = static_cast<SceneNode*>(child->second);
-			mWorldAABB.merge(sceneChild->mWorldAABB);
-		}
-	}
-
-	//! Gets the axis-aligned bounding box of this node (and hence all subnodes).
-	const AxisAlignedBox& Node::_getWorldAABB (void) const
-	{
-		return mWorldAABB;
-	}
-
-	//! Retrieves an iterator which can be used to efficiently step through the objects attached to this node.
-	ObjectIterator Node::getAttachedObjectIterator (void)
-	{
-		return ObjectIterator(sceneObjects_.begin(), sceneObjects_.end());
-	}
-
-	//! Retrieves an iterator which can be used to efficiently step through the objects attached to this node.
-	ConstObjectIterator Node::getAttachedObjectIterator (void) const
-	{
-		return ConstObjectIterator(sceneObjects_.begin(), sceneObjects_.end());
-	}
-	*/
-	//! Gets the creator of this scene node.
-	SceneManager* Node::getManager (void) const
-	{
-		return manager_;
-	}
-
-	//! Gets the parent of this SceneNode.
-	Node* Node::getParent(void) const
-	{
-		return parent_;
-	}
-
-	//! Returns the name of the node.
-	const std::string& Node::getName (void) const
-	{
-		return name_;
-	}
-
-	//void attachObject(Entity* obj);
-	// Must call this->notify() whenever node's transformation changes
 
 	//! Returns a quaternion representing the nodes orientation.
 	const Quaternion& Node::getOrientation () const
@@ -465,12 +271,6 @@ namespace TinySG {
 		return position_;
 	}
 
-	//! Scales the node, combining it's current scale with the passed in scaling factor.
-	//void Node::scale(const ColumnVector &scale);
-
-	//! Scales the node, combining it's current scale with the passed in scaling factor.
-	//void Node::scale(Real x, Real y, Real z);
-
 	//! Moves the node along the cartesian axes.
 	void Node::translate(const ColumnVector &d, TransformSpace relativeTo)
 	{
@@ -519,23 +319,6 @@ namespace TinySG {
 		ColumnVector d(3); d << x << y << z;
 		translate(axes,d,relativeTo);
 	}
-
-	//! Rotate the node around the Z-axis.
-	/*void Node::roll(const Radian &angle, TransformSpace relativeTo=TS_LOCAL)
-	{
-		rotate(ColumnVector::UNIT_Z, angle, relativeTo);
-	}
-
-	//! Rotate the node around the X-axis.
-	void Node::pitch(const Radian &angle, TransformSpace relativeTo=TS_LOCAL)
-	{
-		rotate(ColumnVector::UNIT_X, angle, relativeTo);
-	}
-
-	void Node::yaw(const Radian& angle, TransformSpace relativeTo)
-	{
-		rotate(ColumnVector::UNIT_Y, angle, relativeTo);
-	}*/
 
 	//! Rotate the node around an arbitrary axis.
 	void Node::rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo)
@@ -588,8 +371,62 @@ namespace TinySG {
 		return ret;
 	}
 
+	//! Gets the orientation of the node as derived from all parents.
+	Quaternion Node::_getDerivedOrientation (void)
+	{
+		if (needParentUpdate_)
+		{
+			_updateFromParent();
+		}
+		return derivedOrientation_;
+	}
+
+	//! Gets the position of the node as derived from all parents.
+	const ColumnVector& Node::_getDerivedPosition (void)
+	{
+		if (needParentUpdate_)
+		{
+			_updateFromParent();
+		}
+		//ColumnVector ret(derivedPosition_);
+		//ret.Release();
+		return derivedPosition_;
+	}
+
+	//! Gets the scaling factor of the node as derived from all parents.
+	const ColumnVector& Node::_getDerivedScale (void)
+	{
+		if (needParentUpdate_)
+		{
+			_updateFromParent();
+		}
+		return derivedScale_;
+	}
+
+	//! Gets the full transformation matrix for this node.
+	const Matrix& Node::_getFullTransform (void)
+	{
+		if (cachedTransformOutOfDate_)
+		{
+			// Use derived values
+			cachedTransform_.SubMatrix(1,3,4,4) = _getDerivedPosition();
+
+			Matrix m = MatrixFactory::FromQuaternion( _getDerivedOrientation() );
+			cachedTransform_.SubMatrix(1,3,1,3) = m;
+			cachedTransformOutOfDate_ = false;
+		}
+		return cachedTransform_;
+	}
+
+	const Matrix& Node::getFullTransform (void) const
+	{
+		return cachedTransform_;
+	}
+
+
+
 	//! Creates an unnamed new Node as a child of this node.
-	/*Node* Node::createChild(const ColumnVector& translate, const Quaternion& rotate)
+	Node* Node::createChild(const ColumnVector& translate, const Quaternion& rotate)
 	{
 		Node* newNode = createChildImpl();
 		newNode->translate(translate);
@@ -608,7 +445,7 @@ namespace TinySG {
 		this->addChild(newNode);
 
 		return newNode;
-	}*/
+	}
 
 	//! Adds a (precreated) child scene node to this node.
 	void Node::addChild (Node* child)
@@ -652,18 +489,6 @@ namespace TinySG {
 		}
 		return i->second;
 	}
-
-	//! Retrieves an iterator for efficiently looping through all children of this node.
-	/*Node::ChildNodeIterator Node::getChildIterator (void)
-	{
-		return ChildNodeIterator(children_.begin(), children_.end());
-	}
-
-	//! Retrieves an iterator for efficiently looping through all children of this node.
-	Node::ConstChildNodeIterator Node::getChildIterator (void) const
-	{
-		return ConstChildNodeIterator(children_.begin(), children_.end());
-	}*/
 
 	//! Drops the specified child from this node.
 	Node* Node::removeChild (unsigned short index)
@@ -740,57 +565,13 @@ namespace TinySG {
 		childrenToUpdate_.clear();
 	}
 
-	//! Gets the orientation of the node as derived from all parents.
-	Quaternion Node::_getDerivedOrientation (void)
+	//! Gets the parent of this SceneNode.
+	Node* Node::getParent(void) const
 	{
-		if (needParentUpdate_)
-		{
-			_updateFromParent();
-		}
-		return derivedOrientation_;
+		return parent_;
 	}
 
-	//! Gets the position of the node as derived from all parents.
-	const ColumnVector& Node::_getDerivedPosition (void)
-	{
-		if (needParentUpdate_)
-		{
-			_updateFromParent();
-		}
-		//ColumnVector ret(derivedPosition_);
-		//ret.Release();
-		return derivedPosition_;
-	}
 
-	//! Gets the scaling factor of the node as derived from all parents.
-	const ColumnVector& Node::_getDerivedScale (void)
-	{
-		if (needParentUpdate_)
-		{
-			_updateFromParent();
-		}
-		return derivedScale_;
-	}
-
-	//! Gets the full transformation matrix for this node.
-	const Matrix& Node::_getFullTransform (void)
-	{
-		if (cachedTransformOutOfDate_)
-		{
-			// Use derived values
-			cachedTransform_.SubMatrix(1,3,4,4) = _getDerivedPosition();
-
-			Matrix m = MatrixFactory::FromQuaternion( _getDerivedOrientation() );
-			cachedTransform_.SubMatrix(1,3,1,3) = m;
-			cachedTransformOutOfDate_ = false;
-		}
-		return cachedTransform_;
-	}
-
-	const Matrix& Node::getFullTransform (void) const
-	{
-		return cachedTransform_;
-	}
 
 	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
 	void Node::setInitialState (void)
@@ -877,6 +658,55 @@ namespace TinySG {
 			parent_->cancelUpdate(this);
 			parentNotified_ = false ;
 		}
+	}
+
+	//! Internal method to update the Node.
+	void Node::_update (bool updateChildren, bool parentHasChanged)
+	{
+		std::cout << getName() << "::_update()" << std::endl;
+
+		// always clear information about parent notification
+		parentNotified_ = false ;
+
+		// Short circuit the off case
+		if (!updateChildren_ && !needParentUpdate_ && !needChildUpdate_ && !parentHasChanged_ )
+		{
+			return;
+		}
+
+		// See if we should process everyone
+		if (needParentUpdate_ || parentHasChanged_)
+		{
+			// Update transforms from parent
+			_updateFromParent();
+		}
+
+		if (needChildUpdate_ || parentHasChanged_)
+		{
+			ChildNodeMap::iterator it, itend;
+			itend = children_.end();
+			for (it = children_.begin(); it != itend; ++it)
+			{
+				Node* child = it->second;
+				child->_update(true, true);
+			}
+			childrenToUpdate_.clear();
+		}
+		else
+		{
+			// Just update selected children
+			ChildUpdateSet::iterator it, itend;
+			itend = childrenToUpdate_.end();
+			for(it = childrenToUpdate_.begin(); it != itend; ++it)
+			{
+				Node* child = *it;
+				child->_update(true, false);
+			}
+
+			childrenToUpdate_.clear();
+		}
+
+		needChildUpdate_ = false;
 	}
 
 	// Static Public Member Functions
@@ -971,23 +801,23 @@ namespace TinySG {
 
 	}
 
-	/*Node*  Node::createChildImpl(void)
+	Node*  Node::createChildImpl(void)
 	{
-		if (!manager_)
+		if ( !getManager() )
 		{
 			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
 		}
-        return manager_->createNode();
+        return getManager()->createNode();
 	}
 
 	Node* Node::createChildImpl(const std::string& name)
 	{
-		if (!manager_)
+		if ( !getManager() )
 		{
 			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
 		}
-        return manager_->createNode(name);
-	}*/
+        return getManager()->createNode(name);
+	}
 
 	void Node::setParent(Node *parent)
 	{
@@ -1012,6 +842,18 @@ namespace TinySG {
 	void Node::_updateFromParent (void)
 	{
 		updateFromParentImpl();
+	}
+
+
+
+	Object* NodeFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params = 0)
+	{
+
+	}
+
+	void NodeFactory::destroyInstance(Object* obj)
+	{
+
 	}
 } // Namespace: TinySG
 
