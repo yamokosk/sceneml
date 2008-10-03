@@ -48,6 +48,9 @@ public:
 	{}
 	virtual ~Object() {};
 
+	// For the copy constructor
+	virtual Object* clone() const = 0;
+
 	//! Returns factory which created this mesh
 	const ObjectFactory* getFactory() const {return factory_;}
 	//! Returns the manager of this object

@@ -21,6 +21,7 @@ public:
 	MyObject(double d) : TinySG::Object(), val(d) {};
 	virtual ~MyObject() {};
 
+	virtual Object* clone() const {return NULL;}
 	double val;
 };
 
@@ -38,39 +39,23 @@ public:
 	virtual void destroyInstance(TinySG::Object* obj) {delete obj;}
 };
 
+
 class MyManager : public TinySG::ObjectManager
 {
 public:
 	MyManager()
 	{
-		this->registerFactory( new MyObjectFactory() );
+		registerFactory( new MyObjectFactory() );
 	}
-	virtual ~MyManager() {};
-
-	MyObject* createMyObject(const std::string& name)
-	{
-		return (MyObject*)createObject(name, "MyObject");
-	}
-	MyObject* getMyObject(const std::string name)
-	{
-		return (MyObject*)getObject(name, "MyObject");
-	}
-	void getMyCollection(const std::string type)
-	{
-		getCollection(type);
-	}
-	void addFactory( TinySG::ObjectFactory* fact)
-	{
-		registerFactory( fact );
-	}
-	void deleteMyCollection( const std::string& type )
+	void deleteMyCollection(const std::string& type)
 	{
 		destroyCollection(type);
 	}
-	void deleteMyObject( const std::string& name )
+	void getMyCollection(const std::string& type)
 	{
-		destroyObject( name, "MyObject" );
+		getCollection(type);
 	}
+	virtual ~MyManager() {};
 };
 
 void ObjectManagerTest::setUp()
@@ -89,13 +74,13 @@ void ObjectManagerTest::testSimpleManager()
 
 	MyManager mgr;
 
-	MyObject* one = mgr.createMyObject("one");
-	MyObject* two = mgr.createMyObject("two");
-	MyObject* three = mgr.createMyObject("three");
+	MyObject* one = dynamic_cast<MyObject*>( mgr.createObject("one","MyObject") );
+	MyObject* two = dynamic_cast<MyObject*>( mgr.createObject("two","MyObject") );
+	MyObject* three = dynamic_cast<MyObject*>( mgr.createObject("three","MyObject") );
 
-	CPPUNIT_ASSERT( mgr.getMyObject("one") == one );
-	CPPUNIT_ASSERT( mgr.getMyObject("two") == two );
-	CPPUNIT_ASSERT( mgr.getMyObject("three") == three );
+	CPPUNIT_ASSERT( dynamic_cast<MyObject*>( mgr.getObject("one","MyObject") ) == one );
+	CPPUNIT_ASSERT( dynamic_cast<MyObject*>( mgr.getObject("two","MyObject") ) == two );
+	CPPUNIT_ASSERT( dynamic_cast<MyObject*>( mgr.getObject("three","MyObject") ) == three );
 
 	LOG4CXX_INFO(logger, "Exiting " << __FUNCTION__);
 }
@@ -103,26 +88,26 @@ void ObjectManagerTest::testSimpleManager()
 void ObjectManagerTest::testCreateDuplicateObject()
 {
 	MyManager mgr;
-	MyObject* one = mgr.createMyObject("one");
-	MyObject* two = mgr.createMyObject("one"); // Exception
+	MyObject* one = dynamic_cast<MyObject*>( mgr.createObject("one","MyObject") );
+	MyObject* two = dynamic_cast<MyObject*>( mgr.createObject("one","MyObject") ); // Exception
 }
 
 void ObjectManagerTest::testDestroyInvalidObject()
 {
 	MyManager mgr;
-	mgr.deleteMyObject("one"); // Exception
+	mgr.destroyObject("one","MyObject"); // Exception
 }
 
 void ObjectManagerTest::testGetInvalidObject()
 {
 	MyManager mgr;
-	mgr.getMyObject("one"); // Exception
+	mgr.getObject("one","MyObject"); // Exception
 }
 
 void ObjectManagerTest::testRegisterDuplicateFactory()
 {
 	MyManager mgr;
-	mgr.addFactory( new MyObjectFactory() ); // Exception
+	mgr.registerFactory( new MyObjectFactory() ); // Exception
 }
 
 void ObjectManagerTest::testDestroyInvalidCollection()

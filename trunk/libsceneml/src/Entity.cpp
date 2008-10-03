@@ -29,56 +29,27 @@ namespace TinySG
 {
 
 Entity::Entity() :
-        visible_(true),
-        parentNode_(NULL),
-        manager_(NULL),
-        creator_(NULL)
-{
-}
-
-Entity::Entity(const std::string& name) :
-        visible_(true),
-        parentNode_(NULL),
-        manager_(NULL),
-        name_(name),
-        creator_(NULL)
+	Object(),
+	visible(true)
 {
 }
 
 Entity::~Entity()
 {
-        if (parentNode_)
-                parentNode_->detachObject(this);
+	if (parentNode_)
+			parentNode_->detachObject(this);
 }
 
 void Entity::_notifyAttached(Node* parent)
 {
-        assert(!parentNode_ || !parent);
-
-        bool different = (parent != parentNode_);
-
-        parentNode_ = parent;
+	assert(!parentNode_ || !parent);
+	bool different = (parent != parentNode_);
+	parentNode_ = parent;
 }
 
 bool Entity::isAttached(void) const
 {
-        return (parentNode_ != 0);
-}
-
-
-EntityFactory::EntityFactory()
-{}
-
-EntityFactory::~EntityFactory()
-{}
-
-Entity* EntityFactory::createInstance(const std::string& name, SceneManager* manager,
-                const PropertyCollection* params)
-{
-        Entity* m = createInstanceImpl(name, params);
-        m->_notifyCreator(this);
-        m->_notifyManager(manager);
-        return m;
+	return (parentNode_ != 0);
 }
 
 } // Namespace TinySG

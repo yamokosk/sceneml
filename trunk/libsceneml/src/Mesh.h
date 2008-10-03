@@ -20,62 +20,36 @@
 #define _MESH_H_FILE_
 
 
-namespace TinySG {
+namespace TinySG
+{
 
-// Forward declarations
-class MeshFactory;
-
-
-class Mesh
+class Mesh : public Object
 {
 public:
-	//! Constructor, only to be called by the creator MeshFactory.
-	Mesh();
-	Mesh(const std::string &name);
+	Mesh() :
+		vertex_count_(0), index_count_(0),
+		vertex_stride_( 3*sizeof(float) ),
+		index_stride_( sizeof(uint32_t) ),
+		vertices_(NULL), indices_(NULL)
+	{}
+	virtual ~Mesh()
+	{
+		if (vertices_) delete [] vertices_;
+		if (indices_) delete [] indices_;
+	}
 
-	//! Returns factory which created this mesh
-	const MeshFactory* getCreator() const {return creator_;}
-
-	//! Notify object of creator
-	void _notifyCreator(MeshFactory* creator) {creator_ = creator;}
-	//! Notify object of manager
-	void _notifyManager(MeshManager* mgr) {mgr_ = mgr;}
-	void _notifyType(const std::string& type) { type_ = type; }
-	//! Get obj name
-	const std::string& getName() const {return name_;}
-	//! Get obj type
-	const std::string& getType() const {return type_;}
+	uint32_t vertexCount() {return vertex_count_;}
+	uint32_t indexCount() {return index_count_;}
+	const float* vertexData() const { return vertices_; }
+	const uint32_t* indexData() const { return indices_; }
+	uint8_t vertexStride() {return vertex_stride_;}
+	uint8_t indexStride() {return index_stride_;}
 
 protected:
-	HardwareVertexBuffer* vertexBuffer_;
-	HardwareIndexBuffer* indexBuffer_;
-
-private:
-	MeshFactory* creator_;
-	MeshManager* mgr_;
-	std::string name_;
-	std::string type_;
-};
-
-
-class MeshFactory
-{
-protected:
-	// To be overloaded by specific mesh factories
-	virtual Mesh* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0) = 0;
-
-public:
-	MeshFactory(const std::string& type);
-	virtual ~MeshFactory();
-
-	const std::string& getType(void) const;
-	Mesh* createInstance( const std::string& name, SceneManager* manager, const PropertyCollection* params = 0);
-
-	// To be overloaded by specific mesh factories
-	virtual void destroyInstance(Entity* obj) = 0;
-
-private:
-	const std::string type_;
+	uint32_t vertex_count_, index_count_;
+	uint8_t vertex_stride_, index_stride_;
+	float* vertices_;
+	uint32_t* indices_;
 };
 
 } // End TinySG namespace

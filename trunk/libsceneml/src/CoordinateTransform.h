@@ -5,26 +5,33 @@
  *      Author: yamokosk
  */
 
-#ifndef COORDINATETRANSFORM_H_
-#define COORDINATETRANSFORM_H_
+#ifndef COORDINATE_TRANSFORM_H_
+#define COORDINATE_TRANSFORM_H_
 
-// Standard includes
-#include <list>
-
-// Boost
-#include <boost/shared_ptr.hpp>
-
-// Logging
+// External
 #include <log4cxx/logger.h>
 
 // Internal
-#include <math/Matrix.h>
-#include <Observer.h>
+#include "math/Math.h"
+#include "math/Vector.h"
+#include "math/Matrix.h"
+#include "math/Quaternion.h"
 
 namespace TinySG
 {
 
-class CoordinateTransform : public Observer
+/*!
+@ingroup TinySG
+@brief Encapsulates knowledge of a single coordinate transformation.
+
+Stores data about and provides public methods to modify the orientation, translation, and scale
+of a coordinate transformation.
+
+@par Dependencies.
+- newmat (for Matrix/Vector math)
+- Boost::Quaternion
+ */
+class CoordinateTransform
 {
 	static log4cxx::LoggerPtr logger;
 
@@ -32,122 +39,44 @@ public:
 	CoordinateTransform();
 	virtual ~CoordinateTransform();
 
-	//! Returns the cached transform and recalculates if necessary
-	const Matrix& getTransform();
-	//! Hack attempt to squeeze an observer pattern into this compositional pattern.
-	void setListener(CoordinateTransform* ct);
-	//! Internal method to notify this object that somebody he was listening to changed.
-	virtual void _notifyUpdate();
-	//! Method from Observer
-	virtual void update(int hint);
+	//! Sets the orientation of this node via a Quaternion.
+	void setOrientation (const Quaternion &q);
+	//! Sets the orientation of this node via Quaternion parameters.
+	void setOrientation (Real w, Real x, Real y, Real z);
+	//! Sets the position of the node relative to it's parent.
+	void setPosition(const ColumnVector &pos);
+	//! Sets the position of the node relative to it's parent.
+	void setPosition(Real x, Real y, Real z);
+	//! Sets the scale of the node relative to it's parent.
+	void setScale(const ColumnVector &s);
+	//! Sets the scale of the node relative to it's parent.
+	void setScale(Real x, Real y, Real z);
+	//! Returns a Quaternion representing the transform's orientation.
+	const Quaternion& getOrientation(void) const {return orientation_;}
+	//! Gets the position of the node relative to it's parent.
+	const ColumnVector& getPosition(void) const {return position_;}
+	//! Returns the scale associated with this transform
+	const ColumnVector& getScale(void) const {return scale_;}
+	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
+	//ReturnMatrix getLocalAxes (void) const;
+	//! Returns full 4x4 matrix representation of the transform
+	const Matrix& getFullTransform (void) const;
 
-protected:
+private:
+	//! Stores the orientation of the node relative to it's parent.
+	Quaternion orientation_;
+	//! Stores the position/translation of the node relative to its parent.
+	ColumnVector position_;
+	//! Stores the scaling factor applied to this node.
+	ColumnVector scale_;
+
 	//! Internal method called to update the cached transform
-	virtual void _updateTransform();
+	virtual void updateCachedTransform() const;
 	//! Cached transform
-	Matrix cachedTransform_;
+	mutable Matrix cachedTransform_;
 	//! Flag to indicate cached transform needs to be recalculated
-	bool cachedTransformOutOfDate_;
-	/*
-	 * author yamokosk
-	 *
-	 * This listener pointer is an attempt to hack an observer pattern into
-	 * this composition pattern. I want the leaf classes of this compositional
-	 * tree structure to be able to notify their composite owner that they
-	 * have changed. This all being done to avoid the computational costs of
-	 * recalculating the cached transform in a compositional object.
-	 */
-	//! Pointer to another CoordinateTransform to notify we have changed.
-	CoordinateTransform* listener_;
+	mutable bool cachedTransformOutOfDate_;
 };
-
-typedef boost::shared_ptr<CoordinateTransform> CoordinateTransformPtr;
-#define NEW_TRANSFORM(x) \
-	TinySG::CoordinateTransformPtr( new x )
-
-
-class CompositeTransform : public CoordinateTransform
-{
-	static log4cxx::LoggerPtr logger;
-
-public:
-	typedef std::list<CoordinateTransformPtr> CoordinateTransformList;
-
-	CompositeTransform();
-	virtual ~CompositeTransform();
-	//! Adds the transform to the composition.
-	void add(CoordinateTransformPtr t);
-	//! Get number of child transforms
-	size_t size();
-	//! Inherited from CoordinateTransform
-	virtual void _notifyUpdate();
-protected:
-	//! Internal method called to update the cached transform
-	virtual void _updateTransform();
-private:
-	//Collection of child transforms.
-	CoordinateTransformList transforms_;
-};
-
-
-class MarkerTransform : public CoordinateTransform
-{
-	static log4cxx::LoggerPtr logger;
-
-public:
-	MarkerTransform();
-	virtual ~MarkerTransform();
-
-	//! Method from Observer - needs to override CoordinateTransform behavior
-	virtual void update(int hint);
-protected:
-	//! Internal method called to update the cached transform
-	virtual void _updateTransform();
-};
-
-
-class SimpleRotation : public CoordinateTransform
-{
-	static log4cxx::LoggerPtr logger;
-
-public:
-	SimpleRotation(int axisType, Real ang);
-	virtual ~SimpleRotation();
-protected:
-	//! Internal method called to update the cached transform
-	virtual void _updateTransform();
-private:
-	int axisNumber_;
-};
-
-
-class SimpleTranslation : public CoordinateTransform
-{
-	static log4cxx::LoggerPtr logger;
-
-public:
-	SimpleTranslation(Real x, Real y, Real z);
-	virtual ~SimpleTranslation();
-protected:
-	//! Internal method called to update the cached transform
-	virtual void _updateTransform();
-};
-
-
-class EulerRotation : public CoordinateTransform
-{
-	static log4cxx::LoggerPtr logger;
-
-public:
-	EulerRotation(int seqType, Real tx, Real ty, Real tz);
-	virtual ~EulerRotation();
-protected:
-	//! Internal method called to update the cached transform
-	virtual void _updateTransform();
-private:
-	int seqType_;
-};
-
 
 } // namespace TinySG
 

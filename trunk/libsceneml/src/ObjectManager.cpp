@@ -130,7 +130,6 @@ ObjectFactory* ObjectManager::getFactory( const std::string& type ) const
 	return collection->factory;
 }
 
-
 void ObjectManager::destroyCollection( const std::string& type )
 {
 	CollectionsIterator iter = objectCollections_.find(type);

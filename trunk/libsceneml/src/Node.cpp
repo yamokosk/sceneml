@@ -26,835 +26,536 @@
 
 namespace TinySG {
 
-	Node::QueuedUpdates Node::queuedUpdates_;
+using namespace log4cxx;
 
-	Node::Node () :
-		Object(),
-		//worldAABB_(),
-		parent_(NULL),
-		//childrenToUpdate_(false),
-		orientation_( QuaternionFactory::IDENTITY ),
-		position_( VectorFactory::Vector3( ZERO ) ),
-		scale_( VectorFactory::Vector3( ONES ) ),
-		inheritOrientation_(true),
-		inheritScale_(true),
-		derivedOrientation_( QuaternionFactory::IDENTITY ),
-		derivedPosition_( VectorFactory::Vector3( ZERO ) ),
-		derivedScale_( VectorFactory::Vector3( ONES ) ),
-		initialPosition_( VectorFactory::Vector3( ZERO ) ),
-		initialOrientation_( QuaternionFactory::IDENTITY ),
-		initialScale_( VectorFactory::Vector3( ONES ) ),
-		flags_(0),
-		cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
-		cachedTransformOutOfDate_(true)
+// Initialize static elements
+LoggerPtr Node::logger(Logger::getLogger("TinySG.Node"));
+Node::QueuedUpdates Node::queuedUpdates_;
+const std::string Node::ObjectTypeID("TinySG_Node");
+
+// Class implementation
+Node::Node () :
+	parent_(NULL),
+	flags_(0)
+{
+	//needUpdate();
+}
+
+Node::~Node()
+{
+	removeAllChildren();
+	if (parent_)
+		parent_->removeChild(this);
+
+	// Remove ourselves from the update queue
+	dequeueForUpdate(this);
+
+	// Detach all objects, do this manually to avoid needUpdate() call
+	// which can fail because of deleted items
+	ObjectMap::iterator itr;
+	Entity* ret;
+	for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 	{
-		//needUpdate();
-	}
-
-	Node::~Node()
-	{
-		removeAllChildren();
-		if (parent_)
-			parent_->removeChild(this);
-
-		if (queuedForUpdate_)
-		{
-			// Erase from queued updates
-			QueuedUpdates::iterator it = std::find( queuedUpdates_.begin(), queuedUpdates_.end(), this );
-			assert( it != queuedUpdates_.end() );
-			if ( it != queuedUpdates_.end() )
-			{
-				// Optimised algorithm to erase an element from unordered vector.
-				*it = queuedUpdates_.back();
-				queuedUpdates_.pop_back();
-			}
-		}
-
-		// Detach all objects, do this manually to avoid needUpdate() call
-		// which can fail because of deleted items
-		ObjectMap::iterator itr;
-		Entity* ret;
-		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
-		{
-			ret = itr->second;
-			ret->_notifyAttached((Node*)0);
-		}
-		sceneObjects_.clear();
-	}
-
-
-
-	void Node::attachObject (Entity *obj)
-	{
-		if (obj->isAttached())
-		{
-			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object already attached to a Node.");
-		}
-
-		obj->_notifyAttached(this);
-		//obj->_notifyMoved();
-
-		// Also add to name index
-		std::pair<ObjectMap::iterator, bool> insresult =
-			sceneObjects_.insert(ObjectMap::value_type(obj->getName(), obj));
-		assert(insresult.second && "Object was not attached because an object of the "
-				"same name was already attached to this node.");
-
-		// Make sure bounds get updated (must go right to the top)
-		needUpdate();
-	}
-
-	unsigned short Node::numAttachedObjects (void) const
-	{
-		return static_cast< unsigned short >( sceneObjects_.size() );
-	}
-
-	//! Retrieves a pointer to an attached object.
-	Entity* Node::getAttachedObject (unsigned short index)
-	{
-		if (index < sceneObjects_.size())
-		{
-			ObjectMap::iterator i = sceneObjects_.begin();
-			// Increment (must do this one at a time)
-			while (index--)++i;
-
-			return i->second;
-		}
-		else
-		{
-			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.");
-		}
-		return 0;
-	}
-
-	//! Retrieves a pointer to an attached object.
-	Entity* Node::getAttachedObject (const std::string &name)
-	{
-		// Look up
-		ObjectMap::iterator i = sceneObjects_.find(name);
-
-		if (i == sceneObjects_.end())
-		{
-			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Attached object " + name + " not found.");
-		}
-
-		return i->second;
-	}
-
-	//! Detaches the indexed object from this scene node.
-	Entity* Node::detachObject (unsigned short index)
-	{
-		Entity* ret;
-		if (index < sceneObjects_.size())
-		{
-
-			ObjectMap::iterator i = sceneObjects_.begin();
-			// Increment (must do this one at a time)
-			while (index--)++i;
-
-			ret = i->second;
-			sceneObjects_.erase(i);
-			ret->_notifyAttached((Node*)0);
-
-			// Make sure bounds get updated (must go right to the top)
-			needUpdate();
-
-			return ret;
-
-		}
-		else
-		{
-			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.");
-		}
-		return 0;
-	}
-
-	//! Detaches an object by pointer.
-	void Node::detachObject (Entity *obj)
-	{
-		ObjectMap::iterator i, iend;
-		iend = sceneObjects_.end();
-		for (i = sceneObjects_.begin(); i != iend; ++i)
-		{
-			if (i->second == obj)
-			{
-				sceneObjects_.erase(i);
-				break;
-			}
-		}
-		obj->_notifyAttached((Node*)0);
-
-		// Make sure bounds get updated (must go right to the top)
-		needUpdate();
-	}
-
-	//! Detaches the named object from this node and returns a pointer to it.
-	Entity* Node::detachObject (const std::string &name)
-	{
-		ObjectMapIterator it = sceneObjects_.find(name);
-		if (it == sceneObjects_.end())
-		{
-			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
-					"to this node.");
-		}
-		Entity* ret = it->second;
-		sceneObjects_.erase(it);
+		ret = itr->second;
 		ret->_notifyAttached((Node*)0);
-		// Make sure bounds get updated (must go right to the top)
-		needUpdate();
+	}
+	sceneObjects_.clear();
+}
 
-		return ret;
+//! Gets the orientation of the node as derived from all parents.
+Quaternion Node::_getDerivedOrientation (void)
+{
+	if (needParentUpdate_)
+	{
+		_updateFromParent();
+	}
+	return derivedOrientation_;
+}
+
+//! Gets the position of the node as derived from all parents.
+const ColumnVector& Node::_getDerivedPosition (void)
+{
+	if (needParentUpdate_)
+	{
+		_updateFromParent();
+	}
+	//ColumnVector ret(derivedPosition_);
+	//ret.Release();
+	return derivedPosition_;
+}
+
+//! Gets the scaling factor of the node as derived from all parents.
+const ColumnVector& Node::_getDerivedScale (void)
+{
+	if (needParentUpdate_)
+	{
+		_updateFromParent();
+	}
+	return derivedScale_;
+}
+
+//! Gets the full transformation matrix for this node.
+const Matrix& Node::_getFullTransform (void)
+{
+	if (cachedTransformOutOfDate_)
+	{
+		// Use derived values
+		cachedTransform_.SubMatrix(1,3,4,4) = _getDerivedPosition();
+
+		Matrix m = MatrixFactory::FromQuaternion( _getDerivedOrientation() );
+		cachedTransform_.SubMatrix(1,3,1,3) = m;
+		cachedTransformOutOfDate_ = false;
+	}
+	return cachedTransform_;
+}
+
+const Matrix& Node::getFullTransform (void) const
+{
+	return cachedTransform_;
+}
+
+//! Adds a (precreated) child scene node to this node.
+void Node::addChild (Node* child)
+{
+	if (child->parent_)
+	{
+		SML_EXCEPT(Exception::ERR_INVALIDPARAMS,
+			"Node '" + child->getName() + "' already was a child of '" + child->parent_->getName() + "'.");
 	}
 
-	//! Detaches all objects attached to this node.
-	void Node::detachAllObjects (void)
+	children_[child->getName()] = child;
+	child->setParent(this);
+}
+
+//! Reports the number of child nodes under this one.
+unsigned short Node::numChildren (void) const
+{
+	return static_cast< unsigned short >( children_.size() );
+}
+
+//! Gets a pointer to a child node.
+Node* Node::getChild (unsigned short index) const
+{
+	if( index < children_.size() )
 	{
-		ObjectMapIterator itr;
-		Entity* ret;
-		for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
-		{
-			ret = itr->second;
-			ret->_notifyAttached((Node*)0);
-		}
-		sceneObjects_.clear();
-		// Make sure bounds get updated (must go right to the top)
-		needUpdate();
-	}
-
-
-
-	//! Returns a quaternion representing the nodes orientation.
-	const Quaternion& Node::getOrientation () const
-	{
-		return orientation_;
-	}
-
-	//! Sets the orientation of this node via a quaternion.
-	void Node::setOrientation (const Quaternion &q)
-	{
-		orientation_ = q;
-		needUpdate();
-	}
-
-	//! Sets the orientation of this node via quaternion parameters.
-	void Node::setOrientation (Real w, Real x, Real y, Real z)
-	{
-		Quaternion q(w, x, y, z);
-		setOrientation(q);
-		needUpdate();
-	}
-
-	//! Resets the nodes orientation (local axes as world axes, no rotation).
-	void Node::resetOrientation (void)
-	{
-		setOrientation( QuaternionFactory::IDENTITY );
-		needUpdate();
-	}
-
-	//! Sets the position of the node relative to it's parent.
-	void Node::setPosition(const ColumnVector &pos)
-	{
-		position_ = pos;
-		needUpdate();
-	}
-
-	//! Sets the position of the node relative to it's parent.
-	void Node::setPosition(Real x, Real y, Real z)
-	{
-		ColumnVector v; v << x << y << z;
-		setPosition(v);
-	}
-
-	//! Gets the position of the node relative to it's parent.
-	const ColumnVector& Node::getPosition(void) const
-	{
-		return position_;
-	}
-
-	//! Moves the node along the cartesian axes.
-	void Node::translate(const ColumnVector &d, TransformSpace relativeTo)
-	{
-		switch(relativeTo)
-		{
-		case TS_LOCAL:
-			// position is relative to parent so transform downwards
-			position_ += (orientation_ * d);
-			break;
-		case TS_WORLD:
-			// position is relative to parent so transform upwards
-			if (parent_)
-			{
-				Quaternion qi = inverse( parent_->_getDerivedOrientation() );
-				position_ += (qi * d); //	/ parent_->_getDerivedScale();
-			}
-			else
-			{
-				position_ += d;
-			}
-			break;
-		case TS_PARENT:
-			position_ += d;
-			break;
-		}
-		needUpdate();
-	}
-
-	//! Moves the node along the cartesian axes.
-	void Node::translate(Real x, Real y, Real z, TransformSpace relativeTo)
-	{
-		ColumnVector v; v << x << y << z;
-		translate(v, relativeTo);
-	}
-
-	//! Moves the node along arbitrary axes.
-	void Node::translate(const SquareMatrix &axes, const ColumnVector &move, TransformSpace relativeTo)
-	{
-		ColumnVector derived = axes * move;
-		translate(derived, relativeTo);
-	}
-
-	//! Moves the node along arbitrary axes.
-	void Node::translate(const SquareMatrix &axes, Real x, Real y, Real z, TransformSpace relativeTo)
-	{
-		ColumnVector d(3); d << x << y << z;
-		translate(axes,d,relativeTo);
-	}
-
-	//! Rotate the node around an arbitrary axis.
-	void Node::rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo)
-	{
-		Quaternion q = QuatFromAngleAxis(angle,axis);
-		rotate(q, relativeTo);
-	}
-
-	//! Rotate the node around an aritrary axis using a Quarternion.
-	void Node::rotate(const Quaternion &q, TransformSpace relativeTo)
-	{
-		switch(relativeTo)
-		{
-		case TS_LOCAL:
-			// Note the order of the mult, i.e. q comes after
-			orientation_ = orientation_ * q;
-			break;
-		case TS_WORLD:
-			// Rotations are normally relative to local axes, transform up
-			if (parent_)
-			{
-				Quaternion qi = inverse( parent_->_getDerivedOrientation() );
-				orientation_ = orientation_ * qi * q * _getDerivedOrientation();
-			} else {
-
-			}
-			break;
-		case TS_PARENT:
-			// Rotations are normally relative to local axes, transform up
-			orientation_ = q * orientation_;
-			break;
-		}
-		needUpdate();
-	}
-
-	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
-	ReturnMatrix Node::getLocalAxes (void) const
-	{
-		ColumnVector axisX = VectorFactory::Vector3( UNIT_X );
-		ColumnVector axisY = VectorFactory::Vector3( UNIT_Y );
-		ColumnVector axisZ = VectorFactory::Vector3( UNIT_Z );
-
-		axisX = orientation_ * axisX;
-		axisY = orientation_ * axisY;
-		axisZ = orientation_ * axisZ;
-
-		// Concatenate columns to form matrix
-		Matrix ret = axisX & axisY & axisZ;
-		ret.Release();
-		return ret;
-	}
-
-	//! Gets the orientation of the node as derived from all parents.
-	Quaternion Node::_getDerivedOrientation (void)
-	{
-		if (needParentUpdate_)
-		{
-			_updateFromParent();
-		}
-		return derivedOrientation_;
-	}
-
-	//! Gets the position of the node as derived from all parents.
-	const ColumnVector& Node::_getDerivedPosition (void)
-	{
-		if (needParentUpdate_)
-		{
-			_updateFromParent();
-		}
-		//ColumnVector ret(derivedPosition_);
-		//ret.Release();
-		return derivedPosition_;
-	}
-
-	//! Gets the scaling factor of the node as derived from all parents.
-	const ColumnVector& Node::_getDerivedScale (void)
-	{
-		if (needParentUpdate_)
-		{
-			_updateFromParent();
-		}
-		return derivedScale_;
-	}
-
-	//! Gets the full transformation matrix for this node.
-	const Matrix& Node::_getFullTransform (void)
-	{
-		if (cachedTransformOutOfDate_)
-		{
-			// Use derived values
-			cachedTransform_.SubMatrix(1,3,4,4) = _getDerivedPosition();
-
-			Matrix m = MatrixFactory::FromQuaternion( _getDerivedOrientation() );
-			cachedTransform_.SubMatrix(1,3,1,3) = m;
-			cachedTransformOutOfDate_ = false;
-		}
-		return cachedTransform_;
-	}
-
-	const Matrix& Node::getFullTransform (void) const
-	{
-		return cachedTransform_;
-	}
-
-
-
-	//! Creates an unnamed new Node as a child of this node.
-	Node* Node::createChild(const ColumnVector& translate, const Quaternion& rotate)
-	{
-		Node* newNode = createChildImpl();
-		newNode->translate(translate);
-		newNode->rotate(rotate);
-		this->addChild(newNode);
-
-		return newNode;
-	}
-
-	//! Creates a new named Node as a child of this node.
-	Node* Node::createChild(const std::string& name, const ColumnVector& translate, const Quaternion& rotate)
-	{
-		Node* newNode = createChildImpl(name);
-		newNode->translate(translate);
-		newNode->rotate(rotate);
-		this->addChild(newNode);
-
-		return newNode;
-	}
-
-	//! Adds a (precreated) child scene node to this node.
-	void Node::addChild (Node* child)
-	{
-		if (child->parent_)
-		{
-			SML_EXCEPT(Exception::ERR_INVALIDPARAMS,
-				"Node '" + child->getName() + "' already was a child of '" + child->parent_->getName() + "'.");
-		}
-
-		children_.insert(ChildNodeMap::value_type(child->getName(), child));
-		child->setParent(this);
-	}
-
-	//! Reports the number of child nodes under this one.
-	unsigned short Node::numChildren (void) const
-	{
-		return static_cast< unsigned short >( children_.size() );
-	}
-
-	//! Gets a pointer to a child node.
-	Node* Node::getChild (unsigned short index) const
-	{
-		if( index < children_.size() )
-		{
-			ConstChildNodeIterator i = children_.begin();
-			while (index--) ++i;
-			return i->second;
-		} else
-			return NULL;
-	}
-
-	//! Gets a pointer to a named child node.
-	Node* Node::getChild (const std::string& name) const
-	{
-		ConstChildNodeIterator i = children_.find(name);
-
-		if (i == children_.end())
-		{
-			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name + " does not exist.");
-		}
+		ConstChildNodeIterator i = children_.begin();
+		while (index--) ++i;
 		return i->second;
-	}
+	} else
+		return NULL;
+}
 
-	//! Drops the specified child from this node.
-	Node* Node::removeChild (unsigned short index)
+//! Gets a pointer to a named child node.
+Node* Node::getChild (const std::string& name) const
+{
+	ConstChildNodeIterator i = children_.find(name);
+
+	if (i == children_.end())
 	{
-		Node* ret;
-		if (index < children_.size())
-		{
-			ChildNodeIterator i = children_.begin();
-			while (index--) ++i;
-			ret = i->second;
-			// cancel any pending update
-			cancelUpdate(ret);
-
-			children_.erase(i);
-			ret->setParent(NULL);
-			return ret;
-		}
-		else
-		{
-			SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Child index out of bounds.");
-		}
-		return 0;
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name + " does not exist.");
 	}
+	return i->second;
+}
 
-	//! Drops the specified child from this node.
-	Node* Node::removeChild (Node *child)
+//! Drops the specified child from this node.
+Node* Node::removeChild (unsigned short index)
+{
+	Node* ret;
+	if (index < children_.size())
 	{
-		if (child)
-		{
-			ChildNodeIterator i = children_.find(child->getName());
-			// ensure it's our child
-			if (i != children_.end() && i->second == child)
-			{
-				// cancel any pending update
-				cancelUpdate(child);
+		ChildNodeIterator i = children_.begin();
+		while (index--) ++i;
+		ret = i->second;
 
-				children_.erase(i);
-				child->setParent(NULL);
-			}
-		}
-		return child;
-	}
-
-	//! Drops the named child from this node.
-	Node* Node::removeChild (const std::string &name)
-	{
-		ChildNodeIterator i = children_.find(name);
-
-		if (i == children_.end())
-		{
-			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name + " does not exist.");
-		}
-
-		Node* ret = i->second;
-		// Cancel any pending update
+		// cancel any pending update
 		cancelUpdate(ret);
 
 		children_.erase(i);
 		ret->setParent(NULL);
-
 		return ret;
 	}
-
-	//! Removes all child Nodes attached to this node.
-	void Node::removeAllChildren (void)
+	else
 	{
-		ChildNodeMap::iterator i, iend;
-		iend = children_.end();
-		for (i = children_.begin(); i != iend; ++i)
+		SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Child index out of bounds.");
+	}
+	return 0;
+}
+
+//! Drops the specified child from this node.
+Node* Node::removeChild (Node *child)
+{
+	if (child)
+	{
+		ChildNodeIterator i = children_.find(child->getName());
+		// ensure it's our child
+		if (i != children_.end() && i->second == child)
 		{
-			i->second->setParent(0);
-		}
-		children_.clear();
-		childrenToUpdate_.clear();
-	}
+			// cancel any pending update
+			cancelUpdate(child);
 
-	//! Gets the parent of this SceneNode.
-	Node* Node::getParent(void) const
-	{
-		return parent_;
-	}
-
-
-
-	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
-	void Node::setInitialState (void)
-	{
-		initialPosition_ = position_;
-		initialOrientation_ = orientation_;
-		initialScale_ = scale_;
-	}
-
-	//! Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info.
-	void Node::resetToInitialState (void)
-	{
-		position_ = initialPosition_;
-		orientation_ = initialOrientation_;
-		scale_ = initialScale_;
-
-		needUpdate();
-	}
-
-	//! Gets the initial position of this node, see setInitialState for more info.
-	const ColumnVector& Node::getInitialPosition (void) const
-	{
-		return initialPosition_;
-	}
-
-	//! Gets the initial orientation of this node, see setInitialState for more info.
-	const Quaternion& Node::getInitialOrientation (void) const
-	{
-		return initialOrientation_;
-	}
-
-	//! Gets the initial position of this node, see setInitialState for more info.
-	const ColumnVector& Node::getInitialScale (void) const
-	{
-		return initialScale_;
-	}
-
-	//! To be called in the event of transform changes to this node that require it's recalculation.
-	void Node::needUpdate (bool forceParentUpdate)
-	{
-		std::cout << getName() << "::needUpdate()" << std::endl;
-
-		needParentUpdate_ = true;
-		needChildUpdate_ = true;
-		cachedTransformOutOfDate_ = true;
-
-		// Make sure we're not root and parent hasn't been notified before
-		if (parent_ && (!parentNotified_ || forceParentUpdate))
-		{
-			parent_->requestUpdate(this, forceParentUpdate);
-			parentNotified_ = true ;
-		}
-
-		// all children will be updated
-		childrenToUpdate_.clear();
-	}
-
-	//! Called by children to notify their parent that they need an update.
-	void Node::requestUpdate (Node *child, bool forceParentUpdate)
-	{
-		// If we're already going to update everything this doesn't matter
-		if (needChildUpdate_)
-		{
-			return;
-		}
-
-		childrenToUpdate_.insert(child);
-		// Request selective update of me, if we didn't do it before
-		if (parent_ && (!parentNotified_ || forceParentUpdate))
-		{
-			parent_->requestUpdate(this, forceParentUpdate);
-			parentNotified_ = true ;
+			children_.erase(i);
+			child->setParent(NULL);
 		}
 	}
+	return child;
+}
 
-	//! Called by children to notify their parent that they no longer need an update.
-	void Node::cancelUpdate (Node *child)
+//! Drops the named child from this node.
+Node* Node::removeChild (const std::string &name)
+{
+	ChildNodeIterator i = children_.find(name);
+
+	if (i == children_.end())
 	{
-		childrenToUpdate_.erase(child);
-
-		// Propogate this up if we're done
-		if (childrenToUpdate_.empty() && parent_ && !needChildUpdate_)
-		{
-			parent_->cancelUpdate(this);
-			parentNotified_ = false ;
-		}
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name + " does not exist.");
 	}
 
-	//! Internal method to update the Node.
-	void Node::_update (bool updateChildren, bool parentHasChanged)
-	{
-		std::cout << getName() << "::_update()" << std::endl;
+	Node* ret = i->second;
+	// Cancel any pending update
+	cancelUpdate(ret);
 
-		// always clear information about parent notification
+	children_.erase(i);
+	ret->setParent(NULL);
+
+	return ret;
+}
+
+//! Removes all child Nodes attached to this node.
+void Node::removeAllChildren (void)
+{
+	ChildNodeMap::iterator i, iend;
+	iend = children_.end();
+	for (i = children_.begin(); i != iend; ++i)
+	{
+		i->second->setParent(0);
+	}
+	children_.clear();
+	childrenToUpdate_.clear();
+}
+
+//! Gets the parent of this SceneNode.
+Node* Node::getParent(void) const
+{
+	return parent_;
+}
+
+
+
+//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
+void Node::setInitialState (void)
+{
+	initialPosition_ = position_;
+	initialOrientation_ = orientation_;
+	initialScale_ = scale_;
+}
+
+//! Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info.
+void Node::resetToInitialState (void)
+{
+	position_ = initialPosition_;
+	orientation_ = initialOrientation_;
+	scale_ = initialScale_;
+
+	needUpdate();
+}
+
+//! Gets the initial position of this node, see setInitialState for more info.
+const ColumnVector& Node::getInitialPosition (void) const
+{
+	return initialPosition_;
+}
+
+//! Gets the initial orientation of this node, see setInitialState for more info.
+const Quaternion& Node::getInitialOrientation (void) const
+{
+	return initialOrientation_;
+}
+
+//! Gets the initial position of this node, see setInitialState for more info.
+const ColumnVector& Node::getInitialScale (void) const
+{
+	return initialScale_;
+}
+
+//! To be called in the event of transform changes to this node that require it's recalculation.
+void Node::needUpdate (bool forceParentUpdate)
+{
+	std::cout << getName() << "::needUpdate()" << std::endl;
+
+	needParentUpdate_ = true;
+	needChildUpdate_ = true;
+	cachedTransformOutOfDate_ = true;
+
+	// Make sure we're not root and parent hasn't been notified before
+	if (parent_ && (!parentNotified_ || forceParentUpdate))
+	{
+		parent_->requestUpdate(this, forceParentUpdate);
+		parentNotified_ = true ;
+	}
+
+	// all children will be updated
+	childrenToUpdate_.clear();
+}
+
+//! Called by children to notify their parent that they need an update.
+void Node::requestUpdate (Node *child, bool forceParentUpdate)
+{
+	// If we're already going to update everything this doesn't matter
+	if (needChildUpdate_)
+	{
+		return;
+	}
+
+	childrenToUpdate_.insert(child);
+	// Request selective update of me, if we didn't do it before
+	if (parent_ && (!parentNotified_ || forceParentUpdate))
+	{
+		parent_->requestUpdate(this, forceParentUpdate);
+		parentNotified_ = true ;
+	}
+}
+
+//! Called by children to notify their parent that they no longer need an update.
+void Node::cancelUpdate (Node *child)
+{
+	childrenToUpdate_.erase(child);
+
+	// Propogate this up if we're done
+	if (childrenToUpdate_.empty() && parent_ && !needChildUpdate_)
+	{
+		parent_->cancelUpdate(this);
 		parentNotified_ = false ;
+	}
+}
 
-		// Short circuit the off case
-		if (!updateChildren_ && !needParentUpdate_ && !needChildUpdate_ && !parentHasChanged_ )
+//! Internal method to update the Node.
+void Node::_update (bool updateChildren, bool parentHasChanged)
+{
+	std::cout << getName() << "::_update()" << std::endl;
+
+	// always clear information about parent notification
+	parentNotified_ = false ;
+
+	// Short circuit the off case
+	if (!updateChildren_ && !needParentUpdate_ && !needChildUpdate_ && !parentHasChanged_ )
+	{
+		return;
+	}
+
+	// See if we should process everyone
+	if (needParentUpdate_ || parentHasChanged_)
+	{
+		// Update transforms from parent
+		_updateFromParent();
+	}
+
+	if (needChildUpdate_ || parentHasChanged_)
+	{
+		ChildNodeMap::iterator it, itend;
+		itend = children_.end();
+		for (it = children_.begin(); it != itend; ++it)
 		{
-			return;
+			Node* child = it->second;
+			child->_update(true, true);
+		}
+		childrenToUpdate_.clear();
+	}
+	else
+	{
+		// Just update selected children
+		ChildUpdateSet::iterator it, itend;
+		itend = childrenToUpdate_.end();
+		for(it = childrenToUpdate_.begin(); it != itend; ++it)
+		{
+			Node* child = *it;
+			child->_update(true, false);
 		}
 
-		// See if we should process everyone
-		if (needParentUpdate_ || parentHasChanged_)
-		{
-			// Update transforms from parent
-			_updateFromParent();
-		}
+		childrenToUpdate_.clear();
+	}
 
-		if (needChildUpdate_ || parentHasChanged_)
+	needChildUpdate_ = false;
+}
+
+void Node::dequeueForUpdate(Node *n)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
+
+	// Don't queue the node more than once
+	if ( n->queuedForUpdate() )
+	{
+		n->flags_ ^= Node::QueuedForUpdateMask;
+
+		// Erase from queued updates
+		QueuedUpdates::iterator it = std::find( queuedUpdates_.begin(), queuedUpdates_.end(), this );
+		assert( it != queuedUpdates_.end() );
+		if ( it != queuedUpdates_.end() )
 		{
-			ChildNodeMap::iterator it, itend;
-			itend = children_.end();
-			for (it = children_.begin(); it != itend; ++it)
-			{
-				Node* child = it->second;
-				child->_update(true, true);
-			}
-			childrenToUpdate_.clear();
+			// Optimised algorithm to erase an element from unordered vector.
+			*it = queuedUpdates_.back();
+			queuedUpdates_.pop_back();
+		}
+	}
+}
+
+void Node::queueForUpdate(Node *n)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
+
+	// Don't queue the node more than once
+	if (!n->queuedForUpdate())
+	{
+		n->flags_ ^= Node::QueuedForUpdateMask;
+		queuedUpdates_.push_back(n);
+		std::cout << n->getName() << " queued for update." << std::endl;
+	}
+}
+
+inline
+bool Node::queuedForUpdate()
+{
+	return (Node::QueuedForUpdateMask & flags_);
+}
+
+//! Process queued 'needUpdate' calls.
+void Node::processQueuedUpdates(void)
+{
+	for (QueuedUpdates::iterator i = queuedUpdates_.begin(); i != queuedUpdates_.end(); ++i)
+	{
+		if ( !n->queuedForUpdate() )
+		{
+			LOG4CXX_ERROR(logger, "Mismatch between node \"" << n->getName() << "\" queued flag and its presence in the update queue!" );
+		}
+		// Update, and force parent update since chances are we've ended
+		// up with some mixed state in there due to re-entrancy
+		Node* n = *i;
+		n->flags_ ^= Node::QueuedForUpdateMask;
+		n->needUpdate(true);
+	}
+	queuedUpdates_.clear();
+	LOG4CXX_DEBUG(logger, "All queued node updates processed and queue cleared." );
+}
+
+void Node::updateFromParentImpl(void)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ << " for node \"" << getName() << "\"." );
+
+	if (parent_)
+	{
+		// Update orientation
+		std::cout << "	update orientation..." << std::endl;
+		Quaternion parentOrientation = parent_->_getDerivedOrientation();
+		if (inheritOrientation_)
+		{
+			// Combine orientation with that of parent
+			derivedOrientation_ = parentOrientation * orientation_;
 		}
 		else
 		{
-			// Just update selected children
-			ChildUpdateSet::iterator it, itend;
-			itend = childrenToUpdate_.end();
-			for(it = childrenToUpdate_.begin(); it != itend; ++it)
-			{
-				Node* child = *it;
-				child->_update(true, false);
-			}
-
-			childrenToUpdate_.clear();
-		}
-
-		needChildUpdate_ = false;
-	}
-
-	// Static Public Member Functions
-	void Node::queueNeedUpdate(Node *n)
-	{
-		// Don't queue the node more than once
-		if (!n->queuedForUpdate_)
-		{
-			n->queuedForUpdate_ = true;
-			queuedUpdates_.push_back(n);
-			std::cout << n->getName() << " queued for update." << std::endl;
-		}
-	}
-
-	//! Process queued 'needUpdate' calls.
-	void Node::processQueuedUpdates (void)
-	{
-		for (QueuedUpdates::iterator i = queuedUpdates_.begin(); i != queuedUpdates_.end(); ++i)
-		{
-			// Update, and force parent update since chances are we've ended
-			// up with some mixed state in there due to re-entrancy
-			Node* n = *i;
-			n->queuedForUpdate_ = false;
-			n->needUpdate(true);
-		}
-		queuedUpdates_.clear();
-		std::cout << "All queued node updates processed and queue cleared." << std::endl;
-	}
-
-	void Node::updateFromParentImpl(void)
-	{
-		std::cout << getName() << "::updateFromParentImpl()" << std::endl;
-
-		if (parent_)
-		{
-			// Update orientation
-			std::cout << "	update orientation..." << std::endl;
-			Quaternion parentOrientation = parent_->_getDerivedOrientation();
-			if (inheritOrientation_)
-			{
-				// Combine orientation with that of parent
-				derivedOrientation_ = parentOrientation * orientation_;
-			}
-			else
-			{
-				// No inheritence
-				derivedOrientation_ = orientation_;
-			}
-
-			// Update scale
-			std::cout << "	update scale..." << std::endl;
-			const ColumnVector& parentScale = parent_->_getDerivedScale();
-			if (inheritScale_)
-			{
-				// Scale own position by parent scale, NB just combine
-				// as equivalent axes, no shearing
-				//derivedScale_ = parentScale * scale_;
-				derivedScale_ = parentScale;
-			}
-			else
-			{
-				// No inheritence
-				derivedScale_ = scale_;
-			}
-
-			// Change position vector based on parent's orientation & scale
-			std::cout << "	update position..." << std::endl;
-			//derivedPosition_ = parentOrientation * (parentScale_ * position_);
-			derivedPosition_ = parentOrientation * position_;
-
-			// Add altered position vector to parents
-			derivedPosition_ += parent_->_getDerivedPosition();
-		}
-		else
-		{
-			// Root node, no parent
+			// No inheritence
 			derivedOrientation_ = orientation_;
-			derivedPosition_ = position_;
+		}
+
+		// Update scale
+		std::cout << "	update scale..." << std::endl;
+		const ColumnVector& parentScale = parent_->_getDerivedScale();
+		if (inheritScale_)
+		{
+			// Scale own position by parent scale, NB just combine
+			// as equivalent axes, no shearing
+			//derivedScale_ = parentScale * scale_;
+			derivedScale_ = parentScale;
+		}
+		else
+		{
+			// No inheritence
 			derivedScale_ = scale_;
 		}
 
-		cachedTransformOutOfDate_ = true;
-		needParentUpdate_ = false;
+		// Change position vector based on parent's orientation & scale
+		std::cout << "	update position..." << std::endl;
+		//derivedPosition_ = parentOrientation * (parentScale_ * position_);
+		derivedPosition_ = parentOrientation * position_;
 
-		// Notify objects that it has been moved
-		ObjectMapConstIterator i;
-		for (i = sceneObjects_.begin(); i != sceneObjects_.end(); ++i)
-		{
-			Entity* object = i->second;
-			object->_notifyMoved();
-		}
-
+		// Add altered position vector to parents
+		derivedPosition_ += parent_->_getDerivedPosition();
 	}
-
-	Node*  Node::createChildImpl(void)
+	else
 	{
-		if ( !getManager() )
-		{
-			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
-		}
-        return getManager()->createNode();
+		// Root node, no parent
+		derivedOrientation_ = orientation_;
+		derivedPosition_ = position_;
+		derivedScale_ = scale_;
 	}
 
-	Node* Node::createChildImpl(const std::string& name)
+	cachedTransformOutOfDate_ = true;
+	needParentUpdate_ = false;
+
+	// Notify objects that it has been moved
+	ObjectMapConstIterator i;
+	for (i = sceneObjects_.begin(); i != sceneObjects_.end(); ++i)
 	{
-		if ( !getManager() )
-		{
-			SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
-		}
-        return getManager()->createNode(name);
+		Entity* object = i->second;
+		object->_notifyMoved();
 	}
 
-	void Node::setParent(Node *parent)
+}
+
+Node*  Node::createChildImpl(void)
+{
+	if ( !getManager() )
 	{
-		bool different = (parent != parent_);
-
-		parent_ = parent;
-		// Request update from parent
-		parentNotified_ = false ;
-		needUpdate();
-
-		// Call listener (note, only called if there's something to do)
-		/*if (mListener && different)
-		{
-			if (parent_)
-			mListener->nodeAttached(this);
-			else
-			mListener->nodeDetached(this);
-		}*/
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
 	}
+	return getManager()->createNode();
+}
 
-	//! Triggers the node to update it's combined transforms.
-	void Node::_updateFromParent (void)
+Node* Node::createChildImpl(const std::string& name)
+{
+	if ( !getManager() )
 	{
-		updateFromParentImpl();
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
 	}
+	return dynamic_cast<Node*>( getManager()->createObject(name, Node::ObjectTypeID) );
+}
 
+void Node::setParent(Node *parent)
+{
+	bool different = (parent != parent_);
 
+	parent_ = parent;
+	// Request update from parent
+	parentNotified_ = false ;
+	needUpdate();
 
-	Object* NodeFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params = 0)
+	// Call listener (note, only called if there's something to do)
+	/*if (mListener && different)
 	{
+		if (parent_)
+		mListener->nodeAttached(this);
+		else
+		mListener->nodeDetached(this);
+	}*/
+}
 
-	}
+//! Triggers the node to update it's combined transforms.
+void Node::_updateFromParent (void)
+{
+	updateFromParentImpl();
+}
 
-	void NodeFactory::destroyInstance(Object* obj)
-	{
 
-	}
+
+Object* NodeFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params = 0)
+{
+
+}
+
+void NodeFactory::destroyInstance(Object* obj)
+{
+
+}
+
 } // Namespace: TinySG
 
 ostream& operator << (ostream& os, TinySG::Node& s)

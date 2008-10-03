@@ -9,7 +9,6 @@
 #define NODETEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
-//#include <Node.h>
 
 class NodeTest : public CppUnit::TestFixture
 {

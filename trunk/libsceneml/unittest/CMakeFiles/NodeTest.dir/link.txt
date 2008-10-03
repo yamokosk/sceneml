@@ -1,0 +1,1 @@
+/usr/bin/c++    -fmessage-length=0 -g -Wl,-search_paths_first -headerpad_max_install_names -fPIC CMakeFiles/NodeTest.dir/main.o CMakeFiles/NodeTest.dir/NodeTest.o  -o NodeTest  -L/usr/local/lib -lcppunit -llog4cxx -lboost_graph -lmuparser -lnewmat 

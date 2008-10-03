@@ -22,29 +22,10 @@ namespace TinySG
 {
 
 Mesh::Mesh() :
-	name_("")
+	Object()
 {
 
 }
 
-Mesh::Mesh(const std::string &name) :
-	name_(name)
-{
-
-}
-
-MeshFactory::MeshFactory()
-{}
-
-MeshFactory::~MeshFactory()
-{}
-
-Mesh* MeshFactory::createInstance(const std::string& name, MeshManager* manager, const PropertyCollection* params)
-{
-	Mesh* m = createInstanceImpl(name, params);
-	m->_notifyCreator(this);
-	m->_notifyManager(manager);
-	return m;
-}
 
 } // End TinySG namespace

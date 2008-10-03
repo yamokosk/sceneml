@@ -36,14 +36,6 @@
 namespace TinySG
 {
 
-/*
- * author yamokosk
- *
- * There is not much of a public interface to this class for a reason. It is
- * expected that derived classes will wrap the protected methods in their own
- * public interface. This will allow derived classes a lot of control over how much
- * is available to the outside world in terms of functionality.
- */
 class ObjectManager
 {
 protected:
@@ -66,18 +58,18 @@ public:
 	ObjectManager();
 	virtual ~ObjectManager();
 
-protected:
 	// Object management
-	Object* createObject(const std::string& name, const std::string& type, const PropertyCollection* params=NULL);
-	void destroyObject(const std::string& name, const std::string& type);
-	void destroyObject(Object* obj);
-	void destroyAllObjects( const std::string& type );
-	Object* getObject(const std::string& name, const std::string& type) const;
+	virtual Object* createObject(const std::string& name, const std::string& type, const PropertyCollection* params=NULL);
+	virtual void destroyObject(const std::string& name, const std::string& type);
+	virtual void destroyObject(Object* obj);
+	virtual void destroyAllObjects( const std::string& type );
+	virtual Object* getObject(const std::string& name, const std::string& type) const;
 
 	// Factory management
-	void registerFactory( ObjectFactory* obj );
-	ObjectFactory* getFactory( const std::string& type ) const;
+	virtual void registerFactory( ObjectFactory* obj );
+	virtual ObjectFactory* getFactory( const std::string& type ) const;
 
+protected:
 	// Collections management
 	void destroyCollection( const std::string& type );
 	void destroyCollection( ObjectCollection* collection );
