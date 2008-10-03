@@ -25,10 +25,11 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#include <math/Math.h>
-#include <math/Vector.h>
-#include <math/Matrix.h>
-#include <math/Quaternion.h>
+// Internal
+#include "Math.h"
+#include "Vector.h"
+#include "Matrix.h"
+#include "Quaternion.h"
 
 namespace TinySG
 {
@@ -40,6 +41,7 @@ namespace TinySG
 	// Matrix construction utility functions
 	ReturnMatrix RotFromAngleAxis(Real angle, const ColumnVector& axis);
 	ReturnMatrix RotFromEulerSequence(int seqType, Real tx_, Real ty_, Real tz_);
+	ReturnMatrix RotFromQuaternion(const Quaternion& q);
 }
 
 // Global operators

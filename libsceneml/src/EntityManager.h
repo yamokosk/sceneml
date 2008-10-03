@@ -25,19 +25,8 @@ namespace TinySG {
 // Forward declarations
 class Entity;
 
-class EntityManager
+class EntityManager : public ObjectManager
 {
-public:
-	// Entities
-	typedef stdext::hash_map< std::string, Entity*> EntityMap;
-	typedef EntityMap::iterator EntityIterator;
-	// Collection of one type of Entity objects.. ODE, LINCANNY, etc.
-	struct EntityCollection
-	{
-		EntityMap entities_;
-	};
-	typedef stdext::hash_map< std::string, EntityCollection*> EntityCollectionMap;
-
 	// Entity pairs
 	typedef std::pair<Entity*, Entity*> EntityPair;
 	typedef std::list<EntityPair> EntityPairList;
@@ -45,26 +34,12 @@ public:
 
 public:
 	EntityManager();
-	~EntityManager();
-
-	// Entities
-	Entity* createEntity(const std::string& name,const std::string& typeName, const PropertyCollection* params = 0);
-	void destroyEntity(const std::string& name, const std::string& typeName);
-	void destroyEntity(Entity* m);
-	void destroyAllEntitiesByType(const std::string& typeName);
-	void destroyAllEntities(void);
-	Entity* getEntity(const std::string& name, const std::string& typeName);
-	EntityCollection* getEntitiesByType(const std::string& typeName);
-	bool hasEntity(const std::string& name, const std::string& typeName) const;
-	bool hasEntity(const Entity* e) const;
-	//EntityIterator getEntityIterator(const std::string& typeName);
+	virtual ~EntityManager();
 
 	// Entity pairs
 	void createEntityPair(Entity* e1, Entity* e2);
-	//EntityPairListIterator getEntityPairsIterator();
 
 private:
-	EntityCollectionMap entityTypes_;
 	EntityPairList entityPairs_;
 };
 

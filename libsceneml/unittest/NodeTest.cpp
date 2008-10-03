@@ -8,6 +8,8 @@
 #include <cppunit/config/SourcePrefix.h>
 #include "NodeTest.h"
 
+#include <Node.h>
+
 CPPUNIT_TEST_SUITE_REGISTRATION( NodeTest );
 
 void NodeTest::setUp()

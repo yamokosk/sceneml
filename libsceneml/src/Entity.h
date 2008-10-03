@@ -35,36 +35,17 @@ class SceneManager;
 /** @ingroup xode
  *  Base class for movalbe scene objects.
  */
-class Entity
+class Entity : public Object
 {
 public:
 	Entity();
-	Entity(const std::string& name);
 	virtual ~Entity();
 
 	virtual Entity* clone() const = 0;
 
 	void _notifyAttached(Node* parent);
-	void _notifyCreator(EntityFactory* fact) { creator_ = fact; }
-	void _notifyType(const std::string& type) { type_ = type; }
-	virtual EntityFactory* _getCreator(void) const { return creator_; }
-	virtual void _notifyManager(SceneManager* man) { manager_ = man; }
-	virtual SceneManager* _getManager(void) const { return manager_; }
-
-	//! Get obj name
-	std::string getName() const {return name_;}
-	//! Get obj type
-	std::string getType() const {return type_;}
-
 	virtual bool isAttached(void) const;
-
 	virtual void _notifyMoved(void) = 0;
-	//virtual void _notifySpace(Space* space) = 0;
-
-	//virtual const AxisAlignedBox& getBoundingBox(void) const = 0;
-	//virtual Real getBoundingRadius(void) const = 0;
-	//virtual const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const;
-	//virtual const Sphere& getWorldBoundingSphere(bool derive = false) const;
 
 	virtual void setVisible(bool visible) {visible_ = visible;}
 	virtual bool getVisible(void) const {return visible_;}
@@ -75,28 +56,6 @@ protected:
 	bool visible_;
 	//! Node to which this object is attached
 	Node* 	parentNode_;
-	//! SceneManager holding this object (if applicable)
-	SceneManager* 	manager_;
-	//! Objects name
-	std::string name_;
-	//! Object type
-	std::string type_;
-	//! Creator
-	EntityFactory* creator_;
-};
-
-
-class EntityFactory
-{
-protected:
-	virtual Entity* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0) = 0;
-public:
-	EntityFactory();
-	virtual ~EntityFactory();
-	virtual std::string getType(void) const = 0;
-
-	virtual Entity* createInstance( const std::string& name, SceneManager* manager, const PropertyCollection* params = 0);
-	virtual void destroyInstance(Entity* obj) = 0;
 };
 
 

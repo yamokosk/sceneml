@@ -52,14 +52,6 @@ public:
 	virtual ~SceneManager();
 	void clearScene();
 
-	// Nodes
-	Node* createNode();
-	Node* createNode(const std::string& name);
-	void destroyNode(const std::string& name);
-	Node* getNode(const std::string& name) const;
-	Node* getRootNode() const;
-	bool hasSceneNode(const std::string& name) const;
-
 	// Queries
 	QueryResult* getQueryResult(const std::string& typeName);
 	void destroyAllQueryResults();

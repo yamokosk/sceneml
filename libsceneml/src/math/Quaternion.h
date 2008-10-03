@@ -16,17 +16,17 @@
 *
 *************************************************************************/
 
-#ifndef SML_QUATERNION_H
-#define SML_QUATERNION_H
+#ifndef QUATERNION_H
+#define QUATERNION_H
 
-#include <Exception.h>
-
-#include <math/Math.h>
-
+// External
 #include <boost/math/quaternion.hpp>
-
 #include <newmat/newmatap.h>                // need matrix applications
 #include <newmat/newmatio.h>                // need matrix output routines
+
+// Internal
+#include "../Exception.h"
+#include "Math.h"
 
 namespace TinySG {
 

@@ -19,33 +19,39 @@
 #ifndef NODE_H
 #define NODE_H
 
-// std inlcudes
+// External includes
 #include <string>
 #include <set>
+#include <queue>
 #include <iostream>
+#include <log4cxx/logger.h>
 
-// Internal includes
+// Local includes
+#include "Map.h"
 #include "Object.h"
-#include "SceneManager.h"
-#include "Entity.h"
-#include "HashMap.h"
-#include "math/Math.h"
-#include "math/Vector.h"
-#include "math/Matrix.h"
-#include "math/Quaternion.h"
-
 
 namespace TinySG {
 
+/*!
+@ingroup TinySG
+@brief Models a node in a tree-like data structure
+
+The Node class represents the nodes associated with
+ */
 class Node : public Object
 {
+	// For logging
+	static log4cxx::LoggerPtr logger;
+
 	// Friends to the Node class
-	friend class SceneManager;
 	friend ostream& operator << (ostream& os, const TinySG::Node& s);
 
-// Protected static data
 protected:
-	static QueuedUpdates queuedUpdates_;
+	typedef std::set< Node * >		ChildUpdateSet;
+	typedef std::queue< Node * >	QueuedUpdates;
+	typedef MAP<std::string, Node*>		ChildNodeMap;
+	typedef ChildNodeMap::iterator		ChildNodeIterator;
+	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
 	// Static bit masks
 	static const uint8_t NeedParentUpdateMask = 0x01;
@@ -57,103 +63,18 @@ protected:
 	static const uint8_t OrientationInheritedMask = 0x40;
 	static const uint8_t ScaleInheritedMask = 0x80;
 
-// Public types and enums
 public:
-	typedef HashMap<std::string, Node*>		ChildNodeMap;
-	typedef ChildNodeMap::iterator			ChildNodeIterator;
-	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
+	static const std::string ObjectTypeID;
 
-	typedef HashMap<std::string, Entity*> ObjectMap;
-	typedef ObjectMap::iterator ObjectMapIterator;
-	typedef ObjectMap::const_iterator ObjectMapConstIterator;
-
-	enum TransformSpace
-	{
-		/// Transform is relative to the local space
-		TS_LOCAL,
-		/// Transform is relative to the space of the parent node
-		TS_PARENT,
-		/// Transform is relative to world space
-		TS_WORLD
-	};
-
-public:
 	Node();
 	virtual ~Node();
 
-	//! Adds an instance of a scene object to this node.
-	void attachObject (Entity *obj);
-	//! Reports the number of objects attached to this node.
-	unsigned short numAttachedObjects (void) const;
-	//! Retrieves a pointer to an attached object.
-	Entity* getAttachedObject (unsigned short index);
-	//! Retrieves a pointer to an attached object.
-	Entity* getAttachedObject (const std::string &name);
-	//! Detaches the indexed object from this scene node.
-	Entity* detachObject (unsigned short index);
-	//! Detaches an object by pointer.
-	void detachObject (Entity *obj);
-	//! Detaches the named object from this node and returns a pointer to it.
-	Entity* detachObject (const std::string &name);
-	//! Detaches all objects attached to this node.
-	void detachAllObjects (void);
-
-	//! Returns a Quaternion representing the nodes orientation.
-	const Quaternion& getOrientation () const;
-	//! Sets the orientation of this node via a Quaternion.
-	void setOrientation (const Quaternion &q);
-	//! Sets the orientation of this node via Quaternion parameters.
-	void setOrientation (Real w, Real x, Real y, Real z);
-	//! Resets the nodes orientation (local axes as world axes, no rotation).
-	void resetOrientation (void);
-	//! Sets the position of the node relative to it's parent.
-	void setPosition(const ColumnVector &pos);
-	//! Sets the position of the node relative to it's parent.
-	void setPosition(Real x, Real y, Real z);
-	//! Gets the position of the node relative to it's parent.
-	const ColumnVector& getPosition(void) const;
-	//! Scales the node, combining it's current scale with the passed in scaling factor.
-	void scale(const ColumnVector &scale);
-	//! Scales the node, combining it's current scale with the passed in scaling factor.
-	void scale(Real x, Real y, Real z);
-	//! Moves the node along the cartesian axes.
-	void translate(const ColumnVector &d, TransformSpace relativeTo=TS_PARENT);
-	//! Moves the node along the cartesian axes.
-	void translate(Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
-	//! Moves the node along arbitrary axes.
-	void translate(const SquareMatrix& axes, const ColumnVector &move, TransformSpace relativeTo=TS_PARENT);
-	//! Moves the node along arbitrary axes.
-	void translate(const SquareMatrix& axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
-	//! Rotate the node around an arbitrary axis.
-	void rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo=TS_LOCAL);
-	//! Rotate the node around an aritrary axis using a Quarternion.
-	void rotate(const Quaternion &q, TransformSpace relativeTo=TS_LOCAL);
-	//! Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent.
-	ReturnMatrix getLocalAxes (void) const;
-	//! Gets the orientation of the node as derived from all parents.
-	Quaternion _getDerivedOrientation (void);
-	//! Gets the position of the node as derived from all parents.
-	const ColumnVector& _getDerivedPosition (void);
-	//! Gets the scaling factor of the node as derived from all parents.
-	const ColumnVector& _getDerivedScale (void);
-	//! Gets the full transformation matrix for this node.
-	const Matrix& _getFullTransform (void);
-	//! Public form of the above function
-	const Matrix& getFullTransform (void) const;
-
-	//! Creates an unnamed new Node as a child of this node.
-	Node* createChild(const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
-					  const Quaternion& rotate=QuaternionFactory::IDENTITY );
-	//! Creates a new named Node as a child of this node.
-	Node* createChild(const std::string& name,
-					  const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
-					  const Quaternion& rotate=QuaternionFactory::IDENTITY );
 	//! Adds a (precreated) child scene node to this node.
 	void addChild (Node* child);
 	//! Reports the number of child nodes under this one.
 	unsigned short numChildren (void) const;
 	//! Gets a pointer to a child node.
-	Node* getChild (unsigned short index) const
+	Node* getChild (unsigned short index) const;
 	//! Gets a pointer to a named child node.
 	Node* getChild (const std::string& name) const;
 	//! Drops the specified child from this node.
@@ -167,17 +88,6 @@ public:
 	//! Gets the parent of this SceneNode.
 	Node* getParent(void) const;
 
-	//! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
-	void setInitialState (void);
-	//! Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info.
-	void resetToInitialState (void);
-	//! Gets the initial position of this node, see setInitialState for more info.
-	const ColumnVector& getInitialPosition (void) const;
-	//! Gets the initial orientation of this node, see setInitialState for more info.
-	const Quaternion& getInitialOrientation (void) const;
-	//! Gets the initial position of this node, see setInitialState for more info.
-	const ColumnVector& getInitialScale (void) const;
-
 	//! To be called in the event of transform changes to this node that require it's recalculation.
 	void needUpdate (bool forceParentUpdate=false);
 	//! Called by children to notify their parent that they need an update.
@@ -187,20 +97,15 @@ public:
 	//! Internal method to update the Node.
 	void _update (bool updateChildren, bool parentHasChanged);
 
-// Static Public Member Functions
+	static void dequeueForUpdate(Node *n);
+	static void queueForUpdate(Node* n);
+	bool queuedForUpdate();
+
 protected:
 	//! Queue a 'needUpdate' call to a node safely.
 	static void queueNeedUpdate(Node *n);
 	//! Process queued 'needUpdate' calls.
 	static void processQueuedUpdates (void);
-
-// Protected Types
-protected:
-	typedef std::set< Node * >		ChildUpdateSet;
-	typedef std::vector< Node * >	QueuedUpdates;
-
-//Protected Member Functions
-protected:
 	// Remarks: Splitting the implementation of the update away from the update call
 	// itself allows the detail to be overridden without disrupting the general
 	// sequence of updateFromParent (e.g. raising events)
@@ -209,56 +114,22 @@ protected:
 	void _updateFromParent (void);
 
 	//! See Node.
-	Node* 	createChildImpl(void);
-	//! See Node.
-	Node* 	createChildImpl(const std::string& name);
+	virtual Node* createChildImpl(void);
+	virtual Node* createChildImpl(const std::string& name);
 
 	//! See Node.
 	void setParent(Node *parent);
-	/*
-	//! Internal method for setting whether the node is in the scene graph.
-	virtual void setInSceneGraph (bool inGraph);*/
 
-// Protected Attributes
-protected:
-	//! Scene objects attached to this node
-	ObjectMap sceneObjects_;
 	//! Pointer to parent node.
 	Node* parent_;
 	//! Collection of pointers to direct children; hashmap for efficiency.
 	ChildNodeMap children_;
 	//! List of children which need updating, used if self is not out of date but children are.
 	ChildUpdateSet childrenToUpdate_;
-
-	//! Stores the orientation of the node relative to it's parent.
-	Quaternion orientation_;
-	//! Stores the position/translation of the node relative to its parent.
-	ColumnVector position_;
-	//! Stores the scaling factor applied to this node.
-	ColumnVector scale_;
-
-	//! Cached combined orientation.
-	Quaternion derivedOrientation_;
-	//! Cached combined position.
-	ColumnVector derivedPosition_;
-	//! Cached combined scale.
-	ColumnVector derivedScale_;
-
-	//! The position to use as a base for keyframe animation.
-	ColumnVector initialPosition_;
-	//! The orientation to use as a base for keyframe animation.
-	Quaternion initialOrientation_;
-	//! The scale to use as a base for keyframe animation.
-	ColumnVector initialScale_;
-
+	//! Queue of nodes which still need updating
+	static QueuedUpdates queuedUpdates_;
 	//! Various flag states stored in 8-bit unsigned integer.
 	uint8_t flags_;
-
-	//! Cached derived transform as a 4x4 matrix.
-	mutable Matrix cachedTransform_;
-
-	//! Cached derived transform as a 4x4 matrix.
-	mutable bool cachedTransformOutOfDate_;
 };
 
 
@@ -269,7 +140,7 @@ protected:
 	virtual Object* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0);
 
 public:
-	NodeFactory() : ObjectFactory("TinySG_Node") {};
+	NodeFactory() : ObjectFactory(Node::ObjectTypeID) {};
 	virtual ~NodeFactory() {};
 
 	// To be overloaded by specific object factories

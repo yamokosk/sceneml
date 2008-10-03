@@ -25,36 +25,11 @@ namespace TinySG {
 // Forward declarations
 class Mesh;
 
-class MeshManager
+class MeshManager : public ObjectManager
 {
 public:
-	// Entities
-	typedef stdext::hash_map< std::string, Mesh*> MeshMap;
-	typedef MeshMap::iterator MeshIterator;
-	// Collection of one type of Mesh objects.. ODE, LINCANNY, etc.
-	struct MeshCollection
-	{
-		MeshMap entities_;
-	};
-	typedef stdext::hash_map< std::string, MeshCollection*> MeshCollectionMap;
-
-public:
 	MeshManager();
-	~MeshManager();
-
-	// Entities
-	Mesh* createMesh(const std::string& name,const std::string& typeName, const PropertyCollection* params = 0);
-	void destroyMesh(const std::string& name, const std::string& typeName);
-	void destroyMesh(Mesh* m);
-	void destroyAllMeshesByType(const std::string& typeName);
-	void destroyAllMeshes(void);
-	Mesh* getMesh(const std::string& name, const std::string& typeName);
-	MeshCollection* getEntitiesByType(const std::string& typeName);
-	bool hasMesh(const std::string& name, const std::string& typeName) const;
-	bool hasMesh(const Mesh* e) const;
-
-private:
-	MeshCollectionMap meshTypes_;
+	virtual ~MeshManager();
 };
 
 

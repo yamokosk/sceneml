@@ -40,39 +40,6 @@ SceneManager::~SceneManager()
 	if (rootNode_) delete rootNode_;
 }
 
-Node* SceneManager::createNode()
-{
-	// Generate a name
-	std::stringstream sname;
-	sname << "Unnamed_" << nextGeneratedNameExt_++;
-	return (Node*)createObject(sname.str(), "TinySG_Node");
-}
-
-Node* SceneManager::createNode(const std::string& name)
-{
-	return (Node*)createObject(name, "TinySG_Node");
-}
-
-void SceneManager::destroyNode(const std::string& name)
-{
-	destroyObject(name, "TinySG_Node");
-}
-
-Node* SceneManager::getRootNode() const
-{
-	return rootNode_;
-}
-
-Node* SceneManager::getNode(const std::string& name) const
-{
-	return (Node*)getObject(name, "TinySG_Node") const;
-}
-
-bool SceneManager::hasSceneNode(const std::string& name) const
-{
-	return (nodes_.find(name) != nodes_.end());
-}
-
 void SceneManager::clearScene(void)
 {
 	// Clear root node of all children

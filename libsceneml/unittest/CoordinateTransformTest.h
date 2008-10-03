@@ -10,8 +10,9 @@
 
 // Logging
 #include <log4cxx/logger.h>
-
+// CppUnit
 #include <cppunit/extensions/HelperMacros.h>
+// Class to test
 #include <CoordinateTransform.h>
 
 class CoordinateTransformTest: public CPPUNIT_NS::TestFixture
@@ -19,11 +20,7 @@ class CoordinateTransformTest: public CPPUNIT_NS::TestFixture
 	static log4cxx::LoggerPtr logger;
 
 	CPPUNIT_TEST_SUITE(CoordinateTransformTest);
-	CPPUNIT_TEST(testSimpleTransforms);
-	CPPUNIT_TEST(testCachedTransform);
-	CPPUNIT_TEST(testComplexTransforms1);
-	CPPUNIT_TEST(testComplexTransforms2);
-	CPPUNIT_TEST(testTransformUpdate);
+	CPPUNIT_TEST(testUpdateCachedTransform);
 	CPPUNIT_TEST_SUITE_END();
 private:
 	// Member variables here
@@ -32,12 +29,7 @@ public:
 	void tearDown();
 protected:
 	// Unittest declarations
-	void testSimpleTransforms();
-	void testCachedTransform();
-	void testComplexTransforms1();
-	void testComplexTransforms2();
-	void testTransformUpdate();
-
+	void testUpdateCachedTransform();
 };
 
 #endif /* COORDINATETRANSFORMTEST_H_ */
