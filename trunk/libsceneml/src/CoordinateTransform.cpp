@@ -23,7 +23,6 @@ CoordinateTransform::CoordinateTransform() :
 	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
 	cachedTransformOutOfDate_(false)
 {
-	LOG4CXX_TRACE(logger, "CoordinateTransform constructor called.");
 }
 
 CoordinateTransform::~CoordinateTransform()
