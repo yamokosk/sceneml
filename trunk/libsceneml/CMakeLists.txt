@@ -101,7 +101,7 @@ message( STATUS "	LDFlags: ${CPPUNIT_LDFLAGS}" )
 message( STATUS "	CFlags: ${CPPUNIT_CFLAGS}" )
 
 pkg_check_modules (LOG4CXX REQUIRED liblog4cxx)
-message( STATUS "Found CppUnit." )
+message( STATUS "Found log4cxx." )
 message( STATUS "	Include dirs: ${LOG4CXX_INCLUDE_DIRS}" )
 message( STATUS "	Library dirs: ${LOG4CXX_LIBRARY_DIRS}" )
 message( STATUS "	Libs: ${LOG4CXX_LIBRARIES}" )
