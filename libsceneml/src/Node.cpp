@@ -18,9 +18,7 @@
 
 #include "Node.h"
 
-#include <Variable.h>
 #include <math/Util.h>
-
 #include <boost/cast.hpp>
 #include <iostream>
 
@@ -31,14 +29,23 @@ using namespace log4cxx;
 // Initialize static elements
 LoggerPtr Node::logger(Logger::getLogger("TinySG.Node"));
 Node::QueuedUpdates Node::queuedUpdates_;
+Node::NodesToUpdate Node::nodesToUpdate_;
 const std::string Node::ObjectTypeID("TinySG_Node");
 
 // Class implementation
 Node::Node () :
 	parent_(NULL),
-	flags_(0)
+	level_(0),
+	orientation_( QuaternionFactory::IDENTITY ),
+	position_( VectorFactory::Vector3( ZERO ) ),
+	scale_( VectorFactory::Vector3( ONES ) ),
+	derivedOrientation_( QuaternionFactory::IDENTITY ),
+	derivedPosition_( VectorFactory::Vector3( ZERO ) ),
+	derivedScale_( VectorFactory::Vector3( ONES ) ),
+	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
+	flags_(Node::NeedParentUpdateBit | Node::CachedTransformOutOfDateBit)
 {
-	//needUpdate();
+	children_.clear();
 }
 
 Node::~Node()
@@ -52,16 +59,26 @@ Node::~Node()
 
 	// Detach all objects, do this manually to avoid needUpdate() call
 	// which can fail because of deleted items
-	ObjectMap::iterator itr;
+	/*ObjectMap::iterator itr;
 	Entity* ret;
 	for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 	{
 		ret = itr->second;
 		ret->_notifyAttached((Node*)0);
 	}
-	sceneObjects_.clear();
+	sceneObjects_.clear();*/
 }
 
+Object* Node::clone() const
+{
+	return new Node(*this);
+}
+
+bool Node::operator< (const Node& n)
+{
+	return (this->getLevel() < n.getLevel());
+}
+/*
 //! Gets the orientation of the node as derived from all parents.
 Quaternion Node::_getDerivedOrientation (void)
 {
@@ -112,7 +129,7 @@ const Matrix& Node::_getFullTransform (void)
 const Matrix& Node::getFullTransform (void) const
 {
 	return cachedTransform_;
-}
+}*/
 
 //! Adds a (precreated) child scene node to this node.
 void Node::addChild (Node* child)
@@ -125,6 +142,7 @@ void Node::addChild (Node* child)
 
 	children_[child->getName()] = child;
 	child->setParent(this);
+	Node::queueForUpdate(child);
 }
 
 //! Reports the number of child nodes under this one.
@@ -141,8 +159,9 @@ Node* Node::getChild (unsigned short index) const
 		ConstChildNodeIterator i = children_.begin();
 		while (index--) ++i;
 		return i->second;
-	} else
-		return NULL;
+	} else {
+		SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Child index out of bounds.");
+	}
 }
 
 //! Gets a pointer to a named child node.
@@ -168,7 +187,7 @@ Node* Node::removeChild (unsigned short index)
 		ret = i->second;
 
 		// cancel any pending update
-		cancelUpdate(ret);
+		//cancelUpdate(ret);
 
 		children_.erase(i);
 		ret->setParent(NULL);
@@ -185,18 +204,7 @@ Node* Node::removeChild (unsigned short index)
 Node* Node::removeChild (Node *child)
 {
 	if (child)
-	{
-		ChildNodeIterator i = children_.find(child->getName());
-		// ensure it's our child
-		if (i != children_.end() && i->second == child)
-		{
-			// cancel any pending update
-			cancelUpdate(child);
-
-			children_.erase(i);
-			child->setParent(NULL);
-		}
-	}
+		removeChild( child->getName() );
 	return child;
 }
 
@@ -212,7 +220,7 @@ Node* Node::removeChild (const std::string &name)
 
 	Node* ret = i->second;
 	// Cancel any pending update
-	cancelUpdate(ret);
+	//cancelUpdate(ret);
 
 	children_.erase(i);
 	ret->setParent(NULL);
@@ -230,7 +238,7 @@ void Node::removeAllChildren (void)
 		i->second->setParent(0);
 	}
 	children_.clear();
-	childrenToUpdate_.clear();
+	//childrenToUpdate_.clear();
 }
 
 //! Gets the parent of this SceneNode.
@@ -241,6 +249,277 @@ Node* Node::getParent(void) const
 
 
 
+void Node::setOrientation (const Quaternion &q)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
+	orientation_ = q;
+	setFlags( getFlags() & Node::CachedTransformOutOfDateBit );
+}
+
+void Node::setOrientation (Real w, Real x, Real y, Real z)
+{
+	Quaternion q(w, x, y, z);
+	setOrientation(q);
+}
+
+void Node::setPosition(const ColumnVector &pos)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
+	position_ = pos;
+	setFlags( getFlags() & Node::CachedTransformOutOfDateBit );
+}
+
+void Node::setPosition(Real x, Real y, Real z)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
+	ColumnVector v(3); v << x << y << z;
+	setPosition(v);
+}
+
+void Node::setScale(const ColumnVector &s)
+{
+	scale_ = s;
+	setFlags( getFlags() & Node::CachedTransformOutOfDateBit );
+}
+
+void Node::setScale(Real x, Real y, Real z)
+{
+	ColumnVector s(3); s << x << y << z;
+	setScale(s);
+}
+
+/*
+ReturnMatrix Node::getLocalAxes (void) const
+{
+	ColumnVector axisX = VectorFactory::Vector3( UNIT_X );
+	axisX = orientation_ * axisX;
+
+	ColumnVector axisY = VectorFactory::Vector3( UNIT_Y );
+	axisY = orientation_ * axisY;
+
+	ColumnVector axisZ = VectorFactory::Vector3( UNIT_Z );
+	axisZ = orientation_ * axisZ;
+
+	// Concatenate columns to form matrix
+	Matrix ret = MatrixFactory::Matrix4x4( IDENTITY );
+	ret.SubMatrix(1,3,1,3) = (axisX & axisY & axisZ);
+	ret.Release(); return ret;
+}*/
+
+const Matrix& Node::getFullTransform()
+{
+	if ( queryFlag( Node::CachedTransformOutOfDateBit ) )
+	{
+		LOG4CXX_TRACE(logger, "Cached transform out of date. Calling update method.");
+		updateCachedTransform();
+	} else {
+		LOG4CXX_TRACE(logger, "Cached transform is OK.");
+	}
+	return cachedTransform_;
+}
+
+void Node::updateCachedTransform()
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
+
+	cachedTransform_ = RotFromQuaternion( getOrientation() );
+	cachedTransform_.SubMatrix(1,3,4,4) = getPosition();
+	setFlags( getFlags() & !Node::CachedTransformOutOfDateBit );
+}
+
+const Quaternion& Node::getParentOrientation() const
+{
+	return parent_->getDerivedOrientation();
+}
+
+const ColumnVector& Node::getParentPosition() const
+{
+	return parent_->getDerivedPosition();
+}
+
+const ColumnVector& Node::getParentScale() const
+{
+	return parent_->getDerivedScale();
+}
+
+const Quaternion& Node::getDerivedOrientation()
+{
+	if ( getFlags() & Node::NeedParentUpdateBit )
+	{
+		updateFromParent();
+	}
+	return derivedOrientation_;
+}
+
+const ColumnVector& Node::getDerivedPosition()
+{
+	if ( getFlags() & Node::NeedParentUpdateBit )
+	{
+		updateFromParent();
+	}
+	return derivedPosition_;
+}
+
+const ColumnVector& Node::getDerivedScale()
+{
+	if ( getFlags() & Node::NeedParentUpdateBit )
+	{
+		updateFromParent();
+	}
+	return derivedScale_;
+}
+
+void Node::dequeueForUpdate(Node *n)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ << " for node \"" << n->getName() << "\"." );
+
+	//if ( n->queryFlag( Node::QueuedForUpdateBit ) )
+	//{
+		// Unset the queued for update flag
+	//	n->setFlags( n->getFlags() & !Node::QueuedForUpdateBit );
+
+		// Erase from queued updates
+		QueuedUpdates::iterator it = std::find( queuedUpdates_.begin(), queuedUpdates_.end(), n );
+		//assert( it != queuedUpdates_.end() );
+		if ( it != queuedUpdates_.end() )
+		{
+			// Optimised algorithm to erase an element from unordered vector.
+			*it = queuedUpdates_.back();
+			queuedUpdates_.pop_back();
+		}
+	//}
+}
+
+void Node::queueForUpdate(Node *n)
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ << " for node \"" << n->getName() << "\"." );
+
+	QueuedUpdates::iterator it = std::find( queuedUpdates_.begin(), queuedUpdates_.end(), n );
+	if ( it == queuedUpdates_.end() )
+	{
+		LOG4CXX_TRACE(logger, "Queued node \"" <<  n->getName() << "\"." );
+		queuedUpdates_.push_back(n);
+	}
+	// Don't queue the node more than once
+	/*if ( n->queryFlag( !Node::QueuedForUpdateBit ) )
+	{
+		// Set the queued for update flag
+		n->setFlags( n->getFlags() & Node::QueuedForUpdateBit );
+
+		//queuedUpdates_.push(n);
+		std::cout << n->getName() << " queued for update." << std::endl;
+	}*/
+}
+
+void Node::processQueuedUpdates (void)
+{
+	// Builds the priority queue
+	QueuedUpdates::iterator iter;
+	for (iter = queuedUpdates_.begin(); iter != queuedUpdates_.end(); ++iter)
+	{
+		Node* n = (*iter);
+		n->needUpdate();
+	}
+	queuedUpdates_.clear();
+	/*
+	while ( !queuedUpdates_.empty() )
+	{
+		Node* n = queuedUpdates_.front();
+		queuedUpdates_.pop();
+
+		if ( !n->queryFlag( Node::QueuedForUpdateBit ) )
+		{
+			continue; //LOG4CXX_ERROR(logger, "Mismatch between node \"" << n->getName() << "\" queued flag and its presence in the update queue!" );
+		} else {
+			LOG4CXX_TRACE(logger, "Processing updates for node \"" << n->getName() << "\"." );
+		}
+		// Update, and force parent update since chances are we've ended
+		// up with some mixed state in there due to re-entrancy
+		// Unset the queued for update flag
+		n->setFlags( n->getFlags() & !Node::QueuedForUpdateBit );
+		n->needUpdate();
+	}*/
+	//LOG4CXX_DEBUG(logger, "All queued node updates processed and queue cleared." );
+}
+
+void Node::updateFromParent()
+{
+	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ << " for node \"" << getName() << ", " << getLevel() << "\"." );
+
+	if ( hasParent() )
+	{
+		// Set level
+		level_ = getParent()->getLevel() + 1;
+
+		if ( queryFlag( Node::OrientationInheritedBit ) ) {
+			// Combine orientation with that of parent
+			derivedOrientation_ = getParentOrientation() * orientation_;
+		} else {
+			// No inheritance
+			derivedOrientation_ = orientation_;
+		}
+
+		// Update scale
+		if ( queryFlag( Node::ScaleInheritedBit ) ) {
+			// Scale own position by parent scale, NB just combine
+			// as equivalent axes, no shearing
+			//derivedScale_ = parentScale * scale_;
+			derivedScale_ = getParentScale();
+		} else {
+			// No inheritance
+			derivedScale_ = scale_;
+		}
+
+		// Change position vector based on parent's orientation & scale
+		//derivedPosition_ = parentOrientation * (parentScale_ * position_);
+		derivedPosition_ = getParentOrientation() * position_;
+
+		// Add altered position vector to parents
+		derivedPosition_ += getParentPosition();
+	} else {
+		level_ = 0;
+
+		// Root node, no parent
+		derivedOrientation_ = orientation_;
+		derivedPosition_ = position_;
+		derivedScale_ = scale_;
+	}
+
+	setFlags( getFlags() & ( Node::CachedTransformOutOfDateBit | !Node::NeedParentUpdateBit ) );
+}
+
+void Node::needUpdate()
+{
+	//setFlags( getFlags() & (Node::NeedParentUpdateBit | Node::CachedTransformOutOfDateBit) );
+
+	addToUpdateQueue(this);
+
+	// Make sure we're not root and parent hasn't been notified before
+	ChildNodeMap::iterator i, iend;
+	iend = children_.end();
+	for (i = children_.begin(); i != iend; ++i)
+	{
+		i->second->needUpdate();
+	}
+}
+
+void Node::addToUpdateQueue(Node* n)
+{
+	nodesToUpdate_.push(n);
+}
+
+void Node::updateNodes(void)
+{
+	while ( !nodesToUpdate_.empty() )
+	{
+		Node* n = nodesToUpdate_.top();
+		nodesToUpdate_.pop();
+
+		n->updateFromParent();
+	}
+}
+
+/*
 //! Sets the current transform of this node to be the 'initial state' ie that position / orientation / scale to be used as a basis for delta values used in keyframe animation.
 void Node::setInitialState (void)
 {
@@ -517,50 +796,50 @@ Node* Node::createChildImpl(const std::string& name)
 		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Node named " + this->getName() + " does not belong to a manager.");
 	}
 	return dynamic_cast<Node*>( getManager()->createObject(name, Node::ObjectTypeID) );
-}
+}*/
 
 void Node::setParent(Node *parent)
 {
 	bool different = (parent != parent_);
 
 	parent_ = parent;
-	// Request update from parent
-	parentNotified_ = false ;
-	needUpdate();
 
-	// Call listener (note, only called if there's something to do)
-	/*if (mListener && different)
-	{
-		if (parent_)
-		mListener->nodeAttached(this);
-		else
-		mListener->nodeDetached(this);
-	}*/
+	if ( parent != NULL )
+		level_ = parent->getLevel() + 1;
+	else
+		level_ = 0;
+	//level_ = parent->getLevel() + 1;
+	// Request update from parent
+	//parentNotified_ = false ;
+	if (different)
+		Node::queueForUpdate(this);
 }
 
+/*
 //! Triggers the node to update it's combined transforms.
 void Node::_updateFromParent (void)
 {
 	updateFromParentImpl();
-}
+}*/
 
 
 
-Object* NodeFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params = 0)
+Object* NodeFactory::createInstanceImpl(const PropertyCollection* params)
 {
-
+	return (new Node);
 }
 
 void NodeFactory::destroyInstance(Object* obj)
 {
-
+	delete obj;
 }
 
 } // Namespace: TinySG
 
+/*
 ostream& operator << (ostream& os, TinySG::Node& s)
 {
 	return os << "Name: " << s.getName() << std::endl
 	   << "Tmatrix: " << std::endl << s._getFullTransform() << std::endl;
-}
+}*/
 
