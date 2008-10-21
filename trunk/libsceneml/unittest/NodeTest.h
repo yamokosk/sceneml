@@ -26,9 +26,15 @@ class NodeTest : public CppUnit::TestFixture
 	CPPUNIT_TEST( testRemoveChildByIndex );
 	CPPUNIT_TEST( testRemoveChildByName );
 	CPPUNIT_TEST( testRemoveAllChildren );
-	CPPUNIT_TEST( testLevels );
+	CPPUNIT_TEST( testTranslateRelativeToLocal );
+	CPPUNIT_TEST( testTranslateRelativeToParent );
+	CPPUNIT_TEST( testTranslateRelativeToWorld );
+	CPPUNIT_TEST( testRotateRelativeToLocal );
+	CPPUNIT_TEST( testRotateRelativeToParent );
+	CPPUNIT_TEST( testRotateRelativeToWorld );
 	CPPUNIT_TEST( testProcessUpdates );
 	CPPUNIT_TEST_EXCEPTION( testAddChildWithParent, TinySG::InvalidParametersException );
+	CPPUNIT_TEST_EXCEPTION( testAddChildWithSameName, TinySG::ItemIdentityException );
 	CPPUNIT_TEST_EXCEPTION( testGetChildByBadIndex, TinySG::InvalidParametersException );
 	CPPUNIT_TEST_EXCEPTION( testGetChildByBadName, TinySG::ItemIdentityException );
 	CPPUNIT_TEST_EXCEPTION( testRemoveChildByBadIndex, TinySG::InvalidParametersException );
@@ -36,7 +42,7 @@ class NodeTest : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 protected:
-	TinySG::Node *n1, *n2, *n3, *n4;
+	TinySG::Node *n1, *n2, *n3, *n4, *n2_copy;
 	TinySG::NodeFactory fact;
 
 public:
@@ -44,7 +50,7 @@ public:
 	void tearDown();
 
 protected:
-	// Test cases
+	// Level 1 test cases
 	void testNumChildren();
 	void testGetChildByIndex();
 	void testGetChildByName();
@@ -52,12 +58,21 @@ protected:
 	void testRemoveChildByName();
 	void testRemoveAllChildren();
 
-	void testLevels();
+	void testTranslateRelativeToLocal();
+	void testTranslateRelativeToParent();
+	void testTranslateRelativeToWorld();
+
+	void testRotateRelativeToLocal();
+	void testRotateRelativeToParent();
+	void testRotateRelativeToWorld();
+
+	// Level 2 test cases
 	void testProcessUpdates();
 	//void testChangeParentPose();
 
 	// Exception test cases
 	void testAddChildWithParent();
+	void testAddChildWithSameName();
 	void testGetChildByBadIndex();
 	void testGetChildByBadName();
 	void testRemoveChildByBadIndex();

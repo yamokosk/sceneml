@@ -30,6 +30,7 @@
 #include "Exception.h"
 #include "Map.h"
 #include "Object.h"
+#include "MovableObject.h"
 #include "math/Math.h"
 #include "math/Vector.h"
 #include "math/Matrix.h"
@@ -48,19 +49,31 @@ class Node : public Object
 	// For logging
 	static log4cxx::LoggerPtr logger;
 
-	// Friends to the Node class
-	friend ostream& operator << (ostream& os, const TinySG::Node& s);
-
 protected:
 	typedef MAP<std::string, Node*>		ChildNodeMap;
 	typedef ChildNodeMap::iterator		ChildNodeIterator;
 	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
+	typedef MAP<std::string, MovableObject*>	ObjectMap;
+	typedef ObjectMap::iterator 		ObjectMapIterator;
+	typedef ObjectMap::const_iterator	ObjectMapConstIterator;
+
 public:
 	static const uint8_t ParentChangedBit = 0x01;
 	static const uint8_t PoseChangedBit = 0x02;
 	static const uint8_t ScaleChangedBit = 0x04;
+	static const uint8_t BoundsChangedBit = 0x08;
 	static const std::string ObjectTypeID;
+
+	enum TransformSpace
+	{
+		/// Transform is relative to the local space
+		TS_LOCAL,
+		/// Transform is relative to the space of the parent node
+		TS_PARENT,
+		/// Transform is relative to world space
+		TS_WORLD
+	};
 
 	Node();
 	virtual ~Node();
@@ -109,7 +122,7 @@ public:
 	//! Returns the scale associated with this transform
 	const ColumnVector& getScale(void) const {return scale_;}
 	//! Returns full 4x4 matrix representation of the transform
-	const Matrix& getFullTransform (void);
+	const Matrix& getFullTransform (void) const;
 	//! Returns the parent's derived orientation
 	const Quaternion& getParentOrientation() const;
 	const ColumnVector& getParentPosition() const;
@@ -119,15 +132,46 @@ public:
 	const ColumnVector& getDerivedPosition();
 	const ColumnVector& getDerivedScale();
 
+	//! Moves the node along the cartesian axes.
+	void translate(const ColumnVector &d, TransformSpace relativeTo=TS_PARENT);
+	//! Moves the node along the cartesian axes.
+	void translate(Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
+	//! Moves the node along arbitrary axes.
+	void translate(const SquareMatrix& axes, const ColumnVector &move, TransformSpace relativeTo=TS_PARENT);
+	//! Moves the node along arbitrary axes.
+	void translate(const SquareMatrix& axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
+	//! Rotate the node around an arbitrary axis.
+	void rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo=TS_LOCAL);
+	//! Rotate the node around an aritrary axis using a Quarternion.
+	void rotate(const Quaternion &q, TransformSpace relativeTo=TS_LOCAL);
+
+	//! Adds an instance of a scene object to this node.
+	void attachObject (MovableObject *obj);
+	//! Reports the number of objects attached to this node.
+	unsigned short numAttachedObjects (void) const;
+	//! Retrieves a pointer to an attached object.
+	MovableObject* getAttachedObject (unsigned short index);
+	//! Retrieves a pointer to an attached object.
+	MovableObject* getAttachedObject (const std::string &name);
+	//! Detaches the indexed object from this scene node.
+	MovableObject* detachObject (unsigned short index);
+	//! Detaches an object by pointer.
+	void detachObject (MovableObject *obj);
+	//! Detaches the named object from this node and returns a pointer to it.
+	MovableObject* detachObject (const std::string &name);
+	//! Detaches all objects attached to this node.
+	void detachAllObjects (void);
+
 	// Update management
 	virtual void update(uint8_t flags=0);
 	virtual void notifyUpdate(uint8_t hint=0);
 
 protected:
+	void updateFromParent();
 	//! See Node.
 	void setParent(Node *parent);
 	//! Internal method called to update the cached transform
-	void updateCachedTransform();
+	void updateCachedTransform() const;
 
 	//! Pointer to parent node.
 	Node* parent_;
@@ -146,12 +190,14 @@ protected:
 	//! Stores the scaling factor applied to this node.
 	ColumnVector derivedScale_;
 	//! Cached transform
-	Matrix cachedTransform_;
+	mutable Matrix cachedTransform_;
 	//! Collection of pointers to direct children; hashmap for efficiency.
 	ChildNodeMap children_;
+	//! Scene objects attached to this node
+	ObjectMap sceneObjects_;
 	//! Whether or not this node has a valid world transform.
 	bool validWorldTransform_;
-	bool cachedTransformOutOfDate_;
+	mutable bool cachedTransformOutOfDate_;
 };
 
 

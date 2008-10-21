@@ -6,6 +6,7 @@
  */
 
 #include <cppunit/config/SourcePrefix.h>
+#include <math/Vector.h>
 #include "NodeTest.h"
 
 using namespace log4cxx;
@@ -36,28 +37,32 @@ string convBase(unsigned long v, long base)
 
 void NodeTest::setUp()
 {
-	LOG4CXX_INFO(logger, "Setting up test.");
 	n1 = dynamic_cast<TinySG::Node*>( fact.createInstance("n1", NULL, NULL) );
 	n2 = dynamic_cast<TinySG::Node*>( fact.createInstance("n2", NULL, NULL) );
 	n3 = dynamic_cast<TinySG::Node*>( fact.createInstance("n3", NULL, NULL) );
 	n4 = dynamic_cast<TinySG::Node*>( fact.createInstance("n4", NULL, NULL) );
+	n2_copy = dynamic_cast<TinySG::Node*>( fact.createInstance("n2", NULL, NULL) );
 
+	/* Create tree
+			n1
+		  /	   \
+		n2		n3
+				|
+				n4
+	 */
 	n1->addChild(n2);
 	n1->addChild(n3);
 	n3->addChild(n4);
-
-	TinySG::Node::processQueuedUpdates();
-	TinySG::Node::updateNodes();
-	LOG4CXX_INFO(logger, "Test setup completed.");
+	n1->update();
 }
 
 void NodeTest::tearDown()
 {
-	LOG4CXX_INFO(logger, "Tearing down test.");
 	fact.destroyInstance(n1);
 	fact.destroyInstance(n2);
 	fact.destroyInstance(n3);
 	fact.destroyInstance(n4);
+	fact.destroyInstance(n2_copy);
 }
 
 void NodeTest::testNumChildren()
@@ -110,36 +115,62 @@ void NodeTest::testRemoveAllChildren()
 	CPPUNIT_ASSERT( n3->numChildren() == 0 );
 }
 
-void NodeTest::testLevels()
+void NodeTest::testTranslateRelativeToLocal()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	CPPUNIT_ASSERT( n1->getLevel() == 0 );
-	CPPUNIT_ASSERT( n2->getLevel() == 1 );
-	CPPUNIT_ASSERT( n3->getLevel() == 1 );
-	CPPUNIT_ASSERT( n4->getLevel() == 2 );
+	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::Node::TS_LOCAL );
+	n1->update();
+}
+
+void NodeTest::testTranslateRelativeToParent()
+{
+	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
+
+	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::Node::TS_PARENT );
+	n1->update();
+}
+
+void NodeTest::testTranslateRelativeToWorld()
+{
+	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
+
+	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::Node::TS_WORLD );
+	n1->update();
+}
+
+void NodeTest::testRotateRelativeToLocal()
+{
+	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
+
+	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::Node::TS_LOCAL);
+	n1->update();
+}
+
+void NodeTest::testRotateRelativeToParent()
+{
+	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
+
+	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::Node::TS_PARENT);
+	n1->update();
+}
+
+void NodeTest::testRotateRelativeToWorld()
+{
+	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
+
+	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::Node::TS_WORLD);
+	n1->update();
 }
 
 void NodeTest::testProcessUpdates()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	//LOG4CXX_DEBUG(logger, "flags - " << convBase(n2->getFlags(),2) );
-	//CPPUNIT_ASSERT( !n2->queryFlag( TinySG::Node::CachedTransformOutOfDateBit ) );
-	//CPPUNIT_ASSERT( !n2->queryFlag( TinySG::Node::QueuedForUpdateBit ) );
-
-	// Change pose of a node
+	std::cout << *n2;
 	n2->setPosition(4.0, 0.0, -3.0);
-
-	//LOG4CXX_DEBUG(logger, "flags - " << convBase(n2->getFlags(),2) );
-	//CPPUNIT_ASSERT( n2->queryFlag( TinySG::Node::CachedTransformOutOfDateBit ) );
-	//CPPUNIT_ASSERT( n2->queryFlag( TinySG::Node::QueuedForUpdateBit ) );
-
-	TinySG::Node::processQueuedUpdates();
-	TinySG::Node::updateNodes();
-	//LOG4CXX_DEBUG(logger, "flags - " << convBase(n2->getFlags(),2) );
-	//CPPUNIT_ASSERT( !n2->queryFlag( TinySG::Node::CachedTransformOutOfDateBit ) );
-	//CPPUNIT_ASSERT( !n2->queryFlag( TinySG::Node::QueuedForUpdateBit ) );*/
+	n1->update();
+	std::cout << *n2;
 }
 
 // Exception test cases
@@ -147,6 +178,13 @@ void NodeTest::testAddChildWithParent()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 	n1->addChild(n4);
+}
+
+void NodeTest::testAddChildWithSameName()
+{
+	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
+
+	n1->addChild(n2_copy);
 }
 
 void NodeTest::testGetChildByBadIndex()

@@ -16,40 +16,41 @@
  *
  *************************************************************************/
 /*
- * Entity.cpp
+ * MovableObject.cpp
  *
  *  Created on: Jul 23, 2008
  *      Author: yamokosk
  */
 
-#include "Entity.h"
+#include "MovableObject.h"
 #include "Node.h"
 
 namespace TinySG
 {
 
-Entity::Entity() :
+MovableObject::MovableObject() :
 	Object(),
-	visible(true)
+	visible_(true),
+	parentNode_(NULL)
 {
 }
 
-Entity::~Entity()
+MovableObject::~MovableObject()
 {
-	if (parentNode_)
-			parentNode_->detachObject(this);
+	if ( isAttached() )
+		parentNode_->detachObject(this);
 }
 
-void Entity::_notifyAttached(Node* parent)
+void MovableObject::notifyAttached(Node* parent)
 {
 	assert(!parentNode_ || !parent);
 	bool different = (parent != parentNode_);
 	parentNode_ = parent;
 }
 
-bool Entity::isAttached(void) const
+bool MovableObject::isAttached(void) const
 {
-	return (parentNode_ != 0);
+	return (parentNode_ != NULL);
 }
 
 } // Namespace TinySG
