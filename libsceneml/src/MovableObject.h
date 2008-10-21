@@ -19,45 +19,62 @@
 #ifndef _SCENE_OBJ_H_FILE_
 #define _SCENE_OBJ_H_FILE_
 
+// External includes
 #include <string>
-#include <Exception.h>
-#include <PropertyCollection.h>
+
+// Local includes
+#include "Exception.h"
+#include "Object.h"
+#include "PropertyCollection.h"
 
 namespace TinySG {
 
-// Forward declaration
-class SceneObjectCollection;
-class EntityFactory;
 class Node;
-class SceneManager;
 
 //! Base class for movable scene objects.
 /** @ingroup xode
  *  Base class for movalbe scene objects.
  */
-class Entity : public Object
+class MovableObject : public Object
 {
+	friend class Node;
+
 public:
-	Entity();
-	virtual ~Entity();
+	MovableObject();
+	virtual ~MovableObject();
 
-	virtual Entity* clone() const = 0;
-
-	void _notifyAttached(Node* parent);
-	virtual bool isAttached(void) const;
-	virtual void _notifyMoved(void) = 0;
+	virtual MovableObject* clone() const = 0;
 
 	virtual void setVisible(bool visible) {visible_ = visible;}
-	virtual bool getVisible(void) const {return visible_;}
 	virtual bool isVisible(void) const { return visible_;}
 
+	virtual bool isAttached(void) const;
+
 protected:
+	void notifyAttached(Node* parent);
+	virtual void notifyMoved(void) = 0;
+
 	//! Is this object visible?
 	bool visible_;
 	//! Node to which this object is attached
-	Node* 	parentNode_;
+	Node* parentNode_;
 };
 
+
+/*
+class MovableObjectFactory : public ObjectFactory
+{
+protected:
+	// To be overloaded by specific object factories
+	virtual Object* createInstanceImpl(const PropertyCollection* params = 0);
+
+public:
+	MovableObjectFactory(const std::string& type) : ObjectFactory(type) {};
+	virtual ~MovableObjectFactory() {};
+
+	// To be overloaded by specific object factories
+	virtual void destroyInstance(Object* obj);
+};*/
 
 } // Namespace
 
