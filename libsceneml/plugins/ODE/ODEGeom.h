@@ -8,30 +8,34 @@
 #ifndef ODEGEOM_H_
 #define ODEGEOM_H_
 
-// SceneML
-#include <SceneML.h>
+// TinySG
+#include <TinySG.h>
 
 // ODE library
 #include <ode/ode.h>
 
-namespace smlode {
+// Logging
+#include <log4cxx/logger.h>
 
-using namespace tinysg;
+namespace sgode {
 
-class Geom : public tinysg::Entity {
+using namespace TinySG;
+
+class Geom : public TinySG::MovableObject
+{
+	friend class GeomFactory;
 public:
 	Geom();
-	Geom(const std::string& name);
 	virtual ~Geom();
 
-	virtual Entity* clone() const;
+	virtual Object* clone() const;
 
-	void _setGeomID(dGeomID g) {geomID_ = g;}
-	dGeomID _getGeomID(void) {return geomID_;}
-	int _getGeomClass() {return dGeomGetClass(geomID_);}
+	dGeomID getOdeID(void) {return geomID_;}
+	int getGeomClass() {return dGeomGetClass(geomID_);}
 
+protected:
 	// Inherited from Entity
-	virtual void _notifyMoved(void);
+	virtual void notifyMoved(void);
 
 private:
 	//! ODE object pointer
@@ -39,22 +43,25 @@ private:
 	//! Geom mesh data
 	//PolyhedronPtr mesh_; // Owner of this pointer
 	//! Geom color
-	ColumnVector rgb_;
+	TinySG::Real rgb_[3];
 	//! Geom alpha (transperancy)
-	tinysg::Real alpha_;
+	TinySG::Real alpha_;
 };
 
-class GeomFactory : public EntityFactory
+
+class GeomFactory : public ObjectFactory
 {
+	static log4cxx::LoggerPtr logger;
 protected:
-	virtual Entity* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0);
+	// To be overloaded by specific object factories
+	virtual Object* createInstanceImpl(const PropertyCollection* params = 0);
 
 public:
-	GeomFactory();
-	virtual ~GeomFactory();
+	GeomFactory() : ObjectFactory("ODE_GEOM") {};
+	virtual ~GeomFactory() {};
 
-	virtual std::string getType(void) const;
-	virtual void destroyInstance(Entity* obj);
+	// To be overloaded by specific object factories
+	virtual void destroyInstance(Object* obj);
 };
 
 }

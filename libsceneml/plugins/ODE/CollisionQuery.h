@@ -9,48 +9,48 @@
 #define COLLISIONQUERY_H_
 
 // SceneML
-#include <SceneML.h>
+#include <TinySG.h>
 
 // ODE library
 #include <ode/ode.h>
 
+#include "ODEGeom.h"
+#include "ODESpace.h"
+
 #define NUM_CONTACT_POINTS 1
 
-namespace smlode {
+namespace sgode {
 
-class CollisionQuery: public tinysg::SceneQuery
+
+class CollisionReport : public TinySG::QueryResult
+{
+	typedef std::vector<dContactGeom> ContactGeometries;
+public:
+	CollisionReport(TinySG::Query* creator) : TinySG::QueryResult(creator) {};
+	virtual ~CollisionReport() {};
+
+	bool inCollision();
+	void addContactPoint(const dContactGeom&);
+	ContactGeometries getContactData() {return contactData_;}
+
+private:
+	ContactGeometries contactData_;
+};
+
+typedef auto_ptr<CollisionReport> CollisionReportPtr;
+
+
+class CollisionQuery: public TinySG::Query
 {
 public:
 	CollisionQuery();
 	virtual ~CollisionQuery();
 
-	// Inherited from SceneQuery
-	virtual tinysg::SceneQuery* clone() const;
-	virtual void execute(const tinysg::SceneManager* mgr);
-	virtual std::string getType() const;
+	// Inherited from Query
+	virtual TinySG::QueryResult* execute(const TinySG::ObjectManager* mgr, const TinySG::PropertyCollection* params = 0);
 
-	virtual tinysg::QueryResult* getResult();
-	virtual void deleteResult( tinysg::QueryResult* result );
-
-private:
-	bool inCollision_;
+	static void collisionCallback(void*, dGeomID, dGeomID);
 };
-
-class SimpleResult : public tinysg::QueryResult
-{
-public:
-	SimpleResult(tinysg::SceneQuery* creator);
-	virtual ~SimpleResult();
-
-	bool inCollision();
-	void _setCollisionStatus(bool status);
-	virtual std::string getType() const;
-
-protected:
-	bool inCollision_;
-};
-
-void collisionCallback(void* data, dGeomID o1, dGeomID o2);
 
 }
 

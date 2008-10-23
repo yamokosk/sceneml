@@ -43,7 +43,7 @@ public:
 	MovableObject();
 	virtual ~MovableObject();
 
-	virtual MovableObject* clone() const = 0;
+	virtual Object* clone() const = 0;
 
 	virtual void setVisible(bool visible) {visible_ = visible;}
 	virtual bool isVisible(void) const { return visible_;}

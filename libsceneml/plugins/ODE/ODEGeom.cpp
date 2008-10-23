@@ -7,45 +7,40 @@
 
 #include "ODEGeom.h"
 
-namespace smlode {
+namespace sgode {
 
-using namespace tinysg;
+using namespace TinySG;
+using namespace log4cxx;
 
 Geom::Geom() :
-	Entity(),
+	MovableObject(),
 	geomID_(NULL),
 	alpha_(1)
 {
-
-}
-
-Geom::Geom(const std::string& name) :
-	Entity(name),
-	geomID_(NULL),
-	alpha_(1)
-{
-
+	rgb_[0] = 0.0;
+	rgb_[1] = 0.0;
+	rgb_[2] = 0.0;
 }
 
 Geom::~Geom()
 {
-	if (geomID_) dGeomDestroy(geomID_);
+	if (geomID_ != NULL) dGeomDestroy(geomID_);
 }
 
-Entity* Geom::clone() const
+Object* Geom::clone() const
 {
 	return (new Geom(*this));
 }
 
-void Geom::_notifyMoved(void)
+void Geom::notifyMoved(void)
 {
 	assert(geomID_ && parentNode_);
 
-	if ( _getGeomClass() != dPlaneClass ) {
-		ColumnVector pos = parentNode_->_getDerivedPosition();
+	if ( getGeomClass() != dPlaneClass ) {
+		ColumnVector pos = parentNode_->getDerivedPosition();
 		dGeomSetPosition(geomID_, (dReal)pos(1), (dReal)pos(2), (dReal)pos(3));
 
-		Quaternion q = parentNode_->_getDerivedOrientation();
+		Quaternion q = parentNode_->getDerivedOrientation();
 		dQuaternion dq = {0};
 		dq[0] = (dReal)q.real();
 		dq[1] = (dReal)q.R_component_2();
@@ -55,46 +50,48 @@ void Geom::_notifyMoved(void)
 	}
 }
 
-GeomFactory::GeomFactory()
+
+//---------------------------------------------------------------------------------
+LoggerPtr GeomFactory::logger(Logger::getLogger("GeomFactory"));
+
+Object* GeomFactory::createInstanceImpl(const PropertyCollection* params)
 {
+	if ( params == NULL )
+	{
+		SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Geom parameters were not specified.");
+	}
 
-}
-
-GeomFactory::~GeomFactory()
-{
-
-}
-
-Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params)
-{
-	Geom* g = new Geom( name );
+	Geom* g = new Geom();
 
 	dGeomID geomID = NULL;
 
 	// Construct the ODE object - based on type of course
 	std::string type = params->getValue("type");
 
+	LOG4CXX_DEBUG(logger, "Got type: " << type);
+
 	if (!type.compare("box")) {
-		tinysg::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
-		tinysg::Real width = ExpressionFactory::getAsReal( params->getValue("width") );
-		tinysg::Real height = ExpressionFactory::getAsReal( params->getValue("height") );
+		TinySG::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		TinySG::Real width = ExpressionFactory::getAsReal( params->getValue("width") );
+		TinySG::Real height = ExpressionFactory::getAsReal( params->getValue("height") );
 		geomID = dCreateBox(NULL, (dReal)length, (dReal)width, (dReal)height);
+		LOG4CXX_DEBUG(logger, "Created a " << type);
 	} else if (!type.compare("ccylinder")) {
-		tinysg::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
-		tinysg::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
+		TinySG::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		TinySG::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateCCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("cylinder")) {
-		tinysg::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
-		tinysg::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
+		TinySG::Real length = ExpressionFactory::getAsReal( params->getValue("length") );
+		TinySG::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateCylinder(NULL, (dReal)radius, (dReal)length);
 	} else if (!type.compare("sphere")) {
-		tinysg::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
+		TinySG::Real radius = ExpressionFactory::getAsReal( params->getValue("radius") );
 		geomID = dCreateSphere(NULL, (dReal)radius);
 	} else if (!type.compare("plane")) {
-		tinysg::Real nx = ExpressionFactory::getAsReal( params->getValue("normal_x") );
-		tinysg::Real ny = ExpressionFactory::getAsReal( params->getValue("normal_y") );
-		tinysg::Real nz = ExpressionFactory::getAsReal( params->getValue("normal_z") );
-		tinysg::Real d = ExpressionFactory::getAsReal( params->getValue("d") );
+		TinySG::Real nx = ExpressionFactory::getAsReal( params->getValue("normal_x") );
+		TinySG::Real ny = ExpressionFactory::getAsReal( params->getValue("normal_y") );
+		TinySG::Real nz = ExpressionFactory::getAsReal( params->getValue("normal_z") );
+		TinySG::Real d = ExpressionFactory::getAsReal( params->getValue("d") );
 		geomID = dCreatePlane(NULL, (dReal)nx, (dReal)ny, (dReal)nz, (dReal)d);
 	} else if (!type.compare("mesh")) {
 		// Got to make a TriMeshObj!.. tough one.
@@ -110,7 +107,7 @@ Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyC
 			{
 				std::ostringstream msg;
 				msg << "importOBJ(): Returned an error!" << std::endl;
-				// TODO change to tinysg error
+				// TODO change to TinySG error
 				throw std::runtime_error(msg.str());
 			}
 		} else if (!extension.compare("stl")) {
@@ -120,13 +117,13 @@ Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyC
 			{
 				std::ostringstream msg;
 				msg << "importOBJ(): Returned an error!" << std::endl;
-				// TODO change to tinysg error
+				// TODO change to TinySG error
 				throw std::runtime_error(msg.str());
 			}
 		} else {
 			std::ostringstream msg;
 			msg << extension << " is an unrecognized 3D model type. Currently only stl and obj files are supported." << std::endl;
-			// TODO change to tinysg error
+			// TODO change to TinySG error
 			throw std::runtime_error(msg.str());
 		}
 
@@ -136,29 +133,26 @@ Entity* GeomFactory::createInstanceImpl(const std::string& name, const PropertyC
 			(void*)mesh->indices.get(),mesh->index_count,mesh->index_stride);
 		geomID = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);*/
 	} else {
-		std::ostringstream msg;
-		msg << type << " is an unrecognized geom type. Currently only stl and obj files are supported." << std::endl;
-		// TODO change to tinysg error
-		throw std::runtime_error(msg.str());
+		SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Geom type " + type + " is an unknown type.");
 	}
 
+	if ( params->hasProperty("position") )
+	{
+		ColumnVector pos = ExpressionFactory::getAsVector( params->getValue("position"), 3 );
+		dGeomSetPosition(geomID, pos(1), pos(2), pos(3));
+	}
 	//if (type.compare("plane")) dGeomSetBody(g, body->id());
-	//dSpaceAdd(spaceID, geomID_);
 	//dGeomSetCategoryBits(geomID_, 1);
 	//dGeomSetCollideBits(geomID_, 1);
 
-	g->_setGeomID(geomID);
+	g->geomID_ = geomID;
 	return g;
 }
 
-std::string GeomFactory::getType(void) const
+void GeomFactory::destroyInstance(Object* obj)
 {
-	return std::string("ODE_GEOM");
-}
-
-void GeomFactory::destroyInstance(Entity* obj)
-{
-	delete obj;
+	Geom* g = dynamic_cast<Geom*>(obj);
+	delete g;
 }
 
 }

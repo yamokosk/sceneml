@@ -8,19 +8,13 @@
 #include "ODESpace.h"
 #include "ODEGeom.h"
 
-namespace smlode {
-
-using namespace tinysg;
-
-Space::Space() :
-	Entity(),
-	spaceID_(NULL)
+namespace sgode
 {
 
-}
+using namespace TinySG;
 
-Space::Space(const std::string& name) :
-	Entity(name),
+Space::Space() :
+	Object(),
 	spaceID_(NULL)
 {
 
@@ -28,37 +22,29 @@ Space::Space(const std::string& name) :
 
 Space::~Space()
 {
-	if (spaceID_) dSpaceDestroy(spaceID_);
+	if (spaceID_ != NULL) dSpaceDestroy(spaceID_);
 }
 
-Entity* Space::clone() const
+Object* Space::clone() const
 {
 	return (new Space(*this));
 }
 
-void Space::addGeom(smlode::Geom* g)
+void Space::addGeom(Geom* g)
 {
-	dSpaceAdd(spaceID_, g->_getGeomID());
+	dSpaceAdd(getOdeID(), g->getOdeID());
 }
 
-inline
-void Space::_notifyMoved(void)
+
+//---------------------------------------------------------------------------------
+Object* SpaceFactory::createInstanceImpl(const PropertyCollection* params)
 {
-}
+	if ( params == NULL )
+	{
+		SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Space parameters were not specified.");
+	}
 
-SpaceFactory::SpaceFactory()
-{
-
-}
-
-SpaceFactory::~SpaceFactory()
-{
-
-}
-
-Entity* SpaceFactory::createInstanceImpl(const std::string& name, const PropertyCollection* params)
-{
-	Space* s = new Space( name );
+	Space* s = new Space();
 
 	dSpaceID spaceID = NULL, parentID = NULL;
 
@@ -75,7 +61,7 @@ Entity* SpaceFactory::createInstanceImpl(const std::string& name, const Property
 	} else if (spaceType.compare("hash") == 0) {
 		ColumnVector center = ExpressionFactory::getAsVector( params->getValue("center"), 3 );
 		ColumnVector extents = ExpressionFactory::getAsVector( params->getValue("extents"), 3 );
-		tinysg::Real depth = ExpressionFactory::getAsReal( params->getValue("depth") );
+		TinySG::Real depth = ExpressionFactory::getAsReal( params->getValue("depth") );
 
 		dVector3 dCenter = {0}, dExtents = {0};
 		for (int n=0; n<3; ++n) {
@@ -90,20 +76,42 @@ Entity* SpaceFactory::createInstanceImpl(const std::string& name, const Property
 		float minlevel = ExpressionFactory::getAsReal( params->getValue("minlevel") );
 		float maxlevel = ExpressionFactory::getAsReal( params->getValue("maxlevel") );
 		dHashSpaceSetLevels(spaceID, (int)minlevel, (int)maxlevel);
+	} else {
+		SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Space type " + spaceType + " is an unknown type.");
 	}
 
-	s->_setSpaceID(spaceID);
+	s->spaceID_ = spaceID;
 	return s;
 }
 
-std::string SpaceFactory::getType(void) const
+void SpaceFactory::destroyInstance(Object* obj)
 {
-	return std::string("ODE_SPACE");
+	Space* s = dynamic_cast<Space*>(obj);
+	delete s;
 }
 
-void SpaceFactory::destroyInstance(Entity* obj)
+
+//---------------------------------------------------------------------------------
+Object* CollisionPair::clone() const
 {
-	delete obj;
+	return (new CollisionPair(*this));
 }
 
+
+//---------------------------------------------------------------------------------
+Object* CollisionPairFactory::createInstanceImpl(const PropertyCollection* params)
+{
+	if ( params == NULL )
+	{
+		SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Collision pair parameters were not specified.");
+	}
+
+	return new CollisionPair(params->getValue("space1"), params->getValue("space2"));
+}
+
+void CollisionPairFactory::destroyInstance(Object* obj)
+{
+	CollisionPair* s = dynamic_cast<CollisionPair*>(obj);
+	delete s;
+}
 }

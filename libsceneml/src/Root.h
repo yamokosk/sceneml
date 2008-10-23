@@ -25,14 +25,12 @@
 #ifndef ROOT_H_
 #define ROOT_H_
 
-// Standard includes
-#include <hash_map>
-
 // Internal includes
-#include <Singleton.h>
-#include <SceneQuery.h>
-#include <Plugin.h>
-#include <Exception.h>
+#include "Exception.h"
+#include "Singleton.h"
+#include "SceneQuery.h"
+#include "Plugin.h"
+#include "Map.h"
 
 namespace TinySG
 {
@@ -42,14 +40,10 @@ class EntityManager;
 class MeshManager;
 class SceneManager;
 
-class EntityFactory;
-
 class Root : public Singleton<Root>
 {
+	typedef MAP<std::string, Plugin*> PluginInstanceMap;
 public:
-	typedef stdext::hash_map<std::string, EntityFactory*> EntityFactoryMap;
-	typedef stdext::hash_map<std::string, Plugin*> PluginInstanceMap;
-
 	Root();
 	virtual ~Root();
 
@@ -61,10 +55,8 @@ public:
 	SceneManager*	getSceneManager() const		{return sceneMgr_;}
 	EntityManager*	getEntityManager() const	{return entityMgr_;}
 	MeshManager*	getMeshManager() const		{return meshMgr_;}
-	QueryManager*	getQueryManager() const		{return queryMgr_;}
 	const SceneManager*		getSceneManager() const;
 	const MeshManager*		getMeshManager() const;
-	const QueryManager*		getQueryManager() const;
 	const EntityManager*	getEntityManager() const;
 
 	// Register a new EntityFactory which will create new Entity instances of a particular type, as identified by the getType() method.
@@ -86,15 +78,12 @@ public:
 	void registerPlugin( Plugin* );
 
 private:
-	EntityManager* _createEntityManager() {};
-	QueryManager* _createQueryManager() {};
-	SceneManager* _createSceneManager() {};
-	MeshManager* _createMeshManager() {};
+	EntityManager* createEntityManager() {};
+	SceneManager* createSceneManager() {};
+	MeshManager* createMeshManager() {};
 
-	EntityFactoryMap 	sceneObjectFactoryMap_;
-	EntityFactory* 	mEntityFactory;
 	SceneManager*		sceneMgr_;
-	PluginInstanceMap registeredPlugins_;
+	PluginInstanceMap	registeredPlugins_;
 };
 
 }

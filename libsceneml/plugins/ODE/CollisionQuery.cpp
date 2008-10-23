@@ -6,13 +6,27 @@
  */
 
 #include "CollisionQuery.h"
+#include <ObjectManager.h>
 
-namespace smlode {
+namespace sgode {
 
-using namespace tinysg;
+using namespace TinySG;
 
+
+bool CollisionReport::inCollision()
+{
+	return (contactData_.size() > 0);
+}
+
+void CollisionReport::addContactPoint(const dContactGeom& data)
+{
+	contactData_.push_back( data );
+}
+
+
+//--------------------------------------------------------------------------------------
 CollisionQuery::CollisionQuery() :
-	inCollision_(false)
+	TinySG::Query("ODE_COLLISION_CHECK")
 {
 }
 
@@ -20,91 +34,41 @@ CollisionQuery::~CollisionQuery()
 {
 }
 
-SceneQuery* CollisionQuery::clone() const
+QueryResult* CollisionQuery::execute(const TinySG::ObjectManager* mgr, const TinySG::PropertyCollection* params)
 {
-	return (new CollisionQuery(*this));
-}
+	CollisionReport* result = new CollisionReport(this);
 
-void CollisionQuery::execute(const SceneManager* mgr)
-{
-	this->notify(SceneQuery::QUERY_STARTED);
+	TinySG::ObjectManager::ObjectCollection* oc = mgr->getCollection( "ODE_COLLISION_PAIR" );
 
-	/*SceneManager::EntityPairsIterator itr = mgr->getEntityPairsIterator();
+	TinySG::ObjectManager::ObjectsIterator iter = oc->objects.begin();
+	TinySG::ObjectManager::ObjectsIterator iend = oc->objects.end();
+	for(; iter != iend; ++iter)
+	{
+		sgode::CollisionPair* cp = static_cast<sgode::CollisionPair*>(iter->second);
+		sgode::Space* s1 = dynamic_cast<sgode::Space*>( mgr->getObject(cp->first(), "ODE_SPACE") );
+		sgode::Space* s2 = dynamic_cast<sgode::Space*>( mgr->getObject(cp->second(), "ODE_SPACE") );
+		dSpaceCollide2( (dGeomID)s1->getOdeID(), (dGeomID)s2->getOdeID(), (void*)result, CollisionQuery::collisionCallback);
+	}
 
-	// Reset contactData vector
-	//contactData_.clear();
-
-	// Now perform space to space collision checks
-	//for (unsigned int n=0; n < spacePairs_.size(); ++n)
-	//		dSpaceCollide2((dGeomID)spacePairs_[n].first, (dGeomID)spacePairs_[n].second, (void*)&contactData_, collisionCallback);
-*/
-	this->notify(SceneQuery::QUERY_COMPLETE);
-}
-
-std::string CollisionQuery::getType() const
-{
-	return "ODE_Collision_Check";
-}
-
-QueryResult* CollisionQuery::getResult()
-{
-	SimpleResult* result = new SimpleResult(this);
-	result->_setCollisionStatus(inCollision_);
 	return result;
 }
 
-void CollisionQuery::deleteResult( QueryResult* result )
-{
-	delete result;
-}
-
-
-SimpleResult::SimpleResult(tinysg::SceneQuery* creator) :
-	tinysg::QueryResult(creator),
-	inCollision_(true)
-{
-
-}
-
-SimpleResult::~SimpleResult()
-{
-
-}
-
-bool SimpleResult::inCollision()
-{
-	return inCollision_;
-}
-
-void SimpleResult::_setCollisionStatus(bool status)
-{
-	inCollision_ = status;
-}
-
-std::string SimpleResult::getType() const
-{
-	return "ODE_Simple_Result";
-}
-
-void collisionCallback(void* data, dGeomID o1, dGeomID o2)
+void CollisionQuery::collisionCallback(void* ptr, dGeomID o1, dGeomID o2)
 {
 	// TODO: If the Geom is a TriMesh, I might need to be setting the previous
 	// transform with calls to void dGeomTriMeshSetLastTransform( dGeomID g, dMatrix4 last_trans )
 	// and dReal* dGeomTriMeshGetLastTransform( dGeomID g )
-	//bool* bVal = (bool*)data;
 
-	unsigned long col1 = dGeomGetCollideBits(o1);
-	unsigned long col2 = dGeomGetCollideBits(o2);
-
-	int flags = 0;
-	//mBitsOn(flags, NUM_CONTACT_POINTS);
 	dContactGeom dContactPts[NUM_CONTACT_POINTS];
 
-	int numContactPts = dCollide(o1, o2, flags, dContactPts, sizeof(dContactGeom));
+	int numContactPts = dCollide(o1, o2, NUM_CONTACT_POINTS, dContactPts, sizeof(dContactGeom));
 	if (numContactPts > 0) {
-		//ContactGeoms_t* pContactData = (ContactGeoms_t*)data;
-		//for (int n=0; n < numContactPts; ++n) (*pContactData).push_back( dContactPts[n] );
+		sgode::CollisionReport* res = static_cast<sgode::CollisionReport*>(ptr);
+		for (int n=0; n < numContactPts; ++n) res->addContactPoint( dContactPts[n] );
 	}
 }
+
+
+
 
 }

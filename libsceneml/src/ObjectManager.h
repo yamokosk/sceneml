@@ -31,6 +31,7 @@
 // Internal
 #include "Exception.h"
 #include "Object.h"
+#include "Query.h"
 #include "Map.h"
 
 namespace TinySG
@@ -38,7 +39,7 @@ namespace TinySG
 
 class ObjectManager
 {
-protected:
+public:
 	typedef MAP<std::string, Object*> Objects;
 	typedef Objects::iterator ObjectsIterator;
 	typedef Objects::const_iterator ObjectsConstIterator;
@@ -53,6 +54,9 @@ protected:
 	typedef MAP<std::string, ObjectCollection*> Collections;
 	typedef Collections::iterator CollectionsIterator;
 	typedef Collections::const_iterator CollectionsConstIterator;
+
+	typedef MAP<std::string, Query*> Queries;
+	typedef Queries::iterator QueryIterator;
 
 public:
 	ObjectManager();
@@ -69,15 +73,19 @@ public:
 	virtual void registerFactory( ObjectFactory* obj );
 	virtual ObjectFactory* getFactory( const std::string& type ) const;
 
-protected:
 	// Collections management
 	void destroyCollection( const std::string& type );
 	void destroyCollection( ObjectCollection* collection );
 	void destroyAllCollections();
 	ObjectCollection* getCollection( const std::string& type ) const;
 
+	// Query management
+	virtual QueryResult* performQuery( const std::string queryName, const PropertyCollection* params=0 );
+	virtual void addQuery( Query* query );
+
 private:
 	Collections objectCollections_;
+	Queries queries_;
 };
 
 }
