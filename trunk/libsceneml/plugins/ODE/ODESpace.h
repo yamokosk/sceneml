@@ -26,51 +26,84 @@
 #define ODESPACE_H_
 
 // SceneML
-#include <SceneML.h>
+#include <TinySG.h>
 
 // ODE library
 #include <ode/ode.h>
 
-namespace smlode
+namespace sgode
 {
 
-using namespace tinysg;
+using namespace TinySG;
 
 // Forward declarations
 class Geom;
+class SpaceFactory;
 
-class Space: public tinysg::Entity
+class Space: public TinySG::Object
 {
+	friend class SpaceFactory;
+
 public:
 	Space();
-	Space(const std::string& name);
 	virtual ~Space();
 
-	virtual Entity* clone() const;
+	virtual Object* clone() const;
 
-	void _setSpaceID(dSpaceID s) {spaceID_ = s;}
-	dSpaceID _getGeomID(void) {return spaceID_;}
-	void addGeom(smlode::Geom* g);
-
-	// Inherited from Entity
-	virtual void _notifyMoved(void);
+	void addGeom(Geom* g);
+	dSpaceID getOdeID() {return spaceID_;}
+	int getGeomClass() {return dGeomGetClass((dGeomID)spaceID_);}
 
 private:
 	//! ODE object pointer
 	dSpaceID spaceID_;
 };
 
-class SpaceFactory : public EntityFactory
+
+class SpaceFactory : public ObjectFactory
 {
 protected:
-	virtual Entity* createInstanceImpl(const std::string& name, const PropertyCollection* params = 0);
+	// To be overloaded by specific object factories
+	virtual Object* createInstanceImpl(const PropertyCollection* params = 0);
 
 public:
-	SpaceFactory();
-	virtual ~SpaceFactory();
+	SpaceFactory() : ObjectFactory("ODE_SPACE") {};
+	virtual ~SpaceFactory() {};
 
-	virtual std::string getType(void) const;
-	virtual void destroyInstance(Entity* obj);
+	// To be overloaded by specific object factories
+	virtual void destroyInstance(Object* obj);
+};
+
+
+class CollisionPair : public TinySG::Object
+{
+public:
+	CollisionPair(const std::string& one, const std::string& two) : TinySG::Object(), space1_(one), space2_(two) {}
+	virtual ~CollisionPair() {}
+
+	virtual Object* clone() const;
+
+	const std::string& first() const {return space1_;}
+	const std::string& second() const {return space2_;}
+
+private:
+	std::string space1_;
+	std::string space2_;
+};
+
+
+class CollisionPairFactory : public TinySG::ObjectFactory
+{
+protected:
+	// To be overloaded by specific object factories
+	virtual Object* createInstanceImpl(const PropertyCollection* params = 0);
+
+public:
+	CollisionPairFactory() : ObjectFactory("ODE_COLLISION_PAIR") {};
+	virtual ~CollisionPairFactory() {};
+
+	// To be overloaded by specific object factories
+	virtual void destroyInstance(Object* obj);
 };
 
 }

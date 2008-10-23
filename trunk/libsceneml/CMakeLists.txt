@@ -161,6 +161,7 @@ else (NOT DEPENDENCY_CHECK)
 	# We have all of our dependencies... so build it!
 	#subdirs( src )
 	add_subdirectory(unittest)
+	add_subdirectory(plugins)
 	#if (BUILD_TESTS)
 	#	subdirs( tests )
 	#endif (BUILD_TESTS)

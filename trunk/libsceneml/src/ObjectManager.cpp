@@ -35,6 +35,13 @@ ObjectManager::ObjectManager()
 ObjectManager::~ObjectManager()
 {
 	destroyAllCollections();
+
+	QueryIterator iter = queries_.begin();
+	for (; iter != queries_.end(); ++iter)
+	{
+		delete iter->second;
+	}
+	queries_.clear();
 }
 
 Object* ObjectManager::createObject(const std::string& name, const std::string& type, const PropertyCollection* params)
@@ -179,5 +186,33 @@ ObjectManager::ObjectCollection* ObjectManager::getCollection( const std::string
 
 	return iter->second;
 }
+
+QueryResult* ObjectManager::performQuery( const std::string queryName, const PropertyCollection* params )
+{
+	QueryIterator iter = queries_.find(queryName);
+
+	if ( iter == queries_.end() )
+	{
+		std::ostringstream msg;
+		msg << "The query \"" << queryName << "\" does not exist.";
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, msg.str());
+	}
+
+	Query* q = iter->second;
+	return q->execute(this, params);
+}
+
+void ObjectManager::addQuery( Query* query )
+{
+	if ( queries_.find(query->getType()) != queries_.end() )
+	{
+		std::ostringstream msg;
+		msg << "The query \"" << query->getType() << "\" is already registered with this object manager.";
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, msg.str());
+	}
+
+	queries_[query->getType()] = query;
+}
+
 
 }

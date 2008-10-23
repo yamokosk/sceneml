@@ -16,26 +16,26 @@
  *
  *************************************************************************/
 /*
- * QueryManager.h
+ * TinySG.h
  *
- *  Created on: Jul 31, 2008
+ *  Created on: Oct 22, 2008
  *      Author: yamokosk
  */
 
-#ifndef QUERYMANAGER_H_
-#define QUERYMANAGER_H_
+#ifndef TINYSG_H_
+#define TINYSG_H_
 
-namespace TinySG
-{
+#include <Exception.h>
+#include <Node.h>
+#include <MovableObject.h>
+#include <PropertyCollection.h>
+#include <Query.h>
 
-class QueryManager
-{
-public:
-	QueryManager();
-	virtual ~QueryManager();
+#include <math/Math.h>
+#include <math/MathExpression.h>
+#include <math/Quaternion.h>
+#include <math/Matrix.h>
+#include <math/Vector.h>
+#include <math/Util.h>
 
-};
-
-}
-
-#endif /* QUERYMANAGER_H_ */
+#endif /* TINYSG_H_ */

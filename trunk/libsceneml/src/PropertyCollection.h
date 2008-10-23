@@ -23,6 +23,7 @@
 #include <log4cxx/logger.h>
 
 #include <string>
+#include <memory>
 
 // Internal
 #include "Map.h"
@@ -54,10 +55,12 @@ public:
 
 	unsigned int size() const {return (unsigned int)pairs_.size();}
 	std::string getValue(const char* key) const throw (TinySG::Exception);
-
+	bool hasProperty(const char* key) const;
 private:
 	PairMap pairs_;
 };
+
+typedef std::auto_ptr<PropertyCollection> PropertyCollectionPtr;
 
 } // Namespace
 

@@ -121,5 +121,9 @@ std::string PropertyCollection::getValue(const char* key) const throw (TinySG::E
 	SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, errTxt.str());
 }
 
+bool PropertyCollection::hasProperty(const char* key) const
+{
+	return ( pairs_.find(key) != pairs_.end() );
+}
 
 } // Namespace

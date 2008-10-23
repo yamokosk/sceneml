@@ -27,53 +27,26 @@
 // Internal includes
 #include "Exception.h"
 #include "ObjectManager.h"
-#include "Root.h"
 #include "Map.h"
-#include "Entity.h"
 
 namespace TinySG {
 
 // Forward declarations
 class Node;
 
-class SceneManager : public Observer, public ObjectManager
+class SceneGraph : public ObjectManager
 {
 	static unsigned long nextGeneratedNameExt_;
 
 public:
-	// Queries
-	typedef std::queue< SceneQuery* > QueryQueue;
+	SceneGraph();
+	virtual ~SceneGraph();
 
-	// Query results
-	typedef stdext::hash_map<std::string, QueryResult*> ResultMap;
-	typedef ResultMap::iterator ResultMapIterator;
-
-	SceneManager();
-	virtual ~SceneManager();
 	void clearScene();
-
-	// Queries
-	QueryResult* getQueryResult(const std::string& typeName);
-	void destroyAllQueryResults();
-	void _addResult(QueryResult* result);
-
-	// Update scene
 	void update();
-
-	// Internal functions
-	void _addQuery(SceneQuery* query);
-	void _performQueries();
-
-	void _updateSceneGraph();
-
-	// From Observer class
-	void update(int hint);
 
 private:
 	Node* rootNode_;
-
-	QueryQueue queries_;
-	ResultMap results_;
 };
 
 }

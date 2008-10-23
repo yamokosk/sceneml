@@ -16,41 +16,26 @@
  *
  *************************************************************************/
 /*
- * SceneQuery.cpp
+ * QueryManager.h
  *
  *  Created on: Jul 31, 2008
  *      Author: yamokosk
  */
 
-#include "SceneQuery.h"
+#ifndef QUERYMANAGER_H_
+#define QUERYMANAGER_H_
 
 namespace TinySG
 {
 
-SceneQuery::SceneQuery()
+class QueryManager : public ObjectManager
 {
+public:
+	QueryManager();
+	virtual ~QueryManager();
+
+};
 
 }
 
-SceneQuery::~SceneQuery()
-{
-
-}
-
-QueryResult::QueryResult(SceneQuery* creator) :
-	creator_(creator)
-{
-
-}
-
-QueryResult::~QueryResult()
-{
-
-}
-
-SceneQuery* QueryResult::getCreator()
-{
-	return creator_;
-}
-
-} // Namespace: TinySG
+#endif /* QUERYMANAGER_H_ */
