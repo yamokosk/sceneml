@@ -16,44 +16,21 @@
  *
  *************************************************************************/
 
-#include <tinysg/SceneGraph.h>
-#include <tinysg/Node.h>
+#ifndef _ENTITYMGR_H_FILE_
+#define _ENTITYMGR_H_FILE_
 
-namespace TinySG
+#include <tinysg/ObjectManager.h>
+
+namespace TinySG {
+
+class EntityManager : public ObjectManager
 {
 
-unsigned long SceneGraph::nextGeneratedNameExt_ = 1;
+public:
+	EntityManager();
+	virtual ~EntityManager();
+};
 
-SceneGraph::SceneGraph()
-{
-	registerFactory( new NodeFactory() );
-
-	rootNode_ = static_cast<Node*>(createObject("_WORLD_", Node::ObjectTypeID));
 }
 
-SceneGraph::~SceneGraph()
-{
-	clearScene();
-
-	if (rootNode_) delete rootNode_;
-}
-
-void SceneGraph::clearScene(void)
-{
-	// Clear root node of all children
-	rootNode_->removeAllChildren();
-
-	// Delete all SceneNodes, except root that is
-	destroyAllObjects( Node::ObjectTypeID );
-}
-
-void SceneGraph::update()
-{
-	// Cascade down the graph updating transforms & world bounds
-	// In this implementation, just update from the root
-	// Smarter SceneGraph subclasses may choose to update only
-	//   certain scene graph branches
-	rootNode_->update();
-}
-
-} // namespace TinySG
+#endif

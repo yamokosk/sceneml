@@ -1,5 +1,5 @@
 /*************************************************************************
- * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -22,10 +22,10 @@
  *      Author: yamokosk
  */
 
-#include "Root.h"
+#include <tinysg/Root.h>
 
-#include <SceneManager.h>
-#include <Entity.h>
+#include <tinysg/SceneGraph.h>
+#include <tinysg/MovableObject.h>
 
 namespace TinySG
 {

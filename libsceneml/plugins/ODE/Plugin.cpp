@@ -1,5 +1,5 @@
 /*************************************************************************
- * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -22,19 +22,45 @@
  *      Author: yamokosk
  */
 
-#include <tinysg/Plugin.h>
+#include "Plugin.h"
 
-namespace TinySG
+namespace sgode
 {
 
-Plugin::Plugin()
+Plugin::Plugin() :
+	tinysg::Plugin("ODE"),
+	geomFactory_(),
+	spaceFactory_(),
+	collisionQuery_(),
+	world_(NULL)
 {
+	// TODO Auto-generated constructor stub
 
 }
 
 Plugin::~Plugin()
 {
-
+	// TODO Auto-generated destructor stub
 }
+
+void Plugin::initialize()
+{
+	dInitODE();
+	world_ = dWorldCreate();
+}
+
+void Plugin::registerFactories(Root* r)
+{
+	r->addEntityFactory( &geomFactory_ );
+	r->addEntityFactory( &spaceFactory_ );
+	r->addSceneQueryFactory( &collisionQuery_ );
+}
+
+void Plugin::unload()
+{
+	dWorldDestroy(world_);
+	dCloseODE();
+}
+
 
 }

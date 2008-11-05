@@ -16,25 +16,42 @@
  *
  *************************************************************************/
 /*
- * Plugin.cpp
+ * Plugin.h
  *
  *  Created on: Jul 30, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/Plugin.h>
+#ifndef PLUGIN_H_
+#define PLUGIN_H_
+
+// Standard includes
+#include <string>
 
 namespace TinySG
 {
 
-Plugin::Plugin()
+// Forward declarations
+class Root;
+
+class Plugin
 {
+public:
+	Plugin(const std::string& type) : type_(type) {};
+	virtual ~Plugin();
+
+	// Functions to be implemented by child classes
+	virtual void initialize() = 0;
+	virtual void registerFactories(Root* r) = 0;
+	virtual void unload() = 0;
+
+	// Returns plugin type.. needs to be a unique identifier
+	const std::string& getType();
+
+private:
+	const std::string type_;
+};
 
 }
 
-Plugin::~Plugin()
-{
-
-}
-
-}
+#endif /* PLUGIN_H_ */

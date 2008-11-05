@@ -8,8 +8,8 @@
 #include <cppunit/config/SourcePrefix.h>
 #include "CollisionTest.h"
 
-#include <ODESpace.h>
-#include <ODEGeom.h>
+#include <Space.h>
+#include <Geom.h>
 
 using namespace log4cxx;
 

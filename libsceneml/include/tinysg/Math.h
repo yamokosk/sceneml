@@ -15,26 +15,47 @@
  * more details.
  *
  *************************************************************************/
-/*
- * Plugin.cpp
- *
- *  Created on: Jul 30, 2008
- *      Author: yamokosk
- */
 
-#include <tinysg/Plugin.h>
+#ifndef _SML_MATH_H_FILE_
+#define _SML_MATH_H_FILE_
 
-namespace TinySG
-{
+//#include <smlConfig.h>
 
-Plugin::Plugin()
-{
+#define USE_DOUBLE_PRECISION
 
-}
+#ifdef USE_DOUBLE_PRECISION
+#include <math/DoubleConstants.h>
+#else
+#include <math/FloatConstants.h>
+#endif
 
-Plugin::~Plugin()
-{
+#include <cmath>
+#include <boost/math/complex/asin.hpp>
+#include <boost/math/complex/acos.hpp>
+#include <boost/math/complex/atan.hpp>
 
-}
+namespace TinySG {
 
-}
+#ifdef USE_DOUBLE_PRECISION
+typedef double Real;
+#else
+typedef float Real;
+#endif
+
+enum FactoryTypes {
+	IDENTITY=0,
+	ZERO,
+	UNIT_X,
+	UNIT_Y,
+	UNIT_Z,
+	ONES
+};
+
+enum EulerSequences {
+	XYZ=0,
+	ZXY
+};
+
+} // namespace TinySG
+
+#endif

@@ -16,25 +16,28 @@
  *
  *************************************************************************/
 /*
- * Plugin.cpp
+ * Map.h
  *
- *  Created on: Jul 30, 2008
+ *  Created on: Aug 27, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/Plugin.h>
+#ifndef MAP_H_
+#define MAP_H_
 
-namespace TinySG
-{
+#ifdef __GNUC__
 
-Plugin::Plugin()
-{
+#include <map>
 
-}
+#define MAP std::map
 
-Plugin::~Plugin()
-{
+#else
 
-}
+#include <hash_map>
 
-}
+#define MAP stdext::hash_map
+//#define MAP std::map
+
+#endif
+
+#endif /* HASHMAP_H_ */

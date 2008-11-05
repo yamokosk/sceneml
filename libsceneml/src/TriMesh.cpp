@@ -15,26 +15,43 @@
  * more details.
  *
  *************************************************************************/
-/*
- * Plugin.cpp
- *
- *  Created on: Jul 30, 2008
- *      Author: yamokosk
- */
 
-#include <tinysg/Plugin.h>
+#include <tinysg/TriMesh.h>
+
 
 namespace TinySG
 {
 
-Plugin::Plugin()
+void TriMesh::init(unsigned int nv, unsigned int nf)
 {
-
+	vertices_.reserve(nv);
+	faces_.reserve(nf);
 }
 
-Plugin::~Plugin()
+unsigned int TriMesh::addVertex(float x, float y, float z)
 {
-
+	Vertex v; v.x = x; v.y = y; v.z = z;
+	vertices_.push_back( v );
+	return numVertices()-1;
 }
 
+unsigned int TriMesh::addVertex(const TriMesh::Vertex& v)
+{
+	vertices_.push_back( v );
+	return numVertices()-1;
 }
+
+unsigned int TriMesh::addFace(unsigned int v1, unsigned int v2, unsigned int v3)
+{
+	Face f; f.v1 = v1; f.v2 = v2; f.v3 = v3;
+	faces_.push_back( f );
+	return numFaces()-1;
+}
+
+unsigned int TriMesh::addFace(const TriMesh::Face& f)
+{
+	faces_.push_back( f );
+	return numFaces()-1;
+}
+
+} // End TinySG namespace

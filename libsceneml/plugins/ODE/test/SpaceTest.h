@@ -13,7 +13,7 @@
 // CppUnit
 #include <cppunit/extensions/HelperMacros.h>
 // Class to test
-#include <ODESpace.h>
+#include <Space.h>
 
 class SpaceTest : public CppUnit::TestFixture
 {
