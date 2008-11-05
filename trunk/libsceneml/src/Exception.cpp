@@ -1,5 +1,5 @@
 /*************************************************************************
-* SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+* TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
 * All rights reserved.
 * Email: yamokosk at gmail dot com
 *
@@ -16,7 +16,7 @@
 *
 *************************************************************************/
 
-#include "Exception.h"
+#include <tinysg/Exception.h>
 
 namespace TinySG {
 

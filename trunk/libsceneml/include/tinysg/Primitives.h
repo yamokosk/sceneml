@@ -16,44 +16,19 @@
  *
  *************************************************************************/
 
-#include <tinysg/SceneGraph.h>
-#include <tinysg/Node.h>
+#ifndef PRIMITIVES_H
+#define PRIMITIVES_H
 
 namespace TinySG
 {
 
-unsigned long SceneGraph::nextGeneratedNameExt_ = 1;
+// Forward declaration
+class TriMesh;
 
-SceneGraph::SceneGraph()
-{
-	registerFactory( new NodeFactory() );
+void createSphere (TriMesh* mesh, float radius, unsigned int quality);
+void createCapsule(TriMesh*, float len, float radius, unsigned int quality);
+void createCylinder(TriMesh*, float len, float radius, unsigned int quality);
+void createBox(TriMesh* mesh, float lx, float ly, float lz);
 
-	rootNode_ = static_cast<Node*>(createObject("_WORLD_", Node::ObjectTypeID));
 }
-
-SceneGraph::~SceneGraph()
-{
-	clearScene();
-
-	if (rootNode_) delete rootNode_;
-}
-
-void SceneGraph::clearScene(void)
-{
-	// Clear root node of all children
-	rootNode_->removeAllChildren();
-
-	// Delete all SceneNodes, except root that is
-	destroyAllObjects( Node::ObjectTypeID );
-}
-
-void SceneGraph::update()
-{
-	// Cascade down the graph updating transforms & world bounds
-	// In this implementation, just update from the root
-	// Smarter SceneGraph subclasses may choose to update only
-	//   certain scene graph branches
-	rootNode_->update();
-}
-
-} // namespace TinySG
+#endif

@@ -1,5 +1,5 @@
 /*************************************************************************
-* SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+* TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
 * All rights reserved.
 * Email: yamokosk at gmail dot com
 *
@@ -16,9 +16,8 @@
 *
 *************************************************************************/
 
-#include "Node.h"
-
-#include <math/Util.h>
+#include <tinysg/Node.h>
+#include <tinysg/MathUtil.h>
 #include <boost/cast.hpp>
 #include <iostream>
 

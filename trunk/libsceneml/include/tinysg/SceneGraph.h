@@ -16,44 +16,39 @@
  *
  *************************************************************************/
 
-#include <tinysg/SceneGraph.h>
-#include <tinysg/Node.h>
+#ifndef _TINYSG_SCENEMGR_H_FILE_
+#define _TINYSG_SCENEMGR_H_FILE_
 
-namespace TinySG
+// External includes
+#include <string>
+#include <utility>
+#include <queue>
+
+// Internal includes
+#include <tinysg/Exception.h>
+#include <tinysg/ObjectManager.h>
+#include <tinysg/Map.h>
+
+namespace TinySG {
+
+// Forward declarations
+class Node;
+
+class SceneGraph : public ObjectManager
 {
+	static unsigned long nextGeneratedNameExt_;
 
-unsigned long SceneGraph::nextGeneratedNameExt_ = 1;
+public:
+	SceneGraph();
+	virtual ~SceneGraph();
 
-SceneGraph::SceneGraph()
-{
-	registerFactory( new NodeFactory() );
+	void clearScene();
+	void update();
 
-	rootNode_ = static_cast<Node*>(createObject("_WORLD_", Node::ObjectTypeID));
+private:
+	Node* rootNode_;
+};
+
 }
 
-SceneGraph::~SceneGraph()
-{
-	clearScene();
-
-	if (rootNode_) delete rootNode_;
-}
-
-void SceneGraph::clearScene(void)
-{
-	// Clear root node of all children
-	rootNode_->removeAllChildren();
-
-	// Delete all SceneNodes, except root that is
-	destroyAllObjects( Node::ObjectTypeID );
-}
-
-void SceneGraph::update()
-{
-	// Cascade down the graph updating transforms & world bounds
-	// In this implementation, just update from the root
-	// Smarter SceneGraph subclasses may choose to update only
-	//   certain scene graph branches
-	rootNode_->update();
-}
-
-} // namespace TinySG
+#endif

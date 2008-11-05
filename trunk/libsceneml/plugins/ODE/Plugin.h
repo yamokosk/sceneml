@@ -1,5 +1,5 @@
 /*************************************************************************
- * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -16,25 +16,47 @@
  *
  *************************************************************************/
 /*
- * Plugin.cpp
+ * Plugin.h
  *
  *  Created on: Jul 30, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/Plugin.h>
+#ifndef _ODE_PLUGIN_H_
+#define _ODE_PLUGIN_H_
 
-namespace TinySG
+// SceneML
+#include <TinySG.h>
+
+// ODE library
+#include <ode/ode.h>
+
+#include "Geom.h"
+#include "Space.h"
+#include "CollisionQuery.h"
+
+namespace sgode
 {
 
-Plugin::Plugin()
+class Plugin : public TinySG::Plugin
 {
+public:
+	Plugin();
+	virtual ~Plugin();
+
+	// Inhereted from TinySG::Plugin
+	virtual void initialize();
+	virtual void registerFactories(TinySG::Root* r);
+	virtual void unload();
+
+private:
+	GeomFactory geomFactory_;
+	SpaceFactory spaceFactory_;
+	CollisionPairFactory pairFactory_;
+	CollisionQuery collisionQuery_;
+	dWorldID world_;
+};
 
 }
 
-Plugin::~Plugin()
-{
-
-}
-
-}
+#endif /* ODEPLUGIN_H_ */

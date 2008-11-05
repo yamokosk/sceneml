@@ -16,25 +16,35 @@
  *
  *************************************************************************/
 /*
- * Plugin.cpp
+ * MathExpression.h
  *
- *  Created on: Jul 30, 2008
+ *  Created on: Jul 17, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/Plugin.h>
+#ifndef MATHEXPRESSION_H_
+#define MATHEXPRESSION_H_
+
+#include <string>
+#include <tinysg/Math.h>
+#include <newmat/newmat.h>
 
 namespace TinySG
 {
 
-Plugin::Plugin()
+class ExpressionFactory
 {
+public:
+	static TinySG::Real getAsReal(const std::string& expr);
+	static int getAsInt(const std::string& expr);
+	static ReturnMatrix getAsVector(const std::string& expr, unsigned int length);
+
+private:
+
+	static TinySG::Real parseValue(const char* str);
+	static ReturnMatrix parseVector(const char* str);
+};
 
 }
 
-Plugin::~Plugin()
-{
-
-}
-
-}
+#endif /* MATHEXPRESSION_H_ */

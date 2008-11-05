@@ -13,8 +13,8 @@
 // CppUnit
 #include <cppunit/extensions/HelperMacros.h>
 // Class to test
-#include <ODESpace.h>
-#include <ODEGeom.h>
+#include <Space.h>
+#include <Geom.h>
 
 class GeomTest : public CppUnit::TestFixture
 {

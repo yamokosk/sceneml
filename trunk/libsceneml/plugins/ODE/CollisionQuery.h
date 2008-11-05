@@ -5,8 +5,8 @@
  *      Author: yamokosk
  */
 
-#ifndef COLLISIONQUERY_H_
-#define COLLISIONQUERY_H_
+#ifndef _ODE_COLLISIONQUERY_H_
+#define _ODE_COLLISIONQUERY_H_
 
 // SceneML
 #include <TinySG.h>
@@ -14,12 +14,13 @@
 // ODE library
 #include <ode/ode.h>
 
-#include "ODEGeom.h"
-#include "ODESpace.h"
+#include "Geom.h"
+#include "Space.h"
 
 #define NUM_CONTACT_POINTS 1
 
-namespace sgode {
+namespace sgode
+{
 
 
 class CollisionReport : public TinySG::QueryResult

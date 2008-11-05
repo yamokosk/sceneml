@@ -1,5 +1,5 @@
 /*************************************************************************
- * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -16,7 +16,7 @@
  *
  *************************************************************************/
 
-#include "PropertyCollection.h"
+#include <tinysg/PropertyCollection.h>
 #include <assert.h>
 #include <sstream>
 #include <string>

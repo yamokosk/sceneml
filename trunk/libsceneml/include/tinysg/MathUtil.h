@@ -16,25 +16,35 @@
  *
  *************************************************************************/
 /*
- * Plugin.cpp
+ * Util.h
  *
- *  Created on: Jul 30, 2008
+ *  Created on: Jul 28, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/Plugin.h>
+#ifndef UTIL_H_
+#define UTIL_H_
+
+// Internal
+#include <tinysg/Math.h>
+#include <tinysg/Vector.h>
+#include <tinysg/Matrix.h>
+#include <tinysg/Quaternion.h>
 
 namespace TinySG
 {
+	// Quaternion construction utility functions
+	Quaternion QuatFromAngleAxis(Real angle, const ColumnVector& axis);
+	Quaternion QuatFromRotationMatrix(const Matrix& kRot);
+	Quaternion QuatFromEulerAngles(int choice, const ColumnVector& angles);
 
-Plugin::Plugin()
-{
-
+	// Matrix construction utility functions
+	ReturnMatrix RotFromAngleAxis(Real angle, const ColumnVector& axis);
+	ReturnMatrix RotFromEulerSequence(int seqType, Real tx_, Real ty_, Real tz_);
+	ReturnMatrix RotFromQuaternion(const Quaternion& q);
 }
 
-Plugin::~Plugin()
-{
+// Global operators
+ReturnMatrix operator* (const TinySG::Quaternion& q, const ColumnVector& v);
 
-}
-
-}
+#endif /* UTIL_H_ */

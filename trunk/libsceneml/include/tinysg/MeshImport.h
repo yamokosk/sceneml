@@ -16,25 +16,24 @@
  *
  *************************************************************************/
 /*
- * Plugin.cpp
+ * MeshImport.h
  *
- *  Created on: Jul 30, 2008
+ *  Created on: Nov 3, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/Plugin.h>
+#ifndef MESHIMPORT_H_
+#define MESHIMPORT_H_
+
+// Forward declaration
+class TriMesh;
 
 namespace TinySG
 {
 
-Plugin::Plugin()
-{
+void importOBJ(const std::string& filename, TriMesh* m, float sx=1.0f, float sy=1.0f, float sz=1.0f);
+void importSTL(const std::string& filename, TriMesh* m, float sx=1.0f, float sy=1.0f, float sz=1.0f)
 
 }
 
-Plugin::~Plugin()
-{
-
-}
-
-}
+#endif /* MESHIMPORT_H_ */
