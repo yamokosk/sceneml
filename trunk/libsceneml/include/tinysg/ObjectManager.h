@@ -33,6 +33,7 @@
 #include <tinysg/Object.h>
 #include <tinysg/Query.h>
 #include <tinysg/Map.h>
+#include <tinysg/Archive.h>
 
 namespace TinySG
 {
@@ -82,6 +83,9 @@ public:
 	// Query management
 	virtual QueryResult* performQuery( const std::string queryName, const PropertyCollection* params=0 );
 	virtual void addQuery( Query* query );
+
+	void save(Archive& ar);
+	void load(const Archive& ar);
 
 private:
 	Collections objectCollections_;

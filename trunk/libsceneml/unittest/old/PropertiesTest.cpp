@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE( update_pair_test )
 	//	getChild()
 
 	SceneManager mgr;
-	Node n1(&mgr, "node1");
-	Node n2(&mgr, "node2");
+	SceneNode n1(&mgr, "node1");
+	SceneNode n2(&mgr, "node2");
 
 	//	addChild(), numChildren(), getChild(), getParent()
 	n1.addChild(&n2);
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( pose_tests )
 	//	getChild()
 
 	SceneManager mgr;
-	Node n1(&mgr, "node1");
+	SceneNode n1(&mgr, "node1");
 
 	//	addChild(), numChildren(), getChild(), getParent()
 	n1.addChild(&n2);

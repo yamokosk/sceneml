@@ -23,13 +23,13 @@
 #include <string>
 
 // Local includes
-#include "Exception.h"
-#include "Object.h"
-#include "PropertyCollection.h"
+#include <tinysg/Exception.h>
+#include <tinysg/Object.h>
+#include <tinysg/PropertyCollection.h>
 
 namespace TinySG {
 
-class Node;
+class SceneNode;
 
 //! Base class for movable scene objects.
 /** @ingroup xode
@@ -37,7 +37,7 @@ class Node;
  */
 class MovableObject : public Object
 {
-	friend class Node;
+	friend class SceneNode;
 
 public:
 	MovableObject();
@@ -51,13 +51,13 @@ public:
 	virtual bool isAttached(void) const;
 
 protected:
-	void notifyAttached(Node* parent);
+	void notifyAttached(SceneNode* parent);
 	virtual void notifyMoved(void) = 0;
 
 	//! Is this object visible?
 	bool visible_;
-	//! Node to which this object is attached
-	Node* parentNode_;
+	//! SceneNode to which this object is attached
+	SceneNode* parentNode_;
 };
 
 

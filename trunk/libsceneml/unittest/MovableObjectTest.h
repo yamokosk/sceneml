@@ -13,8 +13,8 @@
 // CppUnit
 #include <cppunit/extensions/HelperMacros.h>
 // Class to test
-#include <MovableObject.h>
-#include <Node.h>
+#include <tinysg/MovableObject.h>
+#include <tinysg/SceneNode.h>
 
 // TEST CLASSES (class to test is pure virtual)
 class TestObject : public TinySG::MovableObject
@@ -69,8 +69,8 @@ class MovableObjectTest : public CppUnit::TestFixture
 private:
 	TestObjectFactory objfact;
 	TestObject *obj, *obj_copy;
-	TinySG::Node *n1, *n2, *n3, *n4;
-	TinySG::NodeFactory nodefact;
+	TinySG::SceneNode *n1, *n2, *n3, *n4;
+	//TinySG::NodeFactory nodefact;
 public:
 	void setUp();
 	void tearDown();

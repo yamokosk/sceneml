@@ -16,8 +16,11 @@
 *
 *************************************************************************/
 
-#include <tinysg/Node.h>
+#include <tinysg/SceneNode.h>
 #include <tinysg/MathUtil.h>
+#include <tinysg/Exception.h>
+#include <tinysg/stringutils.h>
+
 #include <boost/cast.hpp>
 #include <iostream>
 
@@ -26,13 +29,15 @@ namespace TinySG {
 using namespace log4cxx;
 
 // Initialize static elements
-LoggerPtr Node::logger(Logger::getLogger("TinySG.Node"));
-const std::string Node::ObjectTypeID("TinySG_Node");
+LoggerPtr SceneNode::logger(Logger::getLogger("TinySG.Node"));
+const std::string SceneNode::ObjectTypeID("TinySG_Node");
+unsigned long SceneNode::nextGeneratedNameExt(0);
 
 // ****************************************************************************
 
 // Class implementation
-Node::Node () :
+SceneNode::SceneNode () :
+	graph_(NULL),
 	parent_(NULL),
 	level_(0),
 	orientation_( QuaternionFactory::IDENTITY ),
@@ -45,10 +50,29 @@ Node::Node () :
 	validWorldTransform_(true),
 	cachedTransformOutOfDate_(false)
 {
-	children_.clear();
+	stringstream ss; ss << "unnamed_" << SceneNode::nextGeneratedNameExt++;
+	name_ = ss.str();
 }
 
-Node::~Node()
+SceneNode::SceneNode(const std::string& name) :
+	graph_(NULL),
+	parent_(NULL),
+	level_(0),
+	orientation_( QuaternionFactory::IDENTITY ),
+	position_( VectorFactory::Vector3( ZERO ) ),
+	scale_( VectorFactory::Vector3( ONES ) ),
+	derivedOrientation_( QuaternionFactory::IDENTITY ),
+	derivedPosition_( VectorFactory::Vector3( ZERO ) ),
+	derivedScale_( VectorFactory::Vector3( ONES ) ),
+	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
+	validWorldTransform_(true),
+	cachedTransformOutOfDate_(false),
+	name_(name)
+{
+
+}
+
+SceneNode::~SceneNode()
 {
 	removeAllChildren();
 	if (parent_)
@@ -64,18 +88,35 @@ Node::~Node()
 	for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); ++itr )
 	{
 		ret = itr->second;
-		ret->notifyAttached((Node*)0);
+		ret->notifyAttached((SceneNode*)0);
 	}
 	sceneObjects_.clear();
 }
 
-Object* Node::clone() const
+/*Object* SceneNode::clone() const
 {
-	return new Node(*this);
+	return new SceneNode(*this);
+}*/
+
+void SceneNode::save(PropertyCollection& pc) const
+{
+	// Class identifier
+	pc.addPair( RequiredProperty("class", "node") );
+
+	// Required object information
+	pc.addPair( RequiredProperty("name", getName()) );
+
+	// Optional information
+	if ( hasParent() ) pc.addPair( OptionalProperty("parent", getParent()->getName()) );
+
+	// Not really optional but looks better if the following is set as parameters
+	pc.addPair( OptionalProperty("position", toString(getPosition()) ) );
+	pc.addPair( OptionalProperty("orientation", toString(getOrientation()) ) );
+	pc.addPair( OptionalProperty("scale", toString(getScale()) ) );
 }
 
 //! Adds a (precreated) child scene node to this node.
-void Node::addChild (Node* child)
+void SceneNode::addChild (SceneNode* child)
 {
 	if ( child->hasParent() )
 	{
@@ -93,13 +134,13 @@ void Node::addChild (Node* child)
 }
 
 //! Reports the number of child nodes under this one.
-unsigned short Node::numChildren (void) const
+unsigned short SceneNode::numChildren (void) const
 {
 	return static_cast< unsigned short >( children_.size() );
 }
 
 //! Gets a pointer to a child node.
-Node* Node::getChild (unsigned short index) const
+SceneNode* SceneNode::getChild (unsigned short index) const
 {
 	if( index < children_.size() )
 	{
@@ -112,7 +153,7 @@ Node* Node::getChild (unsigned short index) const
 }
 
 //! Gets a pointer to a named child node.
-Node* Node::getChild (const std::string& name) const
+SceneNode* SceneNode::getChild (const std::string& name) const
 {
 	ConstChildNodeIterator i = children_.find(name);
 
@@ -124,9 +165,9 @@ Node* Node::getChild (const std::string& name) const
 }
 
 //! Drops the specified child from this node.
-Node* Node::removeChild (unsigned short index)
+SceneNode* SceneNode::removeChild (unsigned short index)
 {
-	Node* ret;
+	SceneNode* ret;
 	if (index < children_.size())
 	{
 		ChildNodeIterator i = children_.begin();
@@ -145,7 +186,7 @@ Node* Node::removeChild (unsigned short index)
 }
 
 //! Drops the specified child from this node.
-Node* Node::removeChild (Node *child)
+SceneNode* SceneNode::removeChild (SceneNode *child)
 {
 	if (child)
 		removeChild( child->getName() );
@@ -153,7 +194,7 @@ Node* Node::removeChild (Node *child)
 }
 
 //! Drops the named child from this node.
-Node* Node::removeChild (const std::string &name)
+SceneNode* SceneNode::removeChild (const std::string &name)
 {
 	ChildNodeIterator i = children_.find(name);
 
@@ -162,7 +203,7 @@ Node* Node::removeChild (const std::string &name)
 		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name + " does not exist.");
 	}
 
-	Node* ret = i->second;
+	SceneNode* ret = i->second;
 	children_.erase(i);
 	ret->setParent(NULL);
 
@@ -170,7 +211,7 @@ Node* Node::removeChild (const std::string &name)
 }
 
 //! Removes all child Nodes attached to this node.
-void Node::removeAllChildren (void)
+void SceneNode::removeAllChildren (void)
 {
 	ChildNodeMap::iterator i, iend;
 	iend = children_.end();
@@ -181,53 +222,53 @@ void Node::removeAllChildren (void)
 	children_.clear();
 }
 
-//! Gets the parent of this Node.
-Node* Node::getParent(void) const
+//! Gets the parent of this SceneNode.
+SceneNode* SceneNode::getParent(void) const
 {
 	return parent_;
 }
 
 
-void Node::setOrientation (const Quaternion &q)
+void SceneNode::setOrientation (const Quaternion &q)
 {
 	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
 	orientation_ = q;
 	notifyUpdate( PoseChangedBit );
 }
 
-void Node::setOrientation (Real w, Real x, Real y, Real z)
+void SceneNode::setOrientation (Real w, Real x, Real y, Real z)
 {
 	Quaternion q(w, x, y, z);
 	setOrientation(q);
 }
 
-void Node::setPosition(const ColumnVector &pos)
+void SceneNode::setPosition(const ColumnVector &pos)
 {
 	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
 	position_ = pos;
 	notifyUpdate( PoseChangedBit );
 }
 
-void Node::setPosition(Real x, Real y, Real z)
+void SceneNode::setPosition(Real x, Real y, Real z)
 {
 	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
 	ColumnVector v(3); v << x << y << z;
 	setPosition(v);
 }
 
-void Node::setScale(const ColumnVector &s)
+void SceneNode::setScale(const ColumnVector &s)
 {
 	scale_ = s;
 	notifyUpdate( ScaleChangedBit );
 }
 
-void Node::setScale(Real x, Real y, Real z)
+void SceneNode::setScale(Real x, Real y, Real z)
 {
 	ColumnVector s(3); s << x << y << z;
 	setScale(s);
 }
 
-const Matrix& Node::getFullTransform() const
+const Matrix& SceneNode::getFullTransform() const
 {
 	if ( cachedTransformOutOfDate_ )
 	{
@@ -240,44 +281,44 @@ const Matrix& Node::getFullTransform() const
 	return cachedTransform_;
 }
 
-void Node::updateCachedTransform() const
+void SceneNode::updateCachedTransform() const
 {
 	cachedTransform_ = RotFromQuaternion( getOrientation() );
 	cachedTransform_.SubMatrix(1,3,4,4) = getPosition();
 }
 
-const Quaternion& Node::getParentOrientation() const
+const Quaternion& SceneNode::getParentOrientation() const
 {
 	return parent_->getDerivedOrientation();
 }
 
-const ColumnVector& Node::getParentPosition() const
+const ColumnVector& SceneNode::getParentPosition() const
 {
 	return parent_->getDerivedPosition();
 }
 
-const ColumnVector& Node::getParentScale() const
+const ColumnVector& SceneNode::getParentScale() const
 {
 	return parent_->getDerivedScale();
 }
 
-const Quaternion& Node::getDerivedOrientation()
+const Quaternion& SceneNode::getDerivedOrientation()
 {
 	return derivedOrientation_;
 }
 
-const ColumnVector& Node::getDerivedPosition()
+const ColumnVector& SceneNode::getDerivedPosition()
 {
 	return derivedPosition_;
 }
 
-const ColumnVector& Node::getDerivedScale()
+const ColumnVector& SceneNode::getDerivedScale()
 {
 	return derivedScale_;
 }
 
 //! Moves the node along the cartesian axes.
-void Node::translate(const ColumnVector &d, TransformSpace relativeTo)
+void SceneNode::translate(const ColumnVector &d, TransformSpace relativeTo)
 {
 	switch(relativeTo)
 	{
@@ -305,35 +346,35 @@ void Node::translate(const ColumnVector &d, TransformSpace relativeTo)
 }
 
 //! Moves the node along the cartesian axes.
-void Node::translate(Real x, Real y, Real z, TransformSpace relativeTo)
+void SceneNode::translate(Real x, Real y, Real z, TransformSpace relativeTo)
 {
 	ColumnVector v(3); v << x << y << z;
 	translate(v, relativeTo);
 }
 
 //! Moves the node along arbitrary axes.
-void Node::translate(const SquareMatrix &axes, const ColumnVector &move, TransformSpace relativeTo)
+void SceneNode::translate(const SquareMatrix &axes, const ColumnVector &move, TransformSpace relativeTo)
 {
 	ColumnVector derived = axes * move;
 	translate(derived, relativeTo);
 }
 
 //! Moves the node along arbitrary axes.
-void Node::translate(const SquareMatrix &axes, Real x, Real y, Real z, TransformSpace relativeTo)
+void SceneNode::translate(const SquareMatrix &axes, Real x, Real y, Real z, TransformSpace relativeTo)
 {
 	ColumnVector d(3); d << x << y << z;
 	translate(axes,d,relativeTo);
 }
 
 //! Rotate the node around an arbitrary axis.
-void Node::rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo)
+void SceneNode::rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo)
 {
 	Quaternion q = QuatFromAngleAxis(angle,axis);
 	rotate(q, relativeTo);
 }
 
 //! Rotate the node around an aritrary axis using a Quarternion.
-void Node::rotate(const Quaternion &q, TransformSpace relativeTo)
+void SceneNode::rotate(const Quaternion &q, TransformSpace relativeTo)
 {
 	switch(relativeTo)
 	{
@@ -361,7 +402,7 @@ void Node::rotate(const Quaternion &q, TransformSpace relativeTo)
 
 
 //-----------------------------------------------------------------------
-void Node::attachObject(MovableObject* obj)
+void SceneNode::attachObject(MovableObject* obj)
 {
 	if ( obj->isAttached() )
 	{
@@ -380,12 +421,12 @@ void Node::attachObject(MovableObject* obj)
 	notifyUpdate( BoundsChangedBit );
 }
 
-unsigned short Node::numAttachedObjects(void) const
+unsigned short SceneNode::numAttachedObjects(void) const
 {
 	return static_cast< unsigned short >( sceneObjects_.size() );
 }
 
-MovableObject* Node::getAttachedObject(unsigned short index)
+MovableObject* SceneNode::getAttachedObject(unsigned short index)
 {
 	if (index < sceneObjects_.size())
 	{
@@ -402,7 +443,7 @@ MovableObject* Node::getAttachedObject(unsigned short index)
 	return 0;
 }
 
-MovableObject* Node::getAttachedObject(const std::string& name)
+MovableObject* SceneNode::getAttachedObject(const std::string& name)
 {
 	// Look up
 	ObjectMap::iterator i = sceneObjects_.find(name);
@@ -416,7 +457,7 @@ MovableObject* Node::getAttachedObject(const std::string& name)
 
 }
 
-MovableObject* Node::detachObject(unsigned short index)
+MovableObject* SceneNode::detachObject(unsigned short index)
 {
 	MovableObject* ret;
 	if (index < sceneObjects_.size())
@@ -428,7 +469,7 @@ MovableObject* Node::detachObject(unsigned short index)
 
 		ret = i->second;
 		sceneObjects_.erase(i);
-		ret->notifyAttached((Node*)0);
+		ret->notifyAttached((SceneNode*)0);
 
 		// Make sure bounds get updated (must go right to the top)
 		notifyUpdate( BoundsChangedBit );
@@ -444,7 +485,7 @@ MovableObject* Node::detachObject(unsigned short index)
 
 }
 
-MovableObject* Node::detachObject(const std::string& name)
+MovableObject* SceneNode::detachObject(const std::string& name)
 {
 	ObjectMap::iterator it = sceneObjects_.find(name);
 	if (it == sceneObjects_.end())
@@ -453,14 +494,14 @@ MovableObject* Node::detachObject(const std::string& name)
 	}
 	MovableObject* ret = it->second;
 	sceneObjects_.erase(it);
-	ret->notifyAttached((Node*)0);
+	ret->notifyAttached((SceneNode*)0);
 	// Make sure bounds get updated (must go right to the top)
 	notifyUpdate( BoundsChangedBit );
 
 	return ret;
 }
 
-void Node::detachObject(MovableObject* obj)
+void SceneNode::detachObject(MovableObject* obj)
 {
 	ObjectMap::iterator i, iend;
 	iend = sceneObjects_.end();
@@ -472,20 +513,20 @@ void Node::detachObject(MovableObject* obj)
 			break;
 		}
 	}
-	obj->notifyAttached((Node*)0);
+	obj->notifyAttached((SceneNode*)0);
 
 	// Make sure bounds get updated (must go right to the top)
 	notifyUpdate( BoundsChangedBit );
 }
 
-void Node::detachAllObjects(void)
+void SceneNode::detachAllObjects(void)
 {
 	ObjectMap::iterator itr;
 	MovableObject* ret;
 	for ( itr = sceneObjects_.begin(); itr != sceneObjects_.end(); itr++ )
 	{
 		ret = itr->second;
-		ret->notifyAttached((Node*)0);
+		ret->notifyAttached((SceneNode*)0);
 	}
 	sceneObjects_.clear();
 	// Make sure bounds get updated (must go right to the top)
@@ -494,7 +535,7 @@ void Node::detachAllObjects(void)
 
 
 //-----------------------------------------------------------------------
-void Node::updateFromParent()
+void SceneNode::updateFromParent()
 {
 	if ( hasParent()  )
 	{
@@ -502,7 +543,7 @@ void Node::updateFromParent()
 		//level_ = getParent()->getLevel() + 1;
 
 		derivedOrientation_ = getParentOrientation() * orientation_;
-		/*if ( queryFlag( Node::OrientationInheritedBit ) ) {
+		/*if ( queryFlag( SceneNode::OrientationInheritedBit ) ) {
 			// Combine orientation with that of parent
 			derivedOrientation_ = getParentOrientation() * orientation_;
 		} else {
@@ -513,7 +554,7 @@ void Node::updateFromParent()
 		//derivedScale_ = parentScale * scale_;
 		derivedScale_ = getParentScale();
 		// Update scale
-		/*if ( queryFlag( Node::ScaleInheritedBit ) ) {
+		/*if ( queryFlag( SceneNode::ScaleInheritedBit ) ) {
 			// Scale own position by parent scale, NB just combine
 			// as equivalent axes, no shearing
 			//derivedScale_ = parentScale * scale_;
@@ -549,7 +590,7 @@ void Node::updateFromParent()
 	}
 }
 
-void Node::update(uint8_t flags)
+void SceneNode::update(uint8_t flags)
 {
 	//LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ << " for node \"" << getName() << "\" with flags: " << (unsigned int)flags );
 
@@ -569,14 +610,14 @@ void Node::update(uint8_t flags)
 	}
 }
 
-void Node::notifyUpdate(uint8_t hint)
+void SceneNode::notifyUpdate(uint8_t hint)
 {
 	//notifyChildren(hint);
 	validWorldTransform_ = false;
 	cachedTransformOutOfDate_ = true;
 }
 
-void Node::setParent(Node *parent)
+void SceneNode::setParent(SceneNode *parent)
 {
 	bool different = (parent != parent_);
 
@@ -593,24 +634,23 @@ void Node::setParent(Node *parent)
 
 
 // ****************************************************************************
-
+/*
 Object* NodeFactory::createInstanceImpl(const PropertyCollection* params)
 {
-	return (new Node);
+	return (new SceneNode);
 }
 
 void NodeFactory::destroyInstance(Object* obj)
 {
-	Node* n = dynamic_cast<Node*>(obj);
+	SceneNode* n = dynamic_cast<SceneNode*>(obj);
 	delete n;
 }
-
+*/
 } // Namespace: TinySG
 
 
-ostream& operator << (ostream& os, const TinySG::Node& s)
+ostream& operator << (ostream& os, const TinySG::SceneNode& s)
 {
 	return os << "Name: " << s.getName() << std::endl
 	   << "Tmatrix: " << std::endl << s.getFullTransform() << std::endl;
 }
-

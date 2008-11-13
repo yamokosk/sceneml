@@ -23,11 +23,11 @@ BOOST_AUTO_TEST_CASE( basic_test )
 
 	SceneManager mgr;
 
-	Node* n1 = mgr.getRootNode()->createChild();
-	Node* n2 = n1->createChild();
-	Node* n3 = n2->createChild();
-	Node* n4 = n2->createChild();
-	Node* n5 = n4->createChild();
+	SceneNode* n1 = mgr.getRootNode()->createChild();
+	SceneNode* n2 = n1->createChild();
+	SceneNode* n3 = n2->createChild();
+	SceneNode* n4 = n2->createChild();
+	SceneNode* n5 = n4->createChild();
 
 	Variable var1;
 	var1.setType("translation");

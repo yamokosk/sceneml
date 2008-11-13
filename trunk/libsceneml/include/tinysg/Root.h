@@ -31,12 +31,13 @@
 #include <tinysg/Query.h>
 #include <tinysg/Plugin.h>
 #include <tinysg/Map.h>
+#include <tinysg/Archive.h>
 
 namespace TinySG
 {
 
-class EntityManager;
-class SceneManager;
+class ObjectManager;
+class SceneGraph;
 
 class Root : public Singleton<Root>
 {
@@ -49,38 +50,38 @@ public:
 	static Root& getSingleton(void);
 	static Root* getSingletonPtr(void);
 
+	void load(const std::string& filename);
+	void save(const std::string& filename);
+
 	// Managers
-	SceneManager*	getSceneManager() const		{return sceneMgr_;}
-	EntityManager*	getEntityManager() const	{return entityMgr_;}
-	MeshManager*	getMeshManager() const		{return meshMgr_;}
-	const SceneManager*		getSceneManager() const;
-	const MeshManager*		getMeshManager() const;
-	const EntityManager*	getEntityManager() const;
+	SceneGraph*	getSceneGraph() const {return graph_;}
+	ObjectManager*	getEntityManager() const {return objMgr_;}
+	const SceneGraph* getSceneManager() const {return graph_;}
+	const MeshManager* getMeshManager() const {return objMgr_;}
 
 	// Register a new EntityFactory which will create new Entity instances of a particular type, as identified by the getType() method.
-	void addEntityFactory (EntityFactory *fact);
+	//void addObjectFactory (ObjectFactory *fact);
 	// Removes a previously registered EntityFactory.
-	void removeEntityFactory (EntityFactory *fact);
+	//void removeObjectFactory (ObjectFactory *fact);
 	// Checks whether a factory is registered for a given Entity type.
-	bool hasEntityFactory (const std::string &typeName) const;
+	//bool hasObjectFactory (const std::string &typeName) const;
 	// Get a EntityFactory for the given type.
-	EntityFactory* getEntityFactory (const std::string &typeName);
+	//ObjectFactory* getObjectFactory (const std::string &typeName);
 
-	// Register a new SceneQuery
-	void addSceneQueryFactory (SceneQuery* query);
-	void removeSceneQueryFactory (SceneQuery* query);
-	bool hasSceneQueryFactory ( const std::string &typeName ) const;
-	SceneQuery* createSceneQuery (const std::string& typeName );
+	// Register new queries with their respective managers
+	void addSceneQuery(Query* query);
+	void addObjectQuery(Query* query);
 
 	// Plugins
 	void registerPlugin( Plugin* );
 
 private:
-	EntityManager* createEntityManager() {};
-	SceneManager* createSceneManager() {};
-	MeshManager* createMeshManager() {};
+	ObjectManager* createObjectManager() {};
+	SceneGraph* createSceneGraph() {};
 
-	SceneManager*		sceneMgr_;
+	SceneGraph*	graph_;
+	ObjectManager* objMgr_;
+
 	PluginInstanceMap	registeredPlugins_;
 };
 

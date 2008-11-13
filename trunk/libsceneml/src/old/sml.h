@@ -105,7 +105,7 @@ namespace sceneml {
 		typedef HashMap< String, MovableObject * > 	ObjectMap
 		typedef MapIterator< ObjectMap > 	ObjectIterator
 		typedef ConstMapIterator<ObjectMap > 	ConstObjectIterator
-		typedef HashMap< String, Node * > 	ChildNodeMap
+		typedef HashMap< String, SceneNode * > 	ChildNodeMap
 		typedef MapIterator< ChildNodeMap > 	ChildNodeIterator
 		typedef ConstMapIterator<ChildNodeMap > 	ConstChildNodeIterator
 		// Enumeration denoting the spaces which a transform can be relative to. More...
@@ -152,28 +152,28 @@ namespace sceneml {
 		void 	rotate (const Quaternion &q, TransformSpace relativeTo=TS_LOCAL)
 		// Gets a matrix whose columns are the local axes based on the nodes orientation relative to it's parent. 	
 		Matrix3 	getLocalAxes (void) const
-		// Creates an unnamed new Node as a child of this node. 	
-		Node * 	createChild (const ColumnVector &translate=ColumnVector::ZERO, const Quaternion &rotate=Quaternion::IDENTITY)
-		// Creates a new named Node as a child of this node. 	
-		Node * 	createChild (const String &name, const ColumnVector &translate=ColumnVector::ZERO, const Quaternion &rotate=Quaternion::IDENTITY)
+		// Creates an unnamed new SceneNode as a child of this node. 	
+		SceneNode * 	createChild (const ColumnVector &translate=ColumnVector::ZERO, const Quaternion &rotate=Quaternion::IDENTITY)
+		// Creates a new named SceneNode as a child of this node. 	
+		SceneNode * 	createChild (const String &name, const ColumnVector &translate=ColumnVector::ZERO, const Quaternion &rotate=Quaternion::IDENTITY)
 		// Adds a (precreated) child scene node to this node. 	
-		void 	addChild (Node *child)
+		void 	addChild (SceneNode *child)
 		// Reports the number of child nodes under this one. 	
 		unsigned short 	numChildren (void) const
 		// Gets a pointer to a child node. 	
-		Node * 	getChild (unsigned short index) const
+		SceneNode * 	getChild (unsigned short index) const
 		// Gets a pointer to a named child node. 	
-		Node * 	getChild (const String &name) const
+		SceneNode * 	getChild (const String &name) const
 		// Retrieves an iterator for efficiently looping through all children of this node. 	
 		ChildNodeIterator 	getChildIterator (void)
 		// Retrieves an iterator for efficiently looping through all children of this node. 	
 		ConstChildNodeIterator 	getChildIterator (void) const
 		// Drops the specified child from this node. 	
-		Node * 	removeChild (unsigned short index)
+		SceneNode * 	removeChild (unsigned short index)
 		// Drops the specified child from this node. 	
-		Node * 	removeChild (Node *child)
+		SceneNode * 	removeChild (SceneNode *child)
 		// Drops the named child from this node. 	
-		Node * 	removeChild (const String &name)
+		SceneNode * 	removeChild (const String &name)
 		// Removes all child Nodes attached to this node. 	
 		void 	removeAllChildren (void)
 		// Gets the orientation of the node as derived from all parents. 	
@@ -184,9 +184,9 @@ namespace sceneml {
 		ReturnMatrix 	_getDerivedScale (void) const;
 		// Gets the full transformation matrix for this node. 	
 		ReturnMatrix 	_getFullTransform (void) const;
-		// Sets a listener for this Node. 	
+		// Sets a listener for this SceneNode. 	
 		void 	setListener (Listener *listener)
-		// Gets the current listener for this Node. 	
+		// Gets the current listener for this SceneNode. 	
 		Listener * 	getListener (void) const
 		// Overridden from Renderable. 	
 		const MaterialPtr & 	getMaterial (void) const
@@ -211,16 +211,16 @@ namespace sceneml {
 		// To be called in the event of transform changes to this node that require it's recalculation. 	
 		void 	needUpdate (bool forceParentUpdate=false)
 		// Called by children to notify their parent that they need an update.  	
-		void 	requestUpdate (Node *child, bool forceParentUpdate=false)
+		void 	requestUpdate (SceneNode *child, bool forceParentUpdate=false)
 		// Queue a 'needUpdate' call to a node safely.	
-		static void 	queueNeedUpdate (Node *n)
+		static void 	queueNeedUpdate (SceneNode *n)
 		// Process queued 'needUpdate' calls.  	
 		static void 	processQueuedUpdates (void)
 		
 	protected:
-		Node* createChildImpl (void);
-		Node* createChildImpl (const String &name);
-		void setParent (Node *parent);
+		SceneNode* createChildImpl (void);
+		SceneNode* createChildImpl (const String &name);
+		void setParent (SceneNode *parent);
 		// Internal method for setting whether the node is in the scene graph.
 		void 	setInSceneGraph (bool inGraph);
 		// Triggers the node to update it's combined transforms.  	
@@ -245,7 +245,7 @@ namespace sceneml {
 		// Is this node a current part of the scene graph? 	
 		bool 	mIsInSceneGraph;
 		// Pointer to parent node. 	
-		Node * 	mParent;
+		SceneNode * 	mParent;
 		// Collection of pointers to direct children; hashmap for efficiency. 	
 		ChildNodeMap 	mChildren;
 		// List of children which need updating, used if self is not out of date but children are. 	

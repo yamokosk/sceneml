@@ -41,8 +41,8 @@ Root& Root::getSingleton(void)
 }
 
 Root::Root() :
-	mEntityFactory(NULL),
-	sceneMgr_(NULL)
+	graph_(NULL),
+	objMgr_(NULL)
 {
 
 }
@@ -56,112 +56,81 @@ Root::~Root()
 		(itr->second)->shutdown();
 	}
 
-	if (sceneMgr_) delete sceneMgr_;
-	if (mEntityFactory) delete mEntityFactory;
+	if (graph_) delete graph_;
+	if (objMgr_) delete objMgr_;
 }
 
-SceneManager* Root::createSceneManager()
+void Root::load(const std::string& filename)
 {
-	if (!sceneMgr_) sceneMgr_ = new SceneManager();
+	Archive ar;
+	ar.loadFromXML(filename);
+	graph_->load(ar);
+	objMgr_->load(ar);
+}
+
+void Root::save(const std::string& filename)
+{
+	Archive ar;
+	graph_->save(ar);
+	objMgr_->save(ar);
+	ar.writeToXML(filename);
+}
+
+/*
+SceneGraph* Root::createSceneManager()
+{
+	if (!graph_) graph_ = new SceneGraph();
 	else
-		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "A scene manager already exists.");
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "A scene graph already exists.");
 
-	return sceneMgr_;
-}
-
-SceneManager* Root::getSceneManager()
-{
-	return sceneMgr_;
+	return graph_;
 }
 
 //---------------------------------------------------------------------
-void Root::addEntityFactory(EntityFactory* fact)
+void Root::addObjectFactory(ObjectFactory* fact)
 {
-	EntityFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
-	/*if (!overrideExisting && facti != sceneObjectFactoryMap_.end())
-	{
-		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"A factory of type '" + fact->getType() + "' already exists.");
-	}*/
-
-	/*if (fact->requestTypeFlags())
-	{
-		if (facti != sceneObjectFactoryMap_.end() && facti->second->requestTypeFlags())
-		{
-			// Copy type flags from the factory we're replacing
-			fact->_notifyTypeFlags(facti->second->getTypeFlags());
-		}
-		else
-		{
-			// Allocate new
-			fact->_notifyTypeFlags(_allocateNextEntityTypeFlag());
-		}
-	}*/
+	ObjectFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
 
 	// Save
 	sceneObjectFactoryMap_[fact->getType()] = fact;
 }
 //---------------------------------------------------------------------
-bool Root::hasEntityFactory(const std::string& typeName) const
+bool Root::hasObjectFactory(const std::string& typeName) const
 {
 	return !(sceneObjectFactoryMap_.find(typeName) == sceneObjectFactoryMap_.end());
 }
 //---------------------------------------------------------------------
-EntityFactory* Root::getEntityFactory(const std::string& typeName)
+ObjectFactory* Root::getObjectFactory(const std::string& typeName)
 {
-	EntityFactoryMap::iterator i = sceneObjectFactoryMap_.find(typeName);
+	ObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(typeName);
 	if (i == sceneObjectFactoryMap_.end())
 	{
-		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"EntityFactory of type " + typeName + " does not exist");
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"ObjectFactory of type " + typeName + " does not exist");
 	}
 	return i->second;
 }
 //---------------------------------------------------------------------
-/*uint32 Root::_allocateNextEntityTypeFlag(void)
+void Root::removeObjectFactory(ObjectFactory* fact)
 {
-	if (mNextEntityTypeFlag == SceneManager::USER_TYPE_MASK_LIMIT)
-	{
-		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Cannot allocate a type flag since all the available flags have been used.");
-
-	}
-	uint32 ret = mNextEntityTypeFlag;
-	mNextEntityTypeFlag <<= 1;
-	return ret;
-
-}*/
-//---------------------------------------------------------------------
-void Root::removeEntityFactory(EntityFactory* fact)
-{
-	EntityFactoryMap::iterator i = sceneObjectFactoryMap_.find(
+	ObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(
 		fact->getType());
 	if (i != sceneObjectFactoryMap_.end())
 	{
 		sceneObjectFactoryMap_.erase(i);
 	}
-
-}
-//---------------------------------------------------------------------
-/*Root::EntityFactoryIterator Root::getEntityFactoryIterator(void) const
-{
-	return EntityFactoryIterator(sceneObjectFactoryMap_.begin(),
-		sceneObjectFactoryMap_.end());
 }*/
 
-void Root::addSceneQueryFactory (SceneQuery* query)
+void Root::addQuery (Query* query)
 {
-	return;
+	graph_->addQuery(query);
 }
 
-void Root::removeSceneQueryFactory (SceneQuery* query)
+void Root::addObjectQuery(Query* query)
 {
-	return;
+	objMgr_->addQuery(query);
 }
 
-bool Root::hasSceneQueryFactory ( const std::string &typeName ) const
-{
-	return false;
-}
-
-/*SceneQuery* Root::getSceneQueryFactory (const std::string& typeName )
+/*Query* Root::getQueryFactory (const std::string& typeName )
 {
 	return NULL;
 }*/

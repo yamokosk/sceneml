@@ -28,7 +28,7 @@
 
 namespace TinySG {
 
-class MovableNode : public CoordinateTransform, public Node
+class MovableNode : public CoordinateTransform, public SceneNode
 {
 	// Used for unnamed nodes
 	static unsigned int UnnamedIndex;
@@ -48,10 +48,10 @@ public:
 		TS_WORLD
 	};
 
-	//! Creates an unnamed new Node as a child of this node.
+	//! Creates an unnamed new SceneNode as a child of this node.
 	MovableNode* createChild(const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
 					  const Quaternion& rotate=QuaternionFactory::IDENTITY );
-	//! Creates a new named Node as a child of this node.
+	//! Creates a new named SceneNode as a child of this node.
 	MovableNode* createChild(const std::string& name,
 					  const ColumnVector& translate=VectorFactory::Vector3( ZERO ),
 					  const Quaternion& rotate=QuaternionFactory::IDENTITY );

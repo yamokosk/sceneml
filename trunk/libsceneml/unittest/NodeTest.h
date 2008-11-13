@@ -13,7 +13,7 @@
 // CppUnit
 #include <cppunit/extensions/HelperMacros.h>
 // Class to test
-#include <Node.h>
+#include <tinysg/SceneNode.h>
 
 class NodeTest : public CppUnit::TestFixture
 {
@@ -42,8 +42,8 @@ class NodeTest : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 protected:
-	TinySG::Node *n1, *n2, *n3, *n4, *n2_copy;
-	TinySG::NodeFactory fact;
+	TinySG::SceneNode *n1, *n2, *n3, *n4, *n2_copy;
+	//TinySG::NodeFactory fact;
 
 public:
 	void setUp();

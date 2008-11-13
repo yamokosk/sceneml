@@ -15,47 +15,34 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * stringutils.cpp
+ *
+ *  Created on: Nov 13, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef _SML_MATH_H_FILE_
-#define _SML_MATH_H_FILE_
+#include <tinysg/stringutils.h>
 
-//#include <smlConfig.h>
-
-#define USE_DOUBLE_PRECISION
-
-#ifdef USE_DOUBLE_PRECISION
-#include <tinysg/DoubleConstants.h>
-#else
-#include <tinysg/FloatConstants.h>
-#endif
-
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+#include <sstream>
 
 namespace TinySG {
 
-#ifdef USE_DOUBLE_PRECISION
-typedef double Real;
-#else
-typedef float Real;
-#endif
+std::string toString( const ColumnVector& v)
+{
+	std::stringstream ss;
+	for (unsigned int n=1; n < v.nrows(); ++n)
+	{
+		ss << v(n) << " ";
+	}
+	return ss.str();
+}
 
-enum FactoryTypes {
-	IDENTITY=0,
-	ZERO,
-	UNIT_X,
-	UNIT_Y,
-	UNIT_Z,
-	ONES
-};
+std::string toString( const Quaternion& v)
+{
+	std::stringstream ss;
+	ss << v.real() << " " << v.R_component_2() << " " << v.R_component_3() << " " << v.R_component_4();
+	return ss.str();
+}
 
-enum EulerSequences {
-	XYZ=0,
-	ZXY
-};
-
-} // namespace TinySG
-
-#endif
+}  // namespace TinySG

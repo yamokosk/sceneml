@@ -1,5 +1,5 @@
 /*************************************************************************
- * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -15,47 +15,50 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * Plugin.cpp
+ *
+ *  Created on: Jul 30, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef _SML_MATH_H_FILE_
-#define _SML_MATH_H_FILE_
+#include "Plugin.h"
 
-//#include <smlConfig.h>
+namespace lincanny
+{
 
-#define USE_DOUBLE_PRECISION
+Plugin::Plugin() :
+	tinysg::Plugin("LC"),
+	geomFactory_(),
+	spaceFactory_(),
+	collisionQuery_(),
+	world_(NULL)
+{
+	// TODO Auto-generated constructor stub
 
-#ifdef USE_DOUBLE_PRECISION
-#include <tinysg/DoubleConstants.h>
-#else
-#include <tinysg/FloatConstants.h>
-#endif
+}
 
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+Plugin::~Plugin()
+{
+	// TODO Auto-generated destructor stub
+}
 
-namespace TinySG {
+void Plugin::initialize()
+{
 
-#ifdef USE_DOUBLE_PRECISION
-typedef double Real;
-#else
-typedef float Real;
-#endif
+}
 
-enum FactoryTypes {
-	IDENTITY=0,
-	ZERO,
-	UNIT_X,
-	UNIT_Y,
-	UNIT_Z,
-	ONES
-};
+void Plugin::registerFactories(Root* r)
+{
+	r->addEntityFactory( &bodyFactory_ );
+	r->addEntityFactory( &spaceFactory_ );
+	r->addSceneQueryFactory( &collisionQuery_ );
+}
 
-enum EulerSequences {
-	XYZ=0,
-	ZXY
-};
+void Plugin::unload()
+{
 
-} // namespace TinySG
+}
 
-#endif
+
+}
