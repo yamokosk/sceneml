@@ -8,8 +8,8 @@
 #ifndef OBJECTMANAGERTEST_H_
 #define OBJECTMANAGERTEST_H_
 
-#include <Exception.h>
-#include <ObjectManager.h>
+#include <tinysg/Exception.h>
+#include <tinysg/ObjectManager.h>
 
 // Logging
 #include <log4cxx/logger.h>

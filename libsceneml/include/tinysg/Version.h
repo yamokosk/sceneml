@@ -15,47 +15,43 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * Version.h
+ *
+ *  Created on: Nov 13, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef _SML_MATH_H_FILE_
-#define _SML_MATH_H_FILE_
+#ifndef VERSION_H_
+#define VERSION_H_
 
-//#include <smlConfig.h>
+#define TINYSG_MAJOR_VERSION 1
+#define TINYSG_MINOR_VERSION 0
+#define TINYSG_PATCH_VERSION 0
 
-#define USE_DOUBLE_PRECISION
+#include <string>
+#include <sstream>
 
-#ifdef USE_DOUBLE_PRECISION
-#include <tinysg/DoubleConstants.h>
-#else
-#include <tinysg/FloatConstants.h>
-#endif
+namespace TinySG
+{
 
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+struct Version
+{
+	Version( const std::string& verS );
+	Version( unsigned int ma, unsigned int mi, unsigned int p );
 
-namespace TinySG {
+	std::string toString();
+	static Version current() {return Version(TINYSG_MAJOR_VERSION, TINYSG_MINOR_VERSION, TINYSG_PATCH_VERSION);}
 
-#ifdef USE_DOUBLE_PRECISION
-typedef double Real;
-#else
-typedef float Real;
-#endif
-
-enum FactoryTypes {
-	IDENTITY=0,
-	ZERO,
-	UNIT_X,
-	UNIT_Y,
-	UNIT_Z,
-	ONES
+	unsigned int major;
+	unsigned int minor;
+	unsigned int patch;
 };
 
-enum EulerSequences {
-	XYZ=0,
-	ZXY
-};
+bool operator<= (const Version& v1, const Version& v2);
+bool operator> (const Version& v1, const Version& v2);
+bool operator== (const Version& v1, const Version& v2);
 
-} // namespace TinySG
+}
 
-#endif
+#endif /* VERSION_H_ */

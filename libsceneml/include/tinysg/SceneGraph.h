@@ -25,28 +25,48 @@
 #include <queue>
 
 // Internal includes
-#include <tinysg/Exception.h>
-#include <tinysg/ObjectManager.h>
 #include <tinysg/Map.h>
 
 namespace TinySG {
 
 // Forward declarations
-class Node;
+class SceneNode;
+class Query;
+class QueryResult;
 
 class SceneGraph : public ObjectManager
 {
-	static unsigned long nextGeneratedNameExt_;
-
 public:
+	typedef MAP<std::string, SceneNode*> Nodes;
+	typedef MAP<std::string, Query*> Queries;
+
 	SceneGraph();
 	virtual ~SceneGraph();
 
+	// Node management
+	virtual SceneNode* createNode(const PropertyCollection* params=NULL);
+	virtual SceneNode* createNode(const std::string& name, const PropertyCollection* params=NULL);
+	virtual void destroyNode(const std::string& name);
+	virtual void destroyNode(SceneNode* obj);
+	virtual void destroyAllNodes();
+	virtual SceneNode* getNode(const std::string& name) const;
+
+	// Scene management
 	void clearScene();
 	void update();
 
+	// Query management
+	virtual QueryResult* performQuery( const std::string queryName, const PropertyCollection* params=0 );
+	virtual void addQuery( Query* query );
+
+	// Save state
+	void save(TinySG::Archive& ar);
+	void load(TinySG::Archive& ar);
+
 private:
-	Node* rootNode_;
+	SceneNode* rootNode_;
+	Nodes nodes_;
+	Queries queries_;
 };
 
 }

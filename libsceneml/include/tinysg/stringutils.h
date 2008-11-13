@@ -15,47 +15,26 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * stringutils.h
+ *
+ *  Created on: Nov 13, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef _SML_MATH_H_FILE_
-#define _SML_MATH_H_FILE_
+#ifndef STRINGUTILS_H_
+#define STRINGUTILS_H_
 
-//#include <smlConfig.h>
-
-#define USE_DOUBLE_PRECISION
-
-#ifdef USE_DOUBLE_PRECISION
-#include <tinysg/DoubleConstants.h>
-#else
-#include <tinysg/FloatConstants.h>
-#endif
-
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+#include <string>
+#include <tinysg/Vector.h>
+#include <tinysg/Quaternion.h>
 
 namespace TinySG {
 
-#ifdef USE_DOUBLE_PRECISION
-typedef double Real;
-#else
-typedef float Real;
-#endif
+std::string toString( const ColumnVector& v);
+std::string toString( const Quaternion& v);
 
-enum FactoryTypes {
-	IDENTITY=0,
-	ZERO,
-	UNIT_X,
-	UNIT_Y,
-	UNIT_Z,
-	ONES
-};
 
-enum EulerSequences {
-	XYZ=0,
-	ZXY
-};
+}  // namespace TinySG
 
-} // namespace TinySG
-
-#endif
+#endif /* STRINGUTILS_H_ */

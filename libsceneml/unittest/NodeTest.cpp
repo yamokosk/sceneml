@@ -6,7 +6,7 @@
  */
 
 #include <cppunit/config/SourcePrefix.h>
-#include <math/Vector.h>
+#include <tinysg/Vector.h>
 #include "NodeTest.h"
 
 using namespace log4cxx;
@@ -37,11 +37,11 @@ string convBase(unsigned long v, long base)
 
 void NodeTest::setUp()
 {
-	n1 = dynamic_cast<TinySG::Node*>( fact.createInstance("n1", NULL, NULL) );
-	n2 = dynamic_cast<TinySG::Node*>( fact.createInstance("n2", NULL, NULL) );
-	n3 = dynamic_cast<TinySG::Node*>( fact.createInstance("n3", NULL, NULL) );
-	n4 = dynamic_cast<TinySG::Node*>( fact.createInstance("n4", NULL, NULL) );
-	n2_copy = dynamic_cast<TinySG::Node*>( fact.createInstance("n2", NULL, NULL) );
+	n1 = new TinySG::SceneNode("n1"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n1", NULL, NULL) );
+	n2 = new TinySG::SceneNode("n2"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n2", NULL, NULL) );
+	n3 = new TinySG::SceneNode("n3"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n3", NULL, NULL) );
+	n4 = new TinySG::SceneNode("n4"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n4", NULL, NULL) );
+	n2_copy = new TinySG::SceneNode("n2"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n2", NULL, NULL) );
 
 	/* Create tree
 			n1
@@ -58,11 +58,11 @@ void NodeTest::setUp()
 
 void NodeTest::tearDown()
 {
-	fact.destroyInstance(n1);
-	fact.destroyInstance(n2);
-	fact.destroyInstance(n3);
-	fact.destroyInstance(n4);
-	fact.destroyInstance(n2_copy);
+	if (n1) delete n1; //fact.destroyInstance(n1);
+	if (n2) delete n2; //fact.destroyInstance(n2);
+	if (n3) delete n3; //fact.destroyInstance(n3);
+	if (n4) delete n4; //fact.destroyInstance(n4);
+	if (n2_copy) delete n2_copy; //fact.destroyInstance(n2_copy);
 }
 
 void NodeTest::testNumChildren()
@@ -119,7 +119,7 @@ void NodeTest::testTranslateRelativeToLocal()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::Node::TS_LOCAL );
+	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::SceneNode::TS_LOCAL );
 	n1->update();
 }
 
@@ -127,7 +127,7 @@ void NodeTest::testTranslateRelativeToParent()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::Node::TS_PARENT );
+	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::SceneNode::TS_PARENT );
 	n1->update();
 }
 
@@ -135,7 +135,7 @@ void NodeTest::testTranslateRelativeToWorld()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::Node::TS_WORLD );
+	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::SceneNode::TS_WORLD );
 	n1->update();
 }
 
@@ -143,7 +143,7 @@ void NodeTest::testRotateRelativeToLocal()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::Node::TS_LOCAL);
+	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::SceneNode::TS_LOCAL);
 	n1->update();
 }
 
@@ -151,7 +151,7 @@ void NodeTest::testRotateRelativeToParent()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::Node::TS_PARENT);
+	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::SceneNode::TS_PARENT);
 	n1->update();
 }
 
@@ -159,7 +159,7 @@ void NodeTest::testRotateRelativeToWorld()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::Node::TS_WORLD);
+	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::SceneNode::TS_WORLD);
 	n1->update();
 }
 

@@ -16,41 +16,52 @@
  *
  *************************************************************************/
 /*
- * MovableObject.cpp
+ * Serializer.h
  *
- *  Created on: Jul 23, 2008
+ *  Created on: Nov 13, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/MovableObject.h>
-#include <tinysg/SceneNode.h>
+#ifndef SERIALIZER_H_
+#define SERIALIZER_H_
+
+
+#include <tinysg/Archive.h>
+#include <tinysg/Version.h>
+#include <tinysg/PropertyCollection.h>
+
+#include <tinysg/tinyxml.h>
 
 namespace TinySG
 {
 
-MovableObject::MovableObject() :
-	Object(),
-	visible_(true),
-	parentNode_(NULL)
+class SceneFileWriter
 {
-}
+public:
+	SceneFileWriter() {};
+	virtual ~SceneFileWriter() {};
 
-MovableObject::~MovableObject()
+	void save(const std::string& filename, const Archive& ar) const;
+
+private:
+	TiXmlElement* saveCollection(TiXmlElement* parent, const Archive::Collection& c) const;
+	TiXmlElement* saveObject(TiXmlElement* parent, const PropertyCollection& pc) const;
+};
+
+
+class SceneFileReader
 {
-	if ( isAttached() )
-		parentNode_->detachObject(this);
-}
+public:
+	SceneFileReader() {};
+	virtual ~SceneFileReader() {};
 
-void MovableObject::notifyAttached(SceneNode* parent)
-{
-	assert(!parentNode_ || !parent);
-	bool different = (parent != parentNode_);
-	parentNode_ = parent;
-}
+	void load(const std::string& filename, Archive& ar);
 
-bool MovableObject::isAttached(void) const
-{
-	return (parentNode_ != NULL);
-}
+private:
+	void loadCollection(TiXmlElement* node, Archive& ar) const;
+	PropertyCollection loadObject(TiXmlElement* node) const;
+};
 
-} // Namespace TinySG
+}  // namespace TinySG
+
+#endif

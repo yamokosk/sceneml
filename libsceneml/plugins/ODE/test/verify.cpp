@@ -53,11 +53,11 @@ int main(void)
 	var2.setScalar( sml::zero );
 
 	// Finally lets create simple scene graph
-	Node* n1 = sceneMgr->getRootNode()->createChild("n1", VectorFactory::Vector3(0., 0., 2.));
-	Node* n2 = n1->createChild("n2");
-	Node* n3 = n2->createChild("n3", VectorFactory::Vector3(0.,-1.,0.));
-	Node* n4 = n2->createChild("n4");
-	Node* n5 = n4->createChild("n5");
+	SceneNode* n1 = sceneMgr->getRootNode()->createChild("n1", VectorFactory::Vector3(0., 0., 2.));
+	SceneNode* n2 = n1->createChild("n2");
+	SceneNode* n3 = n2->createChild("n3", VectorFactory::Vector3(0.,-1.,0.));
+	SceneNode* n4 = n2->createChild("n4");
+	SceneNode* n5 = n4->createChild("n5");
 
 	// .. tell some nodes to listen to our variables
 	n2->listen( &var1 );

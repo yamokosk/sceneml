@@ -1,5 +1,5 @@
 /*************************************************************************
- * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -15,47 +15,43 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * Plugin.h
+ *
+ *  Created on: Jul 30, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef _SML_MATH_H_FILE_
-#define _SML_MATH_H_FILE_
+#ifndef LCPLUGIN_H_
+#define LCPLUGIN_H_
 
-//#include <smlConfig.h>
+#include <TinySG.h>
 
-#define USE_DOUBLE_PRECISION
+#include "RigidBodyAdapter.h"
+#include "Space.h"
+#include "DistanceQuery.h"
 
-#ifdef USE_DOUBLE_PRECISION
-#include <tinysg/DoubleConstants.h>
-#else
-#include <tinysg/FloatConstants.h>
-#endif
+namespace lincanny
+{
 
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+class Plugin : public TinySG::Plugin
+{
+public:
+	Plugin();
+	virtual ~Plugin();
 
-namespace TinySG {
+	// Inhereted from tinysg::Plugin
+	virtual void initialize();
+	virtual void registerFactories(Root* r);
+	virtual void unload();
 
-#ifdef USE_DOUBLE_PRECISION
-typedef double Real;
-#else
-typedef float Real;
-#endif
-
-enum FactoryTypes {
-	IDENTITY=0,
-	ZERO,
-	UNIT_X,
-	UNIT_Y,
-	UNIT_Z,
-	ONES
+private:
+	RigidBodyAdapterFactory bodyFactory_;
+	SpaceFactory spaceFactory_;
+	CollisionPairFactory pairFactory_;
+	DistanceQuery collisionQuery_;
 };
 
-enum EulerSequences {
-	XYZ=0,
-	ZXY
-};
+}
 
-} // namespace TinySG
-
-#endif
+#endif /* ODEPLUGIN_H_ */

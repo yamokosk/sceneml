@@ -16,8 +16,8 @@
  *
  *************************************************************************/
 
-#ifndef NODE_H
-#define NODE_H
+#ifndef SCENE_NODE_H
+#define SCENE_NODE_H
 
 // External includes
 #include <string>
@@ -27,9 +27,7 @@
 #include <log4cxx/logger.h>
 
 // Local includes
-#include <tinysg/Exception.h>
 #include <tinysg/Map.h>
-#include <tinysg/Object.h>
 #include <tinysg/MovableObject.h>
 #include <tinysg/Math.h>
 #include <tinysg/Vector.h>
@@ -39,19 +37,22 @@
 namespace TinySG
 {
 
+class SceneGraph;
+
 /*!
 @ingroup TinySG
 @brief Models a node in a tree-like data structure
 
-The Node class represents the nodes associated with
+The SceneNode class represents the nodes associated with
  */
-class Node : public Object
+class SceneNode
 {
 	// For logging
 	static log4cxx::LoggerPtr logger;
+	static unsigned long nextGeneratedNameExt;
 
 protected:
-	typedef MAP<std::string, Node*>		ChildNodeMap;
+	typedef MAP<std::string, SceneNode*>		ChildNodeMap;
 	typedef ChildNodeMap::iterator		ChildNodeIterator;
 	typedef ChildNodeMap::const_iterator	ConstChildNodeIterator;
 
@@ -76,30 +77,38 @@ public:
 		TS_WORLD
 	};
 
-	Node();
-	virtual ~Node();
+	SceneNode();
+	SceneNode(const std::string& name);
+	virtual ~SceneNode();
 	// From Object
-	virtual Object* clone() const;
+	//virtual Object* clone() const;
+
+	void save(PropertyCollection& pc) const;
+
+	//! Returns the manager of this object
+	const SceneGraph* getManager() const {return graph_;}
+	//! Returns the name of this object
+	const std::string& getName() const {return name_;}
 
 	// Child management
 	//! Adds a (precreated) child scene node to this node.
-	void addChild (Node* child);
+	void addChild (SceneNode* child);
 	//! Reports the number of child nodes under this one.
 	unsigned short numChildren (void) const;
 	//! Gets a pointer to a child node.
-	Node* getChild (unsigned short index) const;
+	SceneNode* getChild (unsigned short index) const;
 	//! Gets a pointer to a named child node.
-	Node* getChild (const std::string& name) const;
+	SceneNode* getChild (const std::string& name) const;
 	//! Drops the specified child from this node.
-	Node* removeChild (unsigned short index);
+	SceneNode* removeChild (unsigned short index);
 	//! Drops the specified child from this node.
-	Node* removeChild (Node *child);
+	SceneNode* removeChild (SceneNode *child);
 	//! Drops the named child from this node.
-	Node* removeChild (const std::string &name);
+	SceneNode* removeChild (const std::string &name);
 	//! Removes all child Nodes attached to this node.
 	void removeAllChildren (void);
 	//! Gets the parent of this SceneNode.
-	Node* getParent(void) const;
+	SceneNode* getParent(void) const;
 	//! Tells us if this node has a parent
 	bool hasParent(void) {return (parent_ != NULL);}
 
@@ -169,13 +178,15 @@ public:
 
 protected:
 	void updateFromParent();
-	//! See Node.
-	void setParent(Node *parent);
+	//! See SceneNode.
+	void setParent(SceneNode *parent);
 	//! Internal method called to update the cached transform
 	void updateCachedTransform() const;
 
+	//! Pointer to the graph in which this node belongs
+	SceneGraph* graph_;
 	//! Pointer to parent node.
-	Node* parent_;
+	SceneNode* parent_;
 	//! level in the tree
 	unsigned int level_;
 	//! Stores the orientation of the node relative to it's parent.
@@ -199,9 +210,11 @@ protected:
 	//! Whether or not this node has a valid world transform.
 	bool validWorldTransform_;
 	mutable bool cachedTransformOutOfDate_;
+	//! Node name
+	std::string name_;
 };
 
-
+/*
 class NodeFactory : public ObjectFactory
 {
 protected:
@@ -209,15 +222,16 @@ protected:
 	virtual Object* createInstanceImpl(const PropertyCollection* params = 0);
 
 public:
-	NodeFactory() : ObjectFactory(Node::ObjectTypeID) {};
+	NodeFactory() : ObjectFactory(SceneNode::ObjectTypeID) {};
 	virtual ~NodeFactory() {};
 
 	// To be overloaded by specific object factories
 	virtual void destroyInstance(Object* obj);
 };
+*/
 
 } // namespace TinySG
 
-ostream& operator << (ostream& os, const TinySG::Node& s);
+ostream& operator << (ostream& os, const TinySG::SceneNode& s);
 
 #endif

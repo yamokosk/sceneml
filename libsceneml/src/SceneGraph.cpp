@@ -16,8 +16,13 @@
  *
  *************************************************************************/
 
+#include <tinysg/Exception.h>
 #include <tinysg/SceneGraph.h>
-#include <tinysg/Node.h>
+#include <tinysg/SceneNode.h>
+#include <tinysg/Query.h>
+
+#include <boost/foreach.hpp>
+
 
 namespace TinySG
 {
@@ -28,7 +33,7 @@ SceneGraph::SceneGraph()
 {
 	registerFactory( new NodeFactory() );
 
-	rootNode_ = static_cast<Node*>(createObject("_WORLD_", Node::ObjectTypeID));
+	rootNode_ = static_cast<SceneNode*>(createObject("_WORLD_", SceneNode::ObjectTypeID));
 }
 
 SceneGraph::~SceneGraph()
@@ -44,7 +49,7 @@ void SceneGraph::clearScene(void)
 	rootNode_->removeAllChildren();
 
 	// Delete all SceneNodes, except root that is
-	destroyAllObjects( Node::ObjectTypeID );
+	destroyAllObjects( SceneNode::ObjectTypeID );
 }
 
 void SceneGraph::update()
@@ -54,6 +59,30 @@ void SceneGraph::update()
 	// Smarter SceneGraph subclasses may choose to update only
 	//   certain scene graph branches
 	rootNode_->update();
+}
+
+void SceneGraph::save(TinySG::Archive& ar)
+{
+	ar.createCollection("SceneNodes", (unsigned int)nodes_.size() );
+
+	BOOST_FOREACH( SceneNode* node, nodes_ )
+	{
+		ar.serializeObject("SceneNodes", *node);
+	}
+}
+
+void SceneGraph::load(const TinySG::Archive& ar)
+{
+	Archive::Collection* c = ar.getCollection( "SceneNodes" );
+
+	if ( c != NULL )
+	{
+		for (unsigned int n=0; n < c.size(); ++n)
+		{
+			PropertyCollection pc = c.objects[n];
+			createNode(pc.getValue("name"), &pc);
+		}
+	}
 }
 
 } // namespace TinySG

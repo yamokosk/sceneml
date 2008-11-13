@@ -24,6 +24,8 @@
 
 #include <tinysg/ObjectManager.h>
 
+#include <boost/foreach.hpp>
+
 namespace TinySG
 {
 
@@ -214,5 +216,34 @@ void ObjectManager::addQuery( Query* query )
 	queries_[query->getType()] = query;
 }
 
+void ObjectManager::save(TinySG::Archive& ar)
+{
+	BOOST_FOREACH( ObjectCollection* oc, objectCollections_ )
+	{
+		ar.createCollection(oc->objectType, oc->objects.size());
+
+		BOOST_FOREACH( Object* obj, oc->objects )
+		{
+			ar.serializeObject(oc->objectType, obj);
+		}
+	}
+}
+
+void ObjectManager::load(const TinySG::Archive& ar)
+{
+	for (unsigned int nc=0; nc < ar.size(); ++nc)
+	{
+		Archive::Collection* c = ar.getCollection( nc );
+
+		if ( c->collectionType.compare("SceneNodes") != 0 )
+		{
+			for (unsigned int n=0; n < c.size(); ++n)
+			{
+				PropertyCollection pc = c->objects[n];
+				createObject(pc.getValue("name"), pc.getValue("type"), &pc);
+			}
+		}
+	}
+}
 
 }
