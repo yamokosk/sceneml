@@ -30,7 +30,7 @@
 #include <tinysg/Map.h>
 #include <tinysg/MovableObject.h>
 #include <tinysg/Math.h>
-#include <tinysg/Vector.h>
+#include <tinysg/Vector3.h>
 #include <tinysg/Matrix.h>
 #include <tinysg/Quaternion.h>
 
@@ -118,40 +118,40 @@ public:
 	//! Sets the orientation of this node via Quaternion parameters.
 	void setOrientation (Real w, Real x, Real y, Real z);
 	//! Sets the position of the node relative to it's parent.
-	void setPosition(const ColumnVector &pos);
+	void setPosition(const Vector3 &pos);
 	//! Sets the position of the node relative to it's parent.
 	void setPosition(Real x, Real y, Real z);
 	//! Sets the scale of the node relative to it's parent.
-	void setScale(const ColumnVector &s);
+	void setScale(const Vector3 &s);
 	//! Sets the scale of the node relative to it's parent.
 	void setScale(Real x, Real y, Real z);
 	//! Returns a Quaternion representing the transform's orientation.
 	const Quaternion& getOrientation(void) const {return orientation_;}
 	//! Gets the position of the node relative to it's parent.
-	const ColumnVector& getPosition(void) const {return position_;}
+	const Vector3& getPosition(void) const {return position_;}
 	//! Returns the scale associated with this transform
-	const ColumnVector& getScale(void) const {return scale_;}
+	const Vector3& getScale(void) const {return scale_;}
 	//! Returns full 4x4 matrix representation of the transform
 	const Matrix& getFullTransform (void) const;
 	//! Returns the parent's derived orientation
 	const Quaternion& getParentOrientation() const;
-	const ColumnVector& getParentPosition() const;
-	const ColumnVector& getParentScale() const;
+	const Vector3& getParentPosition() const;
+	const Vector3& getParentScale() const;
 	//! Returns this node's derived orientation/position/scale
 	const Quaternion& getDerivedOrientation();
-	const ColumnVector& getDerivedPosition();
-	const ColumnVector& getDerivedScale();
+	const Vector3& getDerivedPosition();
+	const Vector3& getDerivedScale();
 
 	//! Moves the node along the cartesian axes.
-	void translate(const ColumnVector &d, TransformSpace relativeTo=TS_PARENT);
+	void translate(const Vector3 &d, TransformSpace relativeTo=TS_PARENT);
 	//! Moves the node along the cartesian axes.
 	void translate(Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
 	//! Moves the node along arbitrary axes.
-	void translate(const SquareMatrix& axes, const ColumnVector &move, TransformSpace relativeTo=TS_PARENT);
+	void translate(const SquareMatrix& axes, const Vector3 &move, TransformSpace relativeTo=TS_PARENT);
 	//! Moves the node along arbitrary axes.
 	void translate(const SquareMatrix& axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
 	//! Rotate the node around an arbitrary axis.
-	void rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo=TS_LOCAL);
+	void rotate(const Vector3 &axis, Real angle, TransformSpace relativeTo=TS_LOCAL);
 	//! Rotate the node around an aritrary axis using a Quarternion.
 	void rotate(const Quaternion &q, TransformSpace relativeTo=TS_LOCAL);
 
@@ -192,15 +192,15 @@ protected:
 	//! Stores the orientation of the node relative to it's parent.
 	Quaternion orientation_;
 	//! Stores the position/translation of the node relative to its parent.
-	ColumnVector position_;
+	Vector3 position_;
 	//! Stores the scaling factor applied to this node.
-	ColumnVector scale_;
+	Vector3 scale_;
 	//! Stores the orientation of the node relative to it's parent.
 	Quaternion derivedOrientation_;
 	//! Stores the position/translation of the node relative to its parent.
-	ColumnVector derivedPosition_;
+	Vector3 derivedPosition_;
 	//! Stores the scaling factor applied to this node.
-	ColumnVector derivedScale_;
+	Vector3 derivedScale_;
 	//! Cached transform
 	mutable Matrix cachedTransform_;
 	//! Collection of pointers to direct children; hashmap for efficiency.

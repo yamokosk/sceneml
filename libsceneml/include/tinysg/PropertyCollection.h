@@ -50,11 +50,14 @@ public:
 
 	void addPair(const PropertyPair& pair) throw (TinySG::Exception);
 	void updatePair(const char* key, const char* value, bool isRequired) throw (TinySG::Exception);
-	PropertyPair getPair(size_t index) const throw (TinySG::Exception);
+	const PropertyPair& getPair(size_t index) const throw (TinySG::Exception);
 
 	unsigned int size() const {return (unsigned int)pairs_.size();}
 	std::string getValue(const char* key) const throw (TinySG::Exception);
 	bool hasProperty(const char* key) const;
+
+	// Combine another set of properties with this one
+	void combine(const PropertyCollection& pc);
 private:
 	PairMap pairs_;
 };

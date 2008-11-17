@@ -15,43 +15,24 @@
  * more details.
  *
  *************************************************************************/
+/*
+ * config.h
+ *
+ *  Created on: Nov 14, 2008
+ *      Author: yamokosk
+ */
 
-#ifndef _SML_MATH_H_FILE_
-#define _SML_MATH_H_FILE_
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
-#ifdef _USE_DOUBLE_PRECISION_
-#include <tinysg/DoubleConstants.h>
+#ifndef WIN32
+#	define SOEXPORT
 #else
-#include <tinysg/FloatConstants.h>
-#endif
 
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+#	ifdef _COMPILING_
+#		define SOEXPORT __declspec(dllexport)
+#	else
+#		define SOEXPORT __declspec(dllimport)
+#	endif
 
-namespace TinySG {
-
-#ifdef _USE_DOUBLE_PRECISION_
-typedef double Real;
-#else
-typedef float Real;
-#endif
-
-enum FactoryTypes {
-	IDENTITY=0,
-	ZERO,
-	UNIT_X,
-	UNIT_Y,
-	UNIT_Z,
-	ONES
-};
-
-enum EulerSequences {
-	XYZ=0,
-	ZXY
-};
-
-} // namespace TinySG
-
-#endif
+#endif /* CONFIG_H_ */
