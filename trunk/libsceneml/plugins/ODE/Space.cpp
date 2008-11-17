@@ -30,6 +30,15 @@ Object* Space::clone() const
 	return (new Space(*this));
 }
 
+void Space::save(PropertyCollection& pc) const
+{
+	// Class identifier
+	pc.addPair( RequiredProperty("class", "space") );
+
+	// Add properties used to create this space.
+	pc.combine( this->getProperties() );
+}
+
 void Space::addGeom(Geom* g)
 {
 	dSpaceAdd(getOdeID(), g->getOdeID());
@@ -97,6 +106,14 @@ Object* CollisionPair::clone() const
 	return (new CollisionPair(*this));
 }
 
+void CollisionPair::save(PropertyCollection& pc) const
+{
+	// Class identifier
+	pc.addPair( RequiredProperty("class", "collisionpair") );
+
+	// Add properties used to create this space.
+	pc.combine( this->getProperties() );
+}
 
 //---------------------------------------------------------------------------------
 Object* CollisionPairFactory::createInstanceImpl(const PropertyCollection* params)

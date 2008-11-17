@@ -28,7 +28,9 @@ public:
 	Geom();
 	virtual ~Geom();
 
+	// Inherited from TinySG::Object
 	virtual Object* clone() const;
+	void save(PropertyCollection& pc) const;
 
 	dGeomID getOdeID(void) {return geomID_;}
 	int getGeomClass() {return dGeomGetClass(geomID_);}

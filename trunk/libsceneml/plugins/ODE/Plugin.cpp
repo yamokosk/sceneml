@@ -28,19 +28,19 @@ namespace sgode
 {
 
 Plugin::Plugin() :
-	tinysg::Plugin("ODE"),
+	tinysg::Plugin("sgode"),
 	geomFactory_(),
 	spaceFactory_(),
+	pairFactory_(),
 	collisionQuery_(),
 	world_(NULL)
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 Plugin::~Plugin()
 {
-	// TODO Auto-generated destructor stub
+
 }
 
 void Plugin::initialize()
@@ -51,9 +51,14 @@ void Plugin::initialize()
 
 void Plugin::registerFactories(Root* r)
 {
-	r->addEntityFactory( &geomFactory_ );
-	r->addEntityFactory( &spaceFactory_ );
-	r->addSceneQueryFactory( &collisionQuery_ );
+	r->addObjectFactory( &geomFactory_ );
+	r->addObjectFactory( &spaceFactory_ );
+	r->addObjectFactory( &pairFactory_ );
+}
+
+void Plugin::registerQueries(TinySG::Root* r)
+{
+	r->addObjectQuery( &collisionQuery_ );
 }
 
 void Plugin::unload()
@@ -62,5 +67,11 @@ void Plugin::unload()
 	dCloseODE();
 }
 
+} // End namespace TinySG
 
+extern "C" {
+	SOEXPORT TinySG::PluginFactory *createPluginFactory()
+	{
+		return new sgode::Factory;
+	}
 }

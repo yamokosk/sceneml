@@ -25,8 +25,9 @@
 #ifndef _ODE_PLUGIN_H_
 #define _ODE_PLUGIN_H_
 
-// SceneML
-#include <TinySG.h>
+// TinySG
+#include <tinysg/config.h>
+#include <tinysg/Plugin.h>
 
 // ODE library
 #include <ode/ode.h>
@@ -47,6 +48,7 @@ public:
 	// Inhereted from TinySG::Plugin
 	virtual void initialize();
 	virtual void registerFactories(TinySG::Root* r);
+	virtual void registerQueries(TinySG::Root* r);
 	virtual void unload();
 
 private:
@@ -57,6 +59,20 @@ private:
 	dWorldID world_;
 };
 
+// Used for dynamically loading driver
+struct Factory : public TinySG::PluginFactory
+{
+	TinySG::Plugin* createPlugin() const
+	{
+		return new Plugin();
+	}
+};
+
+}
+
+// Used for dynamically loading driver
+extern "C" {
+	SOEXPORT TinySG::PluginFactory* createPluginFactory();
 }
 
 #endif /* ODEPLUGIN_H_ */
