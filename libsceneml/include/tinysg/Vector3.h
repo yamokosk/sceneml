@@ -29,6 +29,7 @@ Torus Knot Software Ltd.
 #ifndef __Vector3_H__
 #define __Vector3_H__
 
+#include <tinysg/config.h>
 #include <tinysg/Math.h>
 #include <tinysg/Quaternion.h>
 
@@ -412,7 +413,7 @@ namespace TinySG
         */
         inline Real absDotProduct(const Vector3& vec) const
         {
-            return Math::Abs(x * vec.x) + Math::Abs(y * vec.y) + Math::Abs(z * vec.z);
+            return fabs(x * vec.x) + fabs(y * vec.y) + fabs(z * vec.z);
         }
 
         /** Normalises the vector.
@@ -597,7 +598,7 @@ namespace TinySG
 
             // Rotate up vector by random amount around this
             Quaternion q;
-            q.FromAngleAxis( Radian(Math::UnitRandom() * Math::TWO_PI), *this );
+            q.FromAngleAxis( Real(Math::UnitRandom() * Math::TWO_PI), *this );
             newUp = q * newUp;
 
             // Finally rotate this by given angle around randomised up
@@ -653,7 +654,7 @@ namespace TinySG
 				if (fallbackAxis != Vector3::ZERO)
 				{
 					// rotate 180 degrees about the fallback axis
-					q.FromAngleAxis(Radian(Math::PI), fallbackAxis);
+					q.FromAngleAxis(pi, fallbackAxis);
 				}
 				else
 				{
@@ -662,7 +663,7 @@ namespace TinySG
 					if (axis.isZeroLength()) // pick another if colinear
 						axis = Vector3::UNIT_Y.crossProduct(*this);
 					axis.normalise();
-					q.FromAngleAxis(Radian(Math::PI), axis);
+					q.FromAngleAxis(pi, axis);
 				}
 			}
 			else
@@ -740,12 +741,12 @@ namespace TinySG
 		@note Both vectors should be normalised.
 		*/
 		inline bool directionEquals(const Vector3& rhs,
-			const Radian& tolerance) const
+			const Real& tolerance) const
 		{
 			Real dot = dotProduct(rhs);
-			Radian angle = Math::ACos(dot);
+			Real angle = acos(dot);
 
-			return Math::Abs(angle.valueRadians()) <= tolerance.valueRadians();
+			return fabs(angle) <= tolerance;
 
 		}
 
