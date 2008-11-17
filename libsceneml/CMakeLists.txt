@@ -9,7 +9,7 @@ endif ( ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4 )
 # ---------------------------------------------------------------------------------------------------------------------------
 project( sceneml )
 set( PROJECT_VERSION	1.0.0	CACHE STRING "Version of 'SceneML' distribution" )
-set(TARGET_NAME "sceneml")
+set( TARGET_NAME "sceneml" )
 
 # ---------------------------------------------------------------------------------------------------------------------------
 # Project options
@@ -161,9 +161,13 @@ else (NOT DEPENDENCY_CHECK)
 	# We have all of our dependencies... so build it!
 	#subdirs( src )
 	add_subdirectory(unittest)
-	add_subdirectory(plugins)
-	#if (BUILD_TESTS)
-	#	subdirs( tests )
-	#endif (BUILD_TESTS)
-	include ( ${PROJECT_SOURCE_DIR}/cmake/WriteMatlabCompile.cmake )
+	
+	if ( UNITTESTS_PASSED )
+		add_subdirectory(src)
+		add_subdirectory(include)
+		add_subdirectory(plugins)
+		add_subdirectory(benchmark)
+	endif ( UNITTESTS_PASSED )
+
+	#include ( ${PROJECT_SOURCE_DIR}/cmake/WriteMatlabCompile.cmake )
 endif (NOT DEPENDENCY_CHECK)
