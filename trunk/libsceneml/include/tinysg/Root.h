@@ -25,6 +25,9 @@
 #ifndef ROOT_H_
 #define ROOT_H_
 
+// Logging
+#include <log4cxx/logger.h>
+
 // Internal includes
 #include <tinysg/Exception.h>
 #include <tinysg/Singleton.h>
@@ -32,6 +35,8 @@
 #include <tinysg/Plugin.h>
 #include <tinysg/Map.h>
 #include <tinysg/Archive.h>
+
+#include <tinysg/dll.h>
 
 namespace TinySG
 {
@@ -41,6 +46,8 @@ class SceneGraph;
 
 class Root : public Singleton<Root>
 {
+	static log4cxx::LoggerPtr logger;
+
 	typedef MAP<std::string, Plugin*> PluginInstanceMap;
 public:
 	Root();
@@ -50,8 +57,8 @@ public:
 	static Root& getSingleton(void);
 	static Root* getSingletonPtr(void);
 
-	void load(const std::string& filename);
-	void save(const std::string& filename);
+	void loadScene(const std::string& filename);
+	void saveScene(const std::string& filename);
 
 	// Managers
 	SceneGraph*	getSceneGraph() const {return graph_;}
@@ -60,19 +67,30 @@ public:
 	const MeshManager* getMeshManager() const {return objMgr_;}
 
 	// Register a new EntityFactory which will create new Entity instances of a particular type, as identified by the getType() method.
-	//void addObjectFactory (ObjectFactory *fact);
-	// Removes a previously registered EntityFactory.
-	//void removeObjectFactory (ObjectFactory *fact);
-	// Checks whether a factory is registered for a given Entity type.
-	//bool hasObjectFactory (const std::string &typeName) const;
+	void addObjectFactory (ObjectFactory *fact);
 	// Get a EntityFactory for the given type.
-	//ObjectFactory* getObjectFactory (const std::string &typeName);
+	ObjectFactory* getObjectFactory (const std::string &typeName);
+	// Removes a previously registered EntityFactory.
+	void removeObjectFactory (ObjectFactory *fact);
 
 	// Register new queries with their respective managers
 	void addSceneQuery(Query* query);
 	void addObjectQuery(Query* query);
 
 	// Plugins
+	// Internal methods
+	void loadPlugin(const std::string& libName);
+	// Container for all externally loaded libraries (aka plugins)
+	std::vector<DynamicallyLoadedLibrary*> libraryHandles_;
+	// Container for all the plugin class objects.
+	std::vector<Plugins*> plugins_;
+
+	// The library that contains the driver factory (must be declared first so it's destructed last!!!)
+	std::auto_ptr<hydrodll::DynamicallyLoadedLibrary> driverLib_;
+	// Generic driver for the hardware
+	std::auto_ptr<hydrointerfaces::SegwayRmp> driver_;
+
+
 	void registerPlugin( Plugin* );
 
 private:

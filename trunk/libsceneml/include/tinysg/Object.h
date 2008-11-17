@@ -51,6 +51,9 @@ public:
 	// For the copy constructor
 	virtual Object* clone() const = 0;
 
+	// Used to save object data to XML
+	void save(PropertyCollection& pc) const = 0;
+
 	//! Returns factory which created this mesh
 	const ObjectFactory* getFactory() const {return factory_;}
 	//! Returns the manager of this object
@@ -60,11 +63,14 @@ public:
 	//! Returns the object type
 	const std::string& getType() const {return type_;}
 
+	const PropertyCollection& getProperties() const {return properties_;}
+
 private:
 	ObjectManager* manager_;
 	ObjectFactory* factory_;
 	std::string name_;
 	std::string type_;
+	PropertyCollection properties_;
 };
 
 
@@ -87,6 +93,7 @@ public:
 		obj->factory_ = this;
 		obj->manager_ = mgr;
 		obj->type_ = getType();
+		if (params != NULL) obj->properties_ = &params;
 		return obj;
 	}
 

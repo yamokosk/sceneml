@@ -27,6 +27,9 @@
 
 // Standard includes
 #include <string>
+#include <memory>
+
+#include <tinysg/config.h>
 
 namespace TinySG
 {
@@ -34,7 +37,7 @@ namespace TinySG
 // Forward declarations
 class Root;
 
-class Plugin
+class SOEXPORT Plugin
 {
 public:
 	Plugin(const std::string& type) : type_(type) {};
@@ -43,6 +46,7 @@ public:
 	// Functions to be implemented by child classes
 	virtual void initialize() = 0;
 	virtual void registerFactories(Root* r) = 0;
+	virtual void registerQueries(Root* r) = 0;
 	virtual void unload() = 0;
 
 	// Returns plugin type.. needs to be a unique identifier
@@ -52,6 +56,18 @@ private:
 	const std::string type_;
 };
 
+
+// Used for dynamically loading driver
+struct SOEXPORT PluginFactory
+{
+	virtual ~PluginFactory() {};
+	Plugin* createPlugin() const = 0;
+};
+
+typedef std::auto_ptr<PluginFactory> PluginFactoryPtr;
+
 }
+
+typedef TinySG::PluginFactory* DriverFactoryMakerFunc();
 
 #endif /* PLUGIN_H_ */

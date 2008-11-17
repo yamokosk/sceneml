@@ -51,7 +51,8 @@ namespace TinySG {
 			ERR_FILE_NOT_FOUND,
 			ERR_INTERNAL_ERROR,
 			ERR_RT_ASSERTION_FAILED,
-			ERR_NOT_IMPLEMENTED
+			ERR_NOT_IMPLEMENTED,
+			ERR_DYNAMIC_LOAD_FAILED
 		};
 
 		/** Default constructor.
@@ -184,6 +185,12 @@ namespace TinySG {
 		: Exception(number, description, source, "RuntimeAssertionException", file, line) {}
 	};
 
+	class DynamicLoadException : public Exception
+	{
+	public:
+		DynamicLoadException(int number, const std::string& description, const std::string& source, const char* file, long line)
+		: Exception(number, description, source, "DynamicLoadException", file, line) {}
+	};
 
 	/** Class implementing dispatch methods in order to construct by-value
 		exceptions of a derived type based just on an exception code.
@@ -263,7 +270,13 @@ namespace TinySG {
 		{
 			return RuntimeAssertionException(code.number, desc, src, file, line);
 		}
-
+		static DynamicLoadException create(
+			ExceptionCodeType<Exception::ERR_DYNAMIC_LOAD_FAILED> code,
+			const std::string& desc,
+			const std::string& src, const char* file, long line)
+		{
+			return DynamicLoadException(code.number, desc, src, file, line);
+		}
 	};
 
 #ifndef SML_EXCEPT
