@@ -35,3 +35,5 @@ foreach(test ${UnitTests_SRCS})
 		add_test(${TestName} ${TestName}${CMAKE_EXECUTABLE_SUFFIX} )
     endif (build_test)
 endforeach(test)
+
+set( UNITTESTS_PASSED TRUE )
