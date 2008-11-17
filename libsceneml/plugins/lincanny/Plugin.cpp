@@ -28,19 +28,18 @@ namespace lincanny
 {
 
 Plugin::Plugin() :
-	tinysg::Plugin("LC"),
+	tinysg::Plugin("lincanny"),
 	geomFactory_(),
 	spaceFactory_(),
 	collisionQuery_(),
 	world_(NULL)
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 Plugin::~Plugin()
 {
-	// TODO Auto-generated destructor stub
+
 }
 
 void Plugin::initialize()
@@ -48,11 +47,15 @@ void Plugin::initialize()
 
 }
 
-void Plugin::registerFactories(Root* r)
+void Plugin::registerFactories(TinySG::Root* r)
 {
-	r->addEntityFactory( &bodyFactory_ );
-	r->addEntityFactory( &spaceFactory_ );
-	r->addSceneQueryFactory( &collisionQuery_ );
+	r->addObjectFactory( &bodyFactory_ );
+	r->addObjectFactory( &spaceFactory_ );
+}
+
+void registerQueries(TinySG::Root* r)
+{
+	r->addObjectQuery( &collisionQuery_ );
 }
 
 void Plugin::unload()
@@ -60,5 +63,11 @@ void Plugin::unload()
 
 }
 
+} // End namespace lincanny
 
+extern "C" {
+	TinySG::PluginFactory *createPluginFactory()
+	{
+		return new lincanny::Factory;
+	}
 }

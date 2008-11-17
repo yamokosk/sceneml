@@ -25,7 +25,7 @@
 #ifndef LCPLUGIN_H_
 #define LCPLUGIN_H_
 
-#include <TinySG.h>
+#include <tinysg/Plugin.h>
 
 #include "RigidBodyAdapter.h"
 #include "Space.h"
@@ -42,7 +42,8 @@ public:
 
 	// Inhereted from tinysg::Plugin
 	virtual void initialize();
-	virtual void registerFactories(Root* r);
+	virtual void registerFactories(TinySG::Root* r);
+	virtual void registerQueries(TinySG::Root* r);
 	virtual void unload();
 
 private:
@@ -52,6 +53,20 @@ private:
 	DistanceQuery collisionQuery_;
 };
 
+// Used for dynamically loading driver
+struct Factory : public TinySG::PluginFactory
+{
+	TinySG::Plugin* createPlugin() const
+	{
+		return new Plugin();
+	}
+};
+
+}
+
+// Used for dynamically loading driver
+extern "C" {
+	TinySG::PluginFactory *createPluginFactory();
 }
 
 #endif /* ODEPLUGIN_H_ */
