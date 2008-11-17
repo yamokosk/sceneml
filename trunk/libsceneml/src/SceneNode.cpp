@@ -41,11 +41,11 @@ SceneNode::SceneNode () :
 	parent_(NULL),
 	level_(0),
 	orientation_( QuaternionFactory::IDENTITY ),
-	position_( VectorFactory::Vector3( ZERO ) ),
-	scale_( VectorFactory::Vector3( ONES ) ),
+	position_( Vector3::ZERO ),
+	scale_( Vector3::ONES ),
 	derivedOrientation_( QuaternionFactory::IDENTITY ),
-	derivedPosition_( VectorFactory::Vector3( ZERO ) ),
-	derivedScale_( VectorFactory::Vector3( ONES ) ),
+	derivedPosition_( Vector3::ZERO ),
+	derivedScale_( Vector3::ONES ),
 	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
 	validWorldTransform_(true),
 	cachedTransformOutOfDate_(false)
@@ -242,7 +242,7 @@ void SceneNode::setOrientation (Real w, Real x, Real y, Real z)
 	setOrientation(q);
 }
 
-void SceneNode::setPosition(const ColumnVector &pos)
+void SceneNode::setPosition(const Vector3 &pos)
 {
 	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
 	position_ = pos;
@@ -252,11 +252,11 @@ void SceneNode::setPosition(const ColumnVector &pos)
 void SceneNode::setPosition(Real x, Real y, Real z)
 {
 	LOG4CXX_TRACE(logger, "Entering " << __FUNCTION__ );
-	ColumnVector v(3); v << x << y << z;
+	Vector3 v(x, y, z);
 	setPosition(v);
 }
 
-void SceneNode::setScale(const ColumnVector &s)
+void SceneNode::setScale(const Vector3 &s)
 {
 	scale_ = s;
 	notifyUpdate( ScaleChangedBit );
@@ -264,7 +264,7 @@ void SceneNode::setScale(const ColumnVector &s)
 
 void SceneNode::setScale(Real x, Real y, Real z)
 {
-	ColumnVector s(3); s << x << y << z;
+	Vector3 s(x, y, z);
 	setScale(s);
 }
 
@@ -292,12 +292,12 @@ const Quaternion& SceneNode::getParentOrientation() const
 	return parent_->getDerivedOrientation();
 }
 
-const ColumnVector& SceneNode::getParentPosition() const
+const Vector3& SceneNode::getParentPosition() const
 {
 	return parent_->getDerivedPosition();
 }
 
-const ColumnVector& SceneNode::getParentScale() const
+const Vector3& SceneNode::getParentScale() const
 {
 	return parent_->getDerivedScale();
 }
@@ -307,18 +307,18 @@ const Quaternion& SceneNode::getDerivedOrientation()
 	return derivedOrientation_;
 }
 
-const ColumnVector& SceneNode::getDerivedPosition()
+const Vector3& SceneNode::getDerivedPosition()
 {
 	return derivedPosition_;
 }
 
-const ColumnVector& SceneNode::getDerivedScale()
+const Vector3& SceneNode::getDerivedScale()
 {
 	return derivedScale_;
 }
 
 //! Moves the node along the cartesian axes.
-void SceneNode::translate(const ColumnVector &d, TransformSpace relativeTo)
+void SceneNode::translate(const Vector3 &d, TransformSpace relativeTo)
 {
 	switch(relativeTo)
 	{
@@ -348,26 +348,26 @@ void SceneNode::translate(const ColumnVector &d, TransformSpace relativeTo)
 //! Moves the node along the cartesian axes.
 void SceneNode::translate(Real x, Real y, Real z, TransformSpace relativeTo)
 {
-	ColumnVector v(3); v << x << y << z;
+	Vector3 v(x, y, z);
 	translate(v, relativeTo);
 }
 
 //! Moves the node along arbitrary axes.
-void SceneNode::translate(const SquareMatrix &axes, const ColumnVector &move, TransformSpace relativeTo)
+void SceneNode::translate(const SquareMatrix &axes, const Vector3 &move, TransformSpace relativeTo)
 {
-	ColumnVector derived = axes * move;
+	Vector3 derived = axes * move;
 	translate(derived, relativeTo);
 }
 
 //! Moves the node along arbitrary axes.
 void SceneNode::translate(const SquareMatrix &axes, Real x, Real y, Real z, TransformSpace relativeTo)
 {
-	ColumnVector d(3); d << x << y << z;
+	Vector3 d(x, y, z);
 	translate(axes,d,relativeTo);
 }
 
 //! Rotate the node around an arbitrary axis.
-void SceneNode::rotate(const ColumnVector &axis, Real angle, TransformSpace relativeTo)
+void SceneNode::rotate(const Vector3 &axis, Real angle, TransformSpace relativeTo)
 {
 	Quaternion q = QuatFromAngleAxis(angle,axis);
 	rotate(q, relativeTo);

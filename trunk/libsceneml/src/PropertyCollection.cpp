@@ -62,7 +62,7 @@ PropertyCollection& PropertyCollection::operator= (const PropertyCollection& oth
 /**
  * Returns the property pair with specified index.
  */
-PropertyPair PropertyCollection::getPair(size_t index) const throw (TinySG::Exception)
+const PropertyPair& PropertyCollection::getPair(size_t index) const throw (TinySG::Exception)
 {
    PropertyIterator it = pairs_.begin();
    if (index >= pairs_.size())
@@ -124,6 +124,14 @@ std::string PropertyCollection::getValue(const char* key) const throw (TinySG::E
 bool PropertyCollection::hasProperty(const char* key) const
 {
 	return ( pairs_.find(key) != pairs_.end() );
+}
+
+void PropertyCollection::combine(const PropertyCollection& pc)
+{
+	for (unsigned int n=0; n < pc.size(); ++n)
+	{
+		addPair( pc.getPair(n) );
+	}
 }
 
 } // Namespace

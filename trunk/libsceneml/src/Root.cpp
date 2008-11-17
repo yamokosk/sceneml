@@ -23,12 +23,19 @@
  */
 
 #include <tinysg/Root.h>
-
 #include <tinysg/SceneGraph.h>
 #include <tinysg/MovableObject.h>
+#include <tinysg/SceneFile.h>
+
+#include <tinysg/dynamicload.h>
+
+#include <boost/foreach.hpp>
 
 namespace TinySG
 {
+
+using namespace log4cxx;
+LoggerPtr PropertyCollection::logger(Logger::getLogger("Root"));
 
 template<> Root* Singleton<Root>::ms_Singleton = 0;
 Root* Root::getSingletonPtr(void)
@@ -49,67 +56,57 @@ Root::Root() :
 
 Root::~Root()
 {
-	// Unload plugins
-	PluginInstanceMap::iterator itr = registeredPlugins_.begin();
-	for (; itr != registeredPlugins_.end(); ++itr)
+	/* IMPORTANT: Order of operation is key.
+	 * 	1. First notify plugins that they are getting deleted.
+	 *  2. Free space allocated to the plugins.
+	 *  3. Free space allocated to the dynamically loaded libraries.
+	 */
+	BOOST_FOREACH( PluginInstanceMap::data_type plugin, registeredPlugins_ )
 	{
-		(itr->second)->shutdown();
+		plugin->unload();
+		delete plugin;
+	}
+
+	BOOST_FOREACH( DynamicallyLoadedLibrary* lib, libraryHandles_ )
+	{
+		delete lib;
 	}
 
 	if (graph_) delete graph_;
 	if (objMgr_) delete objMgr_;
 }
 
-void Root::load(const std::string& filename)
+void Root::loadScene(const std::string& filename)
 {
 	Archive ar;
-	ar.loadFromXML(filename);
+
+	SceneFileReader sr;
+	sr.load(filename, ar);
+
 	graph_->load(ar);
 	objMgr_->load(ar);
 }
 
-void Root::save(const std::string& filename)
+void Root::saveScene(const std::string& filename)
 {
 	Archive ar;
 	graph_->save(ar);
 	objMgr_->save(ar);
-	ar.writeToXML(filename);
+
+	SceneFileWriter sw;
+	sw.save(filename, ar);
 }
 
-/*
-SceneGraph* Root::createSceneManager()
-{
-	if (!graph_) graph_ = new SceneGraph();
-	else
-		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "A scene graph already exists.");
-
-	return graph_;
-}
-
-//---------------------------------------------------------------------
 void Root::addObjectFactory(ObjectFactory* fact)
 {
-	ObjectFactoryMap::iterator facti = sceneObjectFactoryMap_.find(fact->getType());
+	objMgr_->registerFactory( fact );
+}
 
-	// Save
-	sceneObjectFactoryMap_[fact->getType()] = fact;
-}
-//---------------------------------------------------------------------
-bool Root::hasObjectFactory(const std::string& typeName) const
-{
-	return !(sceneObjectFactoryMap_.find(typeName) == sceneObjectFactoryMap_.end());
-}
-//---------------------------------------------------------------------
 ObjectFactory* Root::getObjectFactory(const std::string& typeName)
 {
-	ObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(typeName);
-	if (i == sceneObjectFactoryMap_.end())
-	{
-		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,"ObjectFactory of type " + typeName + " does not exist");
-	}
-	return i->second;
+	return objMgr_->getFactory( typeName );
 }
-//---------------------------------------------------------------------
+
 void Root::removeObjectFactory(ObjectFactory* fact)
 {
 	ObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(
@@ -118,9 +115,9 @@ void Root::removeObjectFactory(ObjectFactory* fact)
 	{
 		sceneObjectFactoryMap_.erase(i);
 	}
-}*/
+}
 
-void Root::addQuery (Query* query)
+void Root::addSceneQuery(Query* query)
 {
 	graph_->addQuery(query);
 }
@@ -130,10 +127,35 @@ void Root::addObjectQuery(Query* query)
 	objMgr_->addQuery(query);
 }
 
-/*Query* Root::getQueryFactory (const std::string& typeName )
+void Root::loadPlugin(const std::string& libName)
 {
-	return NULL;
-}*/
+	DynamicallyLoadedLibrary* lib = NULL;
+
+	try {
+		lib = new DynamicallyLoadedLibrary(libName);
+		PluginFactoryPtr fact( dynamicallyLoadClass<PluginFactory,DriverFactoryMakerFunc>( *lib, "createPluginFactory" ) );
+		Plugin* plugin = fact->createPlugin();
+
+		registerPlugin(plugin);
+	} catch (const ItemIdentityException& e) {
+		// A plugin is being loaded twice!
+		delete lib;
+
+		// Log the problem
+		LOG4CXX_ERROR(logger, "Plugin \"" << libName << "\" already loaded: " << e.what());
+		return;
+	} catch (const DynamicLoadException& e) {
+		// Some other problem encountered. Possibly the library to load does not exist.
+		if (lib != NULL) delete lib;
+
+		// Log the problem
+		LOG4CXX_ERROR(logger, "Plugin \"" << libName << "\" load failed: " << e.what());
+		return;
+	}
+
+	// Save handle to loaded library
+	libraryHandles_.push_back(lib);
+}
 
 void Root::registerPlugin( Plugin* p )
 {
@@ -141,7 +163,7 @@ void Root::registerPlugin( Plugin* p )
 	// Check that we don't already have one of this type registered
 	if ( registeredPlugins_.find( type ) != registeredPlugins_.end() )
 	{
-		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM,"Plugin type " + type + " already registered");
+		SML_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Plugin type \"" + type + "\" already registered");
 	}
 
 	p->initialize();
