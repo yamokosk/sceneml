@@ -32,6 +32,15 @@ Object* Geom::clone() const
 	return (new Geom(*this));
 }
 
+void Geom::save(PropertyCollection& pc) const
+{
+	// Class identifier
+	pc.addPair( RequiredProperty("class", "geometry") );
+
+	// Add properties used to create this space.
+	pc.combine( this->getProperties() );
+}
+
 void Geom::notifyMoved(void)
 {
 	assert(geomID_ && parentNode_);

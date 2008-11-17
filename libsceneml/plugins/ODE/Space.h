@@ -48,7 +48,9 @@ public:
 	Space();
 	virtual ~Space();
 
+	// From TinySG::Object
 	virtual Object* clone() const;
+	void save(PropertyCollection& pc) const;
 
 	void addGeom(Geom* g);
 	dSpaceID getOdeID() {return spaceID_;}
@@ -81,7 +83,9 @@ public:
 	CollisionPair(const std::string& one, const std::string& two) : TinySG::Object(), space1_(one), space2_(two) {}
 	virtual ~CollisionPair() {}
 
+	// Inherited from TinySG::Object
 	virtual Object* clone() const;
+	void save(PropertyCollection& pc) const;
 
 	const std::string& first() const {return space1_;}
 	const std::string& second() const {return space2_;}
