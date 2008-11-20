@@ -18,6 +18,9 @@
 
 #include <tinysg/MeshImport.h>
 #include <tinysg/Exception.h>
+#include <tinysg/TriMesh.h>
+
+#include <fstream>
 
 namespace TinySG
 {
@@ -26,10 +29,10 @@ void importOBJ(const std::string& filename, TriMesh* m, float sx, float sy, floa
 {
 	// Open the file
 	std::fstream file;
-	file.open(filename, std::ios_base::in);
+	file.open(filename.c_str(), std::ios_base::in);
 
 	if( !file.good() ){
-		file.close(); ERR_FILE_NOT_FOUND;
+		file.close();
 		SML_EXCEPT(Exception::ERR_FILE_NOT_FOUND, "File \"" + filename + "\" not found.");
 	}
 
@@ -82,7 +85,7 @@ void importOBJ(const std::string& filename, TriMesh* m, float sx, float sy, floa
 					{
 						if ( nverts > 2 )
 						{
-							file.close(); ERR_INVALIDPARAMS;
+							file.close();
 							SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Quadrilateral face found! Only triangle faces supported.");
 						}
 

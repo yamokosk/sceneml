@@ -24,29 +24,21 @@
 
 namespace TinySG {
 
-using namespace log4cxx;
-
-LoggerPtr PropertyCollection::logger(Logger::getLogger("PropertyCollection"));
-
 PropertyCollection::PropertyCollection()
 {
 	pairs_.clear();
-	//LOG4CXX_INFO(logger, "Constructor. Size: " << this->size());
 }
 
 PropertyCollection::PropertyCollection(const PropertyCollection& pc)
 {
-	//LOG4CXX_INFO(logger, "Copy constructor incoming size: " << pc.size());
 	for (unsigned int n=0; n < pc.size(); ++n)
 	{
 		this->addPair( pc.getPair(n) );
 	}
-	//LOG4CXX_INFO(logger, "Copy constructor. Size: " << this->size());
 }
 
 PropertyCollection& PropertyCollection::operator= (const PropertyCollection& other)
 {
-	//LOG4CXX_INFO(logger, "Assignment operator. incoming size: " << other.size());
 	if (this != &other) // protect against invalid self-assignment
 	{
 		this->pairs_.clear();
@@ -55,7 +47,6 @@ PropertyCollection& PropertyCollection::operator= (const PropertyCollection& oth
 			this->addPair( other.getPair(n) );
 		}
 	}
-	//LOG4CXX_INFO(logger, "Assignment operator. Size: " << this->size());
 	return *this;
 }
 
@@ -64,16 +55,16 @@ PropertyCollection& PropertyCollection::operator= (const PropertyCollection& oth
  */
 const PropertyPair& PropertyCollection::getPair(size_t index) const throw (TinySG::Exception)
 {
-   PropertyIterator it = pairs_.begin();
-   if (index >= pairs_.size())
-   {
-      std::ostringstream errTxt;
-      errTxt << "Invalid property pair index" << (unsigned int)index;
-      SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, errTxt.str());
-   }
+	PropertyIterator it = pairs_.begin();
+	if (index >= pairs_.size())
+	{
+		std::ostringstream errTxt;
+		errTxt << "Invalid property pair index" << (unsigned int)index;
+		SML_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, errTxt.str());
+	}
 
-   for (size_t i=0; i<index; i++) it++;
-   return it->second;
+	for (size_t i=0; i<index; i++) it++;
+	return it->second;
 }
 
 /**

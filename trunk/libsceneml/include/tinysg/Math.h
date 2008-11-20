@@ -1,55 +1,62 @@
 /*************************************************************************
- * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
- * All rights reserved.
- * Email: yamokosk at gmail dot com
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of the License,
- * or (at your option) any later version. The text of the GNU Lesser General
- * Public License is included with this library in the file LICENSE.TXT.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for
- * more details.
- *
- *************************************************************************/
+* TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
+* All rights reserved.
+* Email: yamokosk at gmail dot com
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation; either version 2.1 of the License,
+* or (at your option) any later version. The text of the GNU Lesser General
+* Public License is included with this library in the file LICENSE.TXT.
+*
+* This library is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+* or FITNESS FOR A PARTICULAR PURPOSE. See the file LICENSE.TXT for
+* more details.
+*
+*************************************************************************/
+
+/*
+ * Code taken from the OGRE (Object-oriented Graphics Rendering Engine) Project
+ * http://www.ogre3d.org/
+ */
 
 #ifndef _SML_MATH_H_FILE_
 #define _SML_MATH_H_FILE_
 
-#ifdef _USE_DOUBLE_PRECISION_
-#include <tinysg/DoubleConstants.h>
-#else
-#include <tinysg/FloatConstants.h>
-#endif
-
-#include <cmath>
-#include <boost/math/complex/asin.hpp>
-#include <boost/math/complex/acos.hpp>
-#include <boost/math/complex/atan.hpp>
+#include <tinysg/MathPrerequisites.h>
 
 namespace TinySG {
 
-#ifdef _USE_DOUBLE_PRECISION_
-typedef double Real;
-#else
-typedef float Real;
-#endif
+class SOEXPORT Math
+{
+public:
+	static inline Real Abs (Real fValue) { return Real(fabs(fValue)); }
 
-enum FactoryTypes {
-	IDENTITY=0,
-	ZERO,
-	UNIT_X,
-	UNIT_Y,
-	UNIT_Z,
-	ONES
-};
+	static inline Real Sqr (Real fValue) { return fValue*fValue; }
 
-enum EulerSequences {
-	XYZ=0,
-	ZXY
+	static inline Real Sqrt (Real fValue) { return Real(sqrt(fValue)); }
+
+	static bool RealEqual(Real a, Real b, Real tolerance = std::numeric_limits<Real>::epsilon());
+
+	template <typename T>
+	static T Clamp(T val, T minval, T maxval)
+	{
+		assert (minval < maxval && "Invalid clamp range");
+		return std::max(std::min(val, maxval), minval);
+	}
+
+	static Real InvSqrt(Real fValue);
+
+	static Real UnitRandom ();  // in [0,1]
+
+	static Real RangeRandom (Real fLow, Real fHigh);  // in [fLow,fHigh]
+
+	static Real SymmetricRandom ();  // in [-1,1]
+
+	static Real gaussianDistribution(Real x, Real offset = 0.0f, Real scale = 1.0f);
+
+	static inline Real Exp (Real fValue) { return Real(exp(fValue)); }
 };
 
 } // namespace TinySG

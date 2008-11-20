@@ -27,6 +27,7 @@
 
 // External
 #include <string>
+#include <boost/cast.hpp>
 
 // Internal
 #include <tinysg/Exception.h>
@@ -34,6 +35,7 @@
 #include <tinysg/Query.h>
 #include <tinysg/Map.h>
 #include <tinysg/Archive.h>
+#include <tinysg/Query.h>
 
 namespace TinySG
 {
@@ -64,15 +66,16 @@ public:
 	virtual ~ObjectManager();
 
 	// Object management
-	virtual Object* createObject(const std::string& name, const std::string& type, const PropertyCollection* params=NULL);
-	virtual void destroyObject(const std::string& name, const std::string& type);
-	virtual void destroyObject(Object* obj);
-	virtual void destroyAllObjects( const std::string& type );
-	virtual Object* getObject(const std::string& name, const std::string& type) const;
+	Object* createObject(const std::string& name, const std::string& type, const PropertyCollection* params=NULL);
+	void destroyObject(const std::string& name, const std::string& type);
+	void destroyObject(Object* obj);
+	void destroyAllObjects( const std::string& type );
+	Object* getObject(const std::string& name, const std::string& type) const;
+	unsigned int getNumberObjects(const std::string& type) const;
 
 	// Factory management
-	virtual void registerFactory( ObjectFactory* obj );
-	virtual ObjectFactory* getFactory( const std::string& type ) const;
+	void registerFactory( ObjectFactory* obj );
+	ObjectFactory* getFactory( const std::string& type ) const;
 
 	// Collections management
 	void destroyCollection( const std::string& type );
@@ -80,12 +83,42 @@ public:
 	void destroyAllCollections();
 	ObjectCollection* getCollection( const std::string& type ) const;
 
+	// Load and save from an archive
+	//virtual void save(TinySG::Archive& ar) const = 0;
+	//virtual void load(const TinySG::Archive& ar, unsigned int version) = 0;
+
 	// Query management
-	virtual QueryResult* performQuery( const std::string queryName, const PropertyCollection* params=0 );
-	virtual void addQuery( Query* query );
+	QueryResult* performQuery( const std::string queryName, const PropertyCollection* params=0 );
+	void addQuery( Query* query );
+
+	// Support for casting to a desired derived class
+	template <class T>
+	T* createAndCastObject(const std::string& name, const std::string& type, const PropertyCollection* params=NULL)
+	{
+		Object* obj = createObject(name, type, params);
+		return boost::polymorphic_downcast<T*>( obj );
+	}
+	template <class T>
+	T* getAndCastObject(const std::string& name, const std::string& type) const
+	{
+		Object* obj = getObject(name, type);
+		return boost::polymorphic_downcast<T*>( obj );
+	}
+	template <class T>
+	T* getAndCastFactory( const std::string& type ) const
+	{
+		ObjectFactory* fact = getFactory(type);
+		return boost::polymorphic_downcast<T*>( fact );
+	}
+	template <class T>
+	T* performAndCastQuery( const std::string queryName, const PropertyCollection* params=0 )
+	{
+		QueryResult* res = performQuery(queryName, params);
+		return boost::polymorphic_downcast<T*>( res );
+	}
 
 	void save(Archive& ar);
-	void load(const Archive& ar);
+	void load(Archive& ar);
 
 private:
 	Collections objectCollections_;

@@ -9,7 +9,9 @@
 #define _ODE_GEOM_H_
 
 // TinySG
-#include <TinySG.h>
+#include <tinysg/MovableObject.h>
+#include <tinysg/MathPrerequisites.h>
+#include <tinysg/TriMesh.h>
 
 // ODE library
 #include <ode/ode.h>
@@ -44,7 +46,7 @@ private:
 	dGeomID geomID_;
 	//! Geom mesh data
 	// Owner of the mesh data.. shares it with ODE
-	TinySG::MeshPtr mesh_;
+	TinySG::TriMesh* mesh_;
 	//! Geom color
 	TinySG::Real rgb_[3];
 	//! Geom alpha (transperancy)

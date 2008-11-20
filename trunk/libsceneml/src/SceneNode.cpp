@@ -17,12 +17,14 @@
 *************************************************************************/
 
 #include <tinysg/SceneNode.h>
-#include <tinysg/MathUtil.h>
 #include <tinysg/Exception.h>
-#include <tinysg/stringutils.h>
+#include <tinysg/MathExpression.h>
+#include <tinysg/SceneGraph.h>
 
 #include <boost/cast.hpp>
+
 #include <iostream>
+#include <sstream>
 
 namespace TinySG {
 
@@ -30,44 +32,22 @@ using namespace log4cxx;
 
 // Initialize static elements
 LoggerPtr SceneNode::logger(Logger::getLogger("TinySG.Node"));
-const std::string SceneNode::ObjectTypeID("TinySG_Node");
-unsigned long SceneNode::nextGeneratedNameExt(0);
 
 // ****************************************************************************
 
 // Class implementation
-SceneNode::SceneNode () :
-	graph_(NULL),
+SceneNode::SceneNode() :
 	parent_(NULL),
 	level_(0),
-	orientation_( QuaternionFactory::IDENTITY ),
+	orientation_( Quaternion::IDENTITY ),
 	position_( Vector3::ZERO ),
-	scale_( Vector3::ONES ),
-	derivedOrientation_( QuaternionFactory::IDENTITY ),
+	scale_( Vector3::UNIT_SCALE ),
+	derivedOrientation_( Quaternion::IDENTITY ),
 	derivedPosition_( Vector3::ZERO ),
-	derivedScale_( Vector3::ONES ),
-	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
+	derivedScale_( Vector3::UNIT_SCALE ),
+	cachedTransform_( Matrix4::IDENTITY ),
 	validWorldTransform_(true),
 	cachedTransformOutOfDate_(false)
-{
-	stringstream ss; ss << "unnamed_" << SceneNode::nextGeneratedNameExt++;
-	name_ = ss.str();
-}
-
-SceneNode::SceneNode(const std::string& name) :
-	graph_(NULL),
-	parent_(NULL),
-	level_(0),
-	orientation_( QuaternionFactory::IDENTITY ),
-	position_( VectorFactory::Vector3( ZERO ) ),
-	scale_( VectorFactory::Vector3( ONES ) ),
-	derivedOrientation_( QuaternionFactory::IDENTITY ),
-	derivedPosition_( VectorFactory::Vector3( ZERO ) ),
-	derivedScale_( VectorFactory::Vector3( ONES ) ),
-	cachedTransform_( MatrixFactory::Matrix4x4( IDENTITY ) ),
-	validWorldTransform_(true),
-	cachedTransformOutOfDate_(false),
-	name_(name)
 {
 
 }
@@ -75,6 +55,7 @@ SceneNode::SceneNode(const std::string& name) :
 SceneNode::~SceneNode()
 {
 	removeAllChildren();
+
 	if (parent_)
 		parent_->removeChild(this);
 
@@ -93,15 +74,15 @@ SceneNode::~SceneNode()
 	sceneObjects_.clear();
 }
 
-/*Object* SceneNode::clone() const
+Object* SceneNode::clone() const
 {
 	return new SceneNode(*this);
-}*/
+}
 
 void SceneNode::save(PropertyCollection& pc) const
 {
 	// Class identifier
-	pc.addPair( RequiredProperty("class", "node") );
+	pc.addPair( RequiredProperty("class", getType()) );
 
 	// Required object information
 	pc.addPair( RequiredProperty("name", getName()) );
@@ -110,9 +91,9 @@ void SceneNode::save(PropertyCollection& pc) const
 	if ( hasParent() ) pc.addPair( OptionalProperty("parent", getParent()->getName()) );
 
 	// Not really optional but looks better if the following is set as parameters
-	pc.addPair( OptionalProperty("position", toString(getPosition()) ) );
-	pc.addPair( OptionalProperty("orientation", toString(getOrientation()) ) );
-	pc.addPair( OptionalProperty("scale", toString(getScale()) ) );
+	pc.addPair( OptionalProperty("position", getPosition().toString() ) );
+	pc.addPair( OptionalProperty("orientation", getOrientation().toString() ) );
+	pc.addPair( OptionalProperty("scale", getScale().toString() ) );
 }
 
 //! Adds a (precreated) child scene node to this node.
@@ -268,7 +249,7 @@ void SceneNode::setScale(Real x, Real y, Real z)
 	setScale(s);
 }
 
-const Matrix& SceneNode::getFullTransform() const
+const Matrix4& SceneNode::getFullTransform() const
 {
 	if ( cachedTransformOutOfDate_ )
 	{
@@ -283,8 +264,9 @@ const Matrix& SceneNode::getFullTransform() const
 
 void SceneNode::updateCachedTransform() const
 {
-	cachedTransform_ = RotFromQuaternion( getOrientation() );
-	cachedTransform_.SubMatrix(1,3,4,4) = getPosition();
+	//cachedTransform_ = RotFromQuaternion( getOrientation() );
+	//cachedTransform_.SubMatrix(1,3,4,4) = getPosition();
+	cachedTransform_.makeTransform(getPosition(), getScale(), getOrientation());
 }
 
 const Quaternion& SceneNode::getParentOrientation() const
@@ -330,7 +312,7 @@ void SceneNode::translate(const Vector3 &d, TransformSpace relativeTo)
 		// position is relative to parent so transform upwards
 		if (parent_)
 		{
-			Quaternion qi = inverse( parent_->getDerivedOrientation() );
+			Quaternion qi( parent_->getDerivedOrientation().Inverse() );
 			position_ += (qi * d); //	/ parent_->_getDerivedScale();
 		}
 		else
@@ -353,14 +335,14 @@ void SceneNode::translate(Real x, Real y, Real z, TransformSpace relativeTo)
 }
 
 //! Moves the node along arbitrary axes.
-void SceneNode::translate(const SquareMatrix &axes, const Vector3 &move, TransformSpace relativeTo)
+void SceneNode::translate(const Matrix3 &axes, const Vector3 &move, TransformSpace relativeTo)
 {
 	Vector3 derived = axes * move;
 	translate(derived, relativeTo);
 }
 
 //! Moves the node along arbitrary axes.
-void SceneNode::translate(const SquareMatrix &axes, Real x, Real y, Real z, TransformSpace relativeTo)
+void SceneNode::translate(const Matrix3 &axes, Real x, Real y, Real z, TransformSpace relativeTo)
 {
 	Vector3 d(x, y, z);
 	translate(axes,d,relativeTo);
@@ -369,7 +351,7 @@ void SceneNode::translate(const SquareMatrix &axes, Real x, Real y, Real z, Tran
 //! Rotate the node around an arbitrary axis.
 void SceneNode::rotate(const Vector3 &axis, Real angle, TransformSpace relativeTo)
 {
-	Quaternion q = QuatFromAngleAxis(angle,axis);
+	Quaternion q(angle, axis);
 	rotate(q, relativeTo);
 }
 
@@ -386,7 +368,7 @@ void SceneNode::rotate(const Quaternion &q, TransformSpace relativeTo)
 		// Rotations are normally relative to local axes, transform up
 		if (parent_)
 		{
-			Quaternion qi = inverse( parent_->getDerivedOrientation() );
+			Quaternion qi( parent_->getDerivedOrientation().Inverse() );
 			orientation_ = orientation_ * qi * q * getDerivedOrientation();
 		} else {
 
@@ -623,34 +605,58 @@ void SceneNode::setParent(SceneNode *parent)
 
 	parent_ = parent;
 
-	/*if ( parent != NULL )
-		level_ = parent->getLevel() + 1;
-	else
-		level_ = 0;*/
-
 	if (different)
 		notifyUpdate( ParentChangedBit );
 }
 
-
-// ****************************************************************************
-/*
-Object* NodeFactory::createInstanceImpl(const PropertyCollection* params)
+void SceneNode::setParent(const std::string& name)
 {
-	return (new SceneNode);
+	SceneNode* parent = getAndCastManager<SceneGraph>()->getNode(name);
+	setParent(parent);
 }
 
-void NodeFactory::destroyInstance(Object* obj)
+// ****************************************************************************
+Object* SceneNodeFactory::createInstanceImpl(const PropertyCollection* params)
+{
+	SceneNode* node = new SceneNode();
+
+	if ( params->hasProperty("parent") )
+	{
+		node->setParent( params->getValue("parent") );
+	}
+
+	if ( params->hasProperty("position") )
+	{
+		Vector3 pos = ExpressionFactory::getAsSequence<Vector3>(params->getValue("position"), 3);
+		node->setPosition( pos );
+	}
+
+	if ( params->hasProperty("orientation") )
+	{
+		Quaternion q = ExpressionFactory::getAsSequence<Quaternion>(params->getValue("orientation"), 4);
+		node->setOrientation( q );
+	}
+
+	if ( params->hasProperty("scale") )
+	{
+		Vector3 scale = ExpressionFactory::getAsSequence<Vector3>(params->getValue("scale"), 3);
+		node->setScale( scale );
+	}
+
+	return node;
+}
+
+void SceneNodeFactory::destroyInstance(Object* obj)
 {
 	SceneNode* n = dynamic_cast<SceneNode*>(obj);
 	delete n;
 }
-*/
+
 } // Namespace: TinySG
 
 
-ostream& operator << (ostream& os, const TinySG::SceneNode& s)
+/*ostream& operator << (ostream& os, const TinySG::SceneNode& s)
 {
 	return os << "Name: " << s.getName() << std::endl
 	   << "Tmatrix: " << std::endl << s.getFullTransform() << std::endl;
-}
+}*/

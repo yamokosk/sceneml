@@ -22,8 +22,10 @@
  *      Author: yamokosk
  */
 
+#include <tinysg/config.h>
 #include <tinysg/SceneFile.h>
 #include <boost/foreach.hpp>
+#include <sstream>
 
 namespace TinySG
 {
@@ -39,7 +41,8 @@ void SceneFileWriter::save(const std::string& filename, const Archive& ar) const
 	doc.LinkEndChild( root );
 
 	// Write version
-	root->SetAttribute("version", Version::current().toString().c_str() );
+	std::stringstream ss; ss << TINYSG_VERSION;
+	root->SetAttribute("version", ss.str().c_str() );
 
 	// Write items
 	for (unsigned int n=0; n < ar.size(); ++n)
@@ -126,7 +129,9 @@ void SceneFileReader::load(const std::string& filename, Archive& ar)
 	}
 
 	// Set the version
-	ar.setVersion( Version( root->Attribute("version") ) );
+	int ver = 0;
+	root->Attribute("version", &ver);
+	ar.setVersion( (unsigned int)ver );
 
 	// Read in all elements
 	TiXmlElement* child = root->FirstChildElement();

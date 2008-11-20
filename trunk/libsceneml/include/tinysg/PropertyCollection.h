@@ -19,8 +19,6 @@
 #ifndef PROPERTYCOLLECTION_H
 #define PROPERTYCOLLECTION_H
 
-// Logging
-#include <log4cxx/logger.h>
 #include <string>
 #include <memory>
 
@@ -37,7 +35,6 @@ namespace TinySG {
 
 class PropertyCollection
 {
-	static log4cxx::LoggerPtr logger;
 public:
 	typedef MAP<std::string, PropertyPair> PairMap;
 	typedef PairMap::const_iterator PropertyIterator;

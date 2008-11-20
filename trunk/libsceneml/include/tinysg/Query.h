@@ -26,11 +26,14 @@
 #ifndef QUERY_H_
 #define QUERY_H_
 
+#include <string>
+
 namespace TinySG {
 
 // Forward declarations
 class ObjectManager;
 class Query;
+class PropertyCollection;
 
 class QueryResult
 {

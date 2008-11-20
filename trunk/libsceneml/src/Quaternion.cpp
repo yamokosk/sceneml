@@ -43,6 +43,9 @@ Torus Knot Software Ltd.
 
 #include <tinysg/Quaternion.h>
 
+#include <tinysg/Vector3.h>
+#include <tinysg/Matrix3.h>
+
 namespace TinySG {
 
 const Real Quaternion::ms_fEpsilon = 1e-03;
@@ -50,7 +53,7 @@ const Quaternion Quaternion::ZERO(0.0,0.0,0.0,0.0);
 const Quaternion Quaternion::IDENTITY(1.0,0.0,0.0,0.0);
 
 //-----------------------------------------------------------------------
-/*void Quaternion::FromRotationMatrix (const Matrix3& kRot)
+void Quaternion::FromRotationMatrix (const Matrix3& kRot)
 {
 	// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
 	// article "Quaternion Calculus and Fast Animation".
@@ -114,7 +117,7 @@ void Quaternion::ToRotationMatrix (Matrix3& kRot) const
 	kRot[2][0] = fTxz-fTwy;
 	kRot[2][1] = fTyz+fTwx;
 	kRot[2][2] = 1.0-(fTxx+fTyy);
-}*/
+}
 //-----------------------------------------------------------------------
 void Quaternion::FromAngleAxis (const Real& rfAngle, const Vector3& rkAxis)
 {
@@ -123,9 +126,9 @@ void Quaternion::FromAngleAxis (const Real& rfAngle, const Vector3& rkAxis)
 	// The quaternion representing the rotation is
 	//   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
 
-	Radian fHalfAngle ( 0.5*rfAngle );
-	Real fSin = Math::Sin(fHalfAngle);
-	w = Math::Cos(fHalfAngle);
+	Real fHalfAngle ( 0.5*rfAngle );
+	Real fSin = sin(fHalfAngle);
+	w = cos(fHalfAngle);
 	x = fSin*rkAxis.x;
 	y = fSin*rkAxis.y;
 	z = fSin*rkAxis.z;
@@ -139,7 +142,7 @@ void Quaternion::ToAngleAxis (Real& rfAngle, Vector3& rkAxis) const
 	Real fSqrLength = x*x+y*y+z*z;
 	if ( fSqrLength > 0.0 )
 	{
-		rfAngle = 2.0*Math::ACos(w);
+		rfAngle = 2.0*acos(w);
 		Real fInvLength = Math::InvSqrt(fSqrLength);
 		rkAxis.x = x*fInvLength;
 		rkAxis.y = y*fInvLength;
@@ -148,7 +151,7 @@ void Quaternion::ToAngleAxis (Real& rfAngle, Vector3& rkAxis) const
 	else
 	{
 		// angle is 0 (mod 2*pi), so any axis will do
-		rfAngle = Radian(0.0);
+		rfAngle = Real(0.0);
 		rkAxis.x = 1.0;
 		rkAxis.y = 0.0;
 		rkAxis.z = 0.0;
@@ -345,15 +348,15 @@ Quaternion Quaternion::Exp () const
 	// exp(q) = cos(A)+sin(A)*(x*i+y*j+z*k).  If sin(A) is near zero,
 	// use exp(q) = cos(A)+A*(x*i+y*j+z*k) since A/sin(A) has limit 1.
 
-	Radian fAngle ( Math::Sqrt(x*x+y*y+z*z) );
-	Real fSin = Math::Sin(fAngle);
+	Real fAngle ( Math::Sqrt(x*x+y*y+z*z) );
+	Real fSin = sin(fAngle);
 
 	Quaternion kResult;
-	kResult.w = Math::Cos(fAngle);
+	kResult.w = cos(fAngle);
 
 	if ( Math::Abs(fSin) >= ms_fEpsilon )
 	{
-		Real fCoeff = fSin/(fAngle.valueRadians());
+		Real fCoeff = fSin/fAngle;
 		kResult.x = fCoeff*x;
 		kResult.y = fCoeff*y;
 		kResult.z = fCoeff*z;
@@ -379,11 +382,11 @@ Quaternion Quaternion::Log () const
 
 	if ( Math::Abs(w) < 1.0 )
 	{
-		Radian fAngle ( Math::ACos(w) );
-		Real fSin = Math::Sin(fAngle);
+		Real fAngle ( acos(w) );
+		Real fSin = sin(fAngle);
 		if ( Math::Abs(fSin) >= ms_fEpsilon )
 		{
-			Real fCoeff = fAngle.valueRadians()/fSin;
+			Real fCoeff = fAngle/fSin;
 			kResult.x = fCoeff*x;
 			kResult.y = fCoeff*y;
 			kResult.z = fCoeff*z;
@@ -412,13 +415,13 @@ Vector3 Quaternion::operator* (const Vector3& v) const
 
 }
 //-----------------------------------------------------------------------
-bool Quaternion::equals(const Quaternion& rhs, const Radian& tolerance) const
+bool Quaternion::equals(const Quaternion& rhs, const Real& tolerance) const
 {
 	Real fCos = Dot(rhs);
-	Radian angle = Math::ACos(fCos);
+	Real angle = acos(fCos);
 
-	return (Math::Abs(angle.valueRadians()) <= tolerance.valueRadians())
-		|| Math::RealEqual(angle.valueRadians(), Math::PI, tolerance.valueRadians());
+	return (Math::Abs(angle) <= tolerance)
+		|| Math::RealEqual(angle, pi, tolerance);
 
 
 }
@@ -444,10 +447,10 @@ Quaternion Quaternion::Slerp (Real fT, const Quaternion& rkP,
 	{
 		// Standard case (slerp)
 		Real fSin = Math::Sqrt(1 - Math::Sqr(fCos));
-		Radian fAngle = Math::ATan2(fSin, fCos);
+		Real fAngle = atan2(fSin, fCos);
 		Real fInvSin = 1.0f / fSin;
-		Real fCoeff0 = Math::Sin((1.0f - fT) * fAngle) * fInvSin;
-		Real fCoeff1 = Math::Sin(fT * fAngle) * fInvSin;
+		Real fCoeff0 = sin((1.0f - fT) * fAngle) * fInvSin;
+		Real fCoeff1 = sin(fT * fAngle) * fInvSin;
 		return fCoeff0 * rkP + fCoeff1 * rkT;
 	}
 	else
@@ -469,16 +472,16 @@ Quaternion Quaternion::SlerpExtraSpins (Real fT,
 	const Quaternion& rkP, const Quaternion& rkQ, int iExtraSpins)
 {
 	Real fCos = rkP.Dot(rkQ);
-	Radian fAngle ( Math::ACos(fCos) );
+	Real fAngle ( acos(fCos) );
 
-	if ( Math::Abs(fAngle.valueRadians()) < ms_fEpsilon )
+	if ( Math::Abs(fAngle) < ms_fEpsilon )
 		return rkP;
 
-	Real fSin = Math::Sin(fAngle);
-	Radian fPhase ( Math::PI*iExtraSpins*fT );
+	Real fSin = sin(fAngle);
+	Real fPhase ( pi*iExtraSpins*fT );
 	Real fInvSin = 1.0/fSin;
-	Real fCoeff0 = Math::Sin((1.0-fT)*fAngle - fPhase)*fInvSin;
-	Real fCoeff1 = Math::Sin(fT*fAngle + fPhase)*fInvSin;
+	Real fCoeff0 = sin((1.0-fT)*fAngle - fPhase)*fInvSin;
+	Real fCoeff1 = sin(fT*fAngle + fPhase)*fInvSin;
 	return fCoeff0*rkP + fCoeff1*rkQ;
 }
 //-----------------------------------------------------------------------
@@ -512,7 +515,8 @@ Quaternion Quaternion::Squad (Real fT,
 Real Quaternion::normalise(void)
 {
 	Real len = Norm();
-	Real factor = 1.0f / Math::Sqrt(len);
+	//Real factor = 1.0f / Math::Sqrt(len);
+	Real factor = Math::InvSqrt(len);
 	*this = *this * factor;
 	return len;
 }
@@ -533,12 +537,12 @@ Real Quaternion::getRoll(bool reprojectAxis) const
 
 		// Vector3(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
 
-		//return Radian(Math::ATan2(fTxy+fTwz, 1.0-(fTyy+fTzz)));
+		//return Real(Math::ATan2(fTxy+fTwz, 1.0-(fTyy+fTzz)));
 		return atan2(fTxy+fTwz, 1.0-(fTyy+fTzz));
 	}
 	else
 	{
-		//return Radian(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
+		//return Real(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
 		return atan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
 	}
 }
@@ -558,13 +562,13 @@ Real Quaternion::getPitch(bool reprojectAxis) const
 		Real fTzz = fTz*z;
 
 		// Vector3(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
-		//return Radian(Math::ATan2(fTyz+fTwx, 1.0-(fTxx+fTzz)));
+		//return Real(Math::ATan2(fTyz+fTwx, 1.0-(fTxx+fTzz)));
 		return atan2(fTyz+fTwx, 1.0-(fTxx+fTzz));
 	}
 	else
 	{
 		// internal version
-		//return Radian(Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z));
+		//return Real(Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z));
 		return atan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
 	}
 }
@@ -585,14 +589,14 @@ Real Quaternion::getYaw(bool reprojectAxis) const
 
 		// Vector3(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
 
-		//return Radian(Math::ATan2(fTxz+fTwy, 1.0-(fTxx+fTyy)));
+		//return Real(Math::ATan2(fTxz+fTwy, 1.0-(fTxx+fTyy)));
 		return atan2(fTxz+fTwy, 1.0-(fTxx+fTyy));
 
 	}
 	else
 	{
 		// internal version
-		//return Radian(Math::ASin(-2*(x*z - w*y)));
+		//return Real(Math::ASin(-2*(x*z - w*y)));
 		return asin(-2*(x*z - w*y));
 	}
 }

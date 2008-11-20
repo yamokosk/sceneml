@@ -41,7 +41,7 @@ class SOEXPORT Plugin
 {
 public:
 	Plugin(const std::string& type) : type_(type) {};
-	virtual ~Plugin();
+	virtual ~Plugin() {};
 
 	// Functions to be implemented by child classes
 	virtual void initialize() = 0;
@@ -50,7 +50,7 @@ public:
 	virtual void unload() = 0;
 
 	// Returns plugin type.. needs to be a unique identifier
-	const std::string& getType();
+	const std::string& getType() const {return type_;}
 
 private:
 	const std::string type_;
@@ -61,7 +61,7 @@ private:
 struct SOEXPORT PluginFactory
 {
 	virtual ~PluginFactory() {};
-	Plugin* createPlugin() const = 0;
+	virtual Plugin* createPlugin() const = 0;
 };
 
 typedef std::auto_ptr<PluginFactory> PluginFactoryPtr;

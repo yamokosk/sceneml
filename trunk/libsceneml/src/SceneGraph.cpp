@@ -16,9 +16,9 @@
  *
  *************************************************************************/
 
-#include <tinysg/Exception.h>
 #include <tinysg/SceneGraph.h>
-#include <tinysg/SceneNode.h>
+
+#include <tinysg/Exception.h>
 #include <tinysg/Query.h>
 
 #include <boost/foreach.hpp>
@@ -27,20 +27,55 @@
 namespace TinySG
 {
 
-unsigned long SceneGraph::nextGeneratedNameExt_ = 1;
+const std::string SceneGraph::NodeType("node");
+const std::string SceneGraph::World("_WORLD_");
+unsigned long SceneGraph::NextGeneratedNameExt(0);
 
-SceneGraph::SceneGraph()
+
+SceneGraph::SceneGraph() :
+	rootNode_(NULL),
+	nodeFactory_( NodeType )
 {
-	registerFactory( new NodeFactory() );
-
-	rootNode_ = static_cast<SceneNode*>(createObject("_WORLD_", SceneNode::ObjectTypeID));
+	registerFactory( &nodeFactory_ );
+	rootNode_ = createNode(SceneGraph::World);
 }
 
 SceneGraph::~SceneGraph()
 {
 	clearScene();
 
-	if (rootNode_) delete rootNode_;
+	if (rootNode_ != NULL) delete rootNode_;
+}
+
+SceneNode* SceneGraph::createNode(const PropertyCollection* params)
+{
+	std::stringstream ss; ss << "unnamed_" << NextGeneratedNameExt++;
+	return createNode(ss.str(), params);
+}
+
+SceneNode* SceneGraph::createNode(const std::string& name, const PropertyCollection* params)
+{
+	return createAndCastObject<SceneNode>(name, NodeType, params);
+}
+
+void SceneGraph::destroyNode(const std::string& name)
+{
+	destroyObject(name, NodeType);
+}
+
+void SceneGraph::destroyNode(SceneNode* node)
+{
+	destroyObject(node);
+}
+
+void SceneGraph::destroyAllNodes()
+{
+	destroyAllObjects( NodeType );
+}
+
+SceneNode* SceneGraph::getNode(const std::string& name) const
+{
+	return getAndCastObject<SceneNode>(name, NodeType);
 }
 
 void SceneGraph::clearScene(void)
@@ -49,7 +84,7 @@ void SceneGraph::clearScene(void)
 	rootNode_->removeAllChildren();
 
 	// Delete all SceneNodes, except root that is
-	destroyAllObjects( SceneNode::ObjectTypeID );
+	destroyAllNodes();
 }
 
 void SceneGraph::update()
@@ -63,23 +98,27 @@ void SceneGraph::update()
 
 void SceneGraph::save(TinySG::Archive& ar)
 {
-	ar.createCollection("SceneNodes", (unsigned int)nodes_.size() );
+	ObjectManager::ObjectCollection* oc = getCollection(NodeType);
 
-	BOOST_FOREACH( SceneNode* node, nodes_ )
+	ar.createCollection("SceneGraph", oc->objects.size() );
+	std::pair<std::string, Object*> pair;
+	BOOST_FOREACH( pair, oc->objects )
 	{
-		ar.serializeObject("SceneNodes", *node);
+		SceneNode* node = boost::polymorphic_downcast<SceneNode*>(pair.second);
+		ar.serializeObject("SceneGraph", *node );
 	}
 }
 
-void SceneGraph::load(const TinySG::Archive& ar)
+void SceneGraph::load(TinySG::Archive& ar)
 {
-	Archive::Collection* c = ar.getCollection( "SceneNodes" );
+	//Archive::Collection* c = ar.getCollection( "SceneGraph" );
+	Archive::Collection* c = ar.getFirstCollection();
 
 	if ( c != NULL )
 	{
-		for (unsigned int n=0; n < c.size(); ++n)
+		for (unsigned int n=0; n < c->size(); ++n)
 		{
-			PropertyCollection pc = c.objects[n];
+			PropertyCollection pc = c->objects[n];
 			createNode(pc.getValue("name"), &pc);
 		}
 	}

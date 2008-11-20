@@ -26,7 +26,7 @@
 #define _ODE_SPACE_H_
 
 // SceneML
-#include <TinySG.h>
+#include <tinysg/Object.h>
 
 // ODE library
 #include <ode/ode.h>

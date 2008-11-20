@@ -26,8 +26,9 @@
 #define MATHEXPRESSION_H_
 
 #include <string>
-#include <tinysg/Math.h>
-#include <newmat/newmat.h>
+#include <vector>
+
+#include <tinysg/MathPrerequisites.h>
 
 namespace TinySG
 {
@@ -37,12 +38,18 @@ class ExpressionFactory
 public:
 	static TinySG::Real getAsReal(const std::string& expr);
 	static int getAsInt(const std::string& expr);
-	static ReturnMatrix getAsVector(const std::string& expr, unsigned int length);
+
+	template<class T>
+	static T getAsSequence(const std::string& expr, unsigned int len)
+	{
+		std::vector<Real> v; v.resize(len);
+		parseVector(expr.c_str(), v);
+		return T(&v[0]);
+	};
 
 private:
-
 	static TinySG::Real parseValue(const char* str);
-	static ReturnMatrix parseVector(const char* str);
+	static void parseVector(const char* str, std::vector<Real>&);
 };
 
 }

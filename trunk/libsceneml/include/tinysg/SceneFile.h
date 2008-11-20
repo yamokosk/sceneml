@@ -27,7 +27,6 @@
 
 
 #include <tinysg/Archive.h>
-#include <tinysg/Version.h>
 #include <tinysg/PropertyCollection.h>
 
 #include <tinysg/tinyxml.h>

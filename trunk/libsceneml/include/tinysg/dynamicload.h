@@ -29,6 +29,7 @@
 #ifndef WIN32
 #include <dlfcn.h>
 #else
+#define NOMINMAX
 #include <windows.h>
 #endif
 #include <string>

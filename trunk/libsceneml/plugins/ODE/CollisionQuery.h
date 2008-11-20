@@ -8,8 +8,10 @@
 #ifndef _ODE_COLLISIONQUERY_H_
 #define _ODE_COLLISIONQUERY_H_
 
+#include <memory>
+
 // SceneML
-#include <TinySG.h>
+#include <tinysg/Query.h>
 
 // ODE library
 #include <ode/ode.h>
@@ -38,7 +40,7 @@ private:
 	ContactGeometries contactData_;
 };
 
-typedef auto_ptr<CollisionReport> CollisionReportPtr;
+//typedef auto_ptr<CollisionReport> CollisionReportPtr;
 
 
 class CollisionQuery: public TinySG::Query

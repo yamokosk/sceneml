@@ -8,6 +8,9 @@
 #include "Space.h"
 #include "Geom.h"
 
+#include <tinysg/MathExpression.h>
+#include <tinysg/Vector3.h>
+
 namespace sgode
 {
 
@@ -68,23 +71,23 @@ Object* SpaceFactory::createInstanceImpl(const PropertyCollection* params)
 	if ( spaceType.compare("simple") == 0 ) {
 		spaceID = dSimpleSpaceCreate(parentID);
 	} else if (spaceType.compare("hash") == 0) {
-		ColumnVector center = ExpressionFactory::getAsVector( params->getValue("center"), 3 );
-		ColumnVector extents = ExpressionFactory::getAsVector( params->getValue("extents"), 3 );
+		Vector3 center = ExpressionFactory::getAsSequence<Vector3>(params->getValue("center"), 3);
+		Vector3 extents = ExpressionFactory::getAsSequence<Vector3>( params->getValue("extents"), 3 );
 		TinySG::Real depth = ExpressionFactory::getAsReal( params->getValue("depth") );
 
 		dVector3 dCenter = {0}, dExtents = {0};
 		for (int n=0; n<3; ++n) {
-			dCenter[n] = (dReal)center(n+1);
-			dExtents[n] = (dReal)extents(n+1);
+			dCenter[n] = (dReal)center[n];
+			dExtents[n] = (dReal)extents[n];
 		}
 
 		spaceID = dQuadTreeSpaceCreate(parentID, dCenter, dExtents, (int)depth);
 	} else if (spaceType.compare("quadtree") == 0) {
 		spaceID = dHashSpaceCreate(parentID);
 
-		float minlevel = ExpressionFactory::getAsReal( params->getValue("minlevel") );
-		float maxlevel = ExpressionFactory::getAsReal( params->getValue("maxlevel") );
-		dHashSpaceSetLevels(spaceID, (int)minlevel, (int)maxlevel);
+		int minlevel = ExpressionFactory::getAsInt(params->getValue("minlevel"));
+		int maxlevel = ExpressionFactory::getAsInt(params->getValue("maxlevel"));
+		dHashSpaceSetLevels(spaceID, minlevel, maxlevel);
 	} else {
 		SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Space type " + spaceType + " is an unknown type.");
 	}

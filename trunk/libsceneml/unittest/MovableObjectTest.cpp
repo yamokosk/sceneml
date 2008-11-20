@@ -28,10 +28,10 @@ void TestObjectFactory::destroyInstance(TinySG::Object* obj)
 
 void MovableObjectTest::setUp()
 {
-	n1 = new TinySG::SceneNode("n1");//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n1", NULL, NULL) );
-	n2 = new TinySG::SceneNode("n2");//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n2", NULL, NULL) );
-	n3 = new TinySG::SceneNode("n3");//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n3", NULL, NULL) );
-	n4 = new TinySG::SceneNode("n4");//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n4", NULL, NULL) );
+	n1 = new TinySG::SceneNode();//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n1", NULL, NULL) );
+	n2 = new TinySG::SceneNode();//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n2", NULL, NULL) );
+	n3 = new TinySG::SceneNode();//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n3", NULL, NULL) );
+	n4 = new TinySG::SceneNode();//dynamic_cast<TinySG::SceneNode*>( nodefact.createInstance("n4", NULL, NULL) );
 
 	/* Create tree
 			n1

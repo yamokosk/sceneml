@@ -23,12 +23,14 @@
 
 #include <iostream>
 #include <sstream>
+#include <tinysg/Exception.h>
 
 #ifndef WIN32
 #	define LIBRARY_EXTENSION ".so"
 #   include <dlfcn.h>
 #else
 #	define LIBRARY_EXTENSION ".dll"
+#	define NOMINMAX
 #   include <windows.h>
 #endif
 
@@ -36,35 +38,32 @@
 
 using namespace std;
 
-namespace hydrodll {
+namespace TinySG {
 
 DynamicallyLoadedLibrary::DynamicallyLoadedLibrary( const std::string &libName )
     : libName_(libName)
 {
-	std::stringstream fullLibName;
+	std::stringstream fullLibNameSS;
 
 #ifndef WIN32
-	fullLibName << "lib" << libName << LIBRARY_EXTENSION;
+	fullLibNameSS << "lib" << libName << LIBRARY_EXTENSION;
 #else
-	fullLibName << libName << LIBRARY_EXTENSION;
+	fullLibNameSS << libName << LIBRARY_EXTENSION;
 #endif
 
+	std::string fullLibName = fullLibNameSS.str();
+
 #ifndef WIN32
-    libHandle_ = dlopen( fullLibName.str().c_str(), RTLD_NOW );
+    libHandle_ = dlopen( fullLibName.c_str(), RTLD_NOW );
 	if ( libHandle_ == NULL )
     {
-        stringstream ss;
-        ss << "Failed to load '"<<libName<<"': "<<dlerror();
-
-		throw DynamicLoadException( ss.str() );
+        SML_EXCEPT(Exception::ERR_DYNAMIC_LOAD_FAILED, "Failed to load '" + fullLibName + "' : " + dlerror() );
     }
 #else
-	libHandle_ = LoadLibrary( fullLibName.str().c_str() );
+	libHandle_ = LoadLibrary( fullLibName.c_str() );
 	if ( libHandle_ == NULL )
 	{
-		stringstream ss;
-		ss << "Failed to load'"<<libName<<"': " << GetLastError();
-		throw DynamicLoadException( ss.str() );
+		SML_EXCEPT(Exception::ERR_DYNAMIC_LOAD_FAILED, "Failed to load '" + fullLibName + "' : " + GetLastError() );
 	}
 #endif
 
@@ -77,6 +76,13 @@ DynamicallyLoadedLibrary::~DynamicallyLoadedLibrary()
 #else
 	FreeLibrary( (HMODULE)libHandle_ );
 #endif
+}
+
+void DynamicallyLoadedLibrary::save(PropertyCollection& pc) const
+{
+	// Class identifier
+	pc.addPair( RequiredProperty("class", "plugin") );
+	pc.addPair( RequiredProperty("name", libName_) );
 }
 
 }

@@ -6,7 +6,7 @@
  */
 
 #include <cppunit/config/SourcePrefix.h>
-#include <tinysg/Vector.h>
+#include <tinysg/Vector3.h>
 #include "NodeTest.h"
 
 using namespace log4cxx;
@@ -16,10 +16,10 @@ LoggerPtr NodeTest::logger(Logger::getLogger("NodeTest"));
 CPPUNIT_TEST_SUITE_REGISTRATION( NodeTest );
 
 
-string convBase(unsigned long v, long base)
+std::string convBase(unsigned long v, long base)
 {
-	string digits = "0123456789abcdef";
-	string result;
+	std::string digits = "0123456789abcdef";
+	std::string result;
 	if((base < 2) || (base > 16)) {
 		result = "Error: base out of range.";
 	}
@@ -37,11 +37,11 @@ string convBase(unsigned long v, long base)
 
 void NodeTest::setUp()
 {
-	n1 = new TinySG::SceneNode("n1"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n1", NULL, NULL) );
-	n2 = new TinySG::SceneNode("n2"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n2", NULL, NULL) );
-	n3 = new TinySG::SceneNode("n3"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n3", NULL, NULL) );
-	n4 = new TinySG::SceneNode("n4"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n4", NULL, NULL) );
-	n2_copy = new TinySG::SceneNode("n2"); //dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n2", NULL, NULL) );
+	n1 = dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n1", NULL, NULL) );
+	n2 = dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n2", NULL, NULL) );
+	n3 = dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n3", NULL, NULL) );
+	n4 = dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n4", NULL, NULL) );
+	n2_copy = dynamic_cast<TinySG::SceneNode*>( fact.createInstance("n2", NULL, NULL) );
 
 	/* Create tree
 			n1
@@ -88,9 +88,9 @@ void NodeTest::testGetChildByName()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	CPPUNIT_ASSERT( n1->getChild("n2") == n2 );
-	CPPUNIT_ASSERT( n1->getChild("n3") == n3 );
-	CPPUNIT_ASSERT( n3->getChild("n4") == n4 );
+	CPPUNIT_ASSERT( n1->getChild(n2->getName()) == n2 );
+	CPPUNIT_ASSERT( n1->getChild(n3->getName()) == n3 );
+	CPPUNIT_ASSERT( n3->getChild(n4->getName()) == n4 );
 }
 
 void NodeTest::testRemoveChildByIndex()
@@ -104,7 +104,7 @@ void NodeTest::testRemoveChildByName()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	CPPUNIT_ASSERT( n1->removeChild("n3") == n3 );
+	CPPUNIT_ASSERT( n1->removeChild(n3->getName()) == n3 );
 }
 
 void NodeTest::testRemoveAllChildren()
@@ -119,7 +119,7 @@ void NodeTest::testTranslateRelativeToLocal()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::SceneNode::TS_LOCAL );
+	n3->translate( TinySG::Vector3::UNIT_X, TinySG::SceneNode::TS_LOCAL );
 	n1->update();
 }
 
@@ -127,7 +127,7 @@ void NodeTest::testTranslateRelativeToParent()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::SceneNode::TS_PARENT );
+	n3->translate( TinySG::Vector3::UNIT_X, TinySG::SceneNode::TS_PARENT );
 	n1->update();
 }
 
@@ -135,7 +135,7 @@ void NodeTest::testTranslateRelativeToWorld()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->translate( TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::SceneNode::TS_WORLD );
+	n3->translate( TinySG::Vector3::UNIT_X, TinySG::SceneNode::TS_WORLD );
 	n1->update();
 }
 
@@ -143,7 +143,7 @@ void NodeTest::testRotateRelativeToLocal()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::SceneNode::TS_LOCAL);
+	n3->rotate(TinySG::Vector3::UNIT_X, TinySG::pi/3.0, TinySG::SceneNode::TS_LOCAL);
 	n1->update();
 }
 
@@ -151,7 +151,7 @@ void NodeTest::testRotateRelativeToParent()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::SceneNode::TS_PARENT);
+	n3->rotate(TinySG::Vector3::UNIT_X, TinySG::pi/3.0, TinySG::SceneNode::TS_PARENT);
 	n1->update();
 }
 
@@ -159,7 +159,7 @@ void NodeTest::testRotateRelativeToWorld()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	n3->rotate(TinySG::VectorFactory::Vector3( TinySG::UNIT_X ), TinySG::pi/3.0, TinySG::SceneNode::TS_WORLD);
+	n3->rotate(TinySG::Vector3::UNIT_X, TinySG::pi/3.0, TinySG::SceneNode::TS_WORLD);
 	n1->update();
 }
 
@@ -167,10 +167,10 @@ void NodeTest::testProcessUpdates()
 {
 	LOG4CXX_INFO(logger, "Test: " << __FUNCTION__);
 
-	std::cout << *n2;
+	//std::cout << *n2;
 	n2->setPosition(4.0, 0.0, -3.0);
 	n1->update();
-	std::cout << *n2;
+	//std::cout << *n2;
 }
 
 // Exception test cases

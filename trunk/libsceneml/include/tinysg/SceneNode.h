@@ -28,10 +28,14 @@
 
 // Local includes
 #include <tinysg/Map.h>
+#include <tinysg/Object.h>
 #include <tinysg/MovableObject.h>
+#include <tinysg/PropertyCollection.h>
+
 #include <tinysg/Math.h>
 #include <tinysg/Vector3.h>
-#include <tinysg/Matrix.h>
+#include <tinysg/Matrix3.h>
+#include <tinysg/Matrix4.h>
 #include <tinysg/Quaternion.h>
 
 namespace TinySG
@@ -45,11 +49,10 @@ class SceneGraph;
 
 The SceneNode class represents the nodes associated with
  */
-class SceneNode
+class SceneNode : public Object
 {
 	// For logging
 	static log4cxx::LoggerPtr logger;
-	static unsigned long nextGeneratedNameExt;
 
 protected:
 	typedef MAP<std::string, SceneNode*>		ChildNodeMap;
@@ -78,17 +81,13 @@ public:
 	};
 
 	SceneNode();
-	SceneNode(const std::string& name);
+	//explicit SceneNode(const std::string& name);
 	virtual ~SceneNode();
+
 	// From Object
-	//virtual Object* clone() const;
+	virtual Object* clone() const;
 
 	void save(PropertyCollection& pc) const;
-
-	//! Returns the manager of this object
-	const SceneGraph* getManager() const {return graph_;}
-	//! Returns the name of this object
-	const std::string& getName() const {return name_;}
 
 	// Child management
 	//! Adds a (precreated) child scene node to this node.
@@ -110,7 +109,10 @@ public:
 	//! Gets the parent of this SceneNode.
 	SceneNode* getParent(void) const;
 	//! Tells us if this node has a parent
-	bool hasParent(void) {return (parent_ != NULL);}
+	bool hasParent(void) const {return (parent_ != NULL);}
+	//! Sets the parent of this node
+	void setParent(SceneNode *parent);
+	void setParent(const std::string& name);
 
 	// Spatial management
 	//! Sets the orientation of this node via a Quaternion.
@@ -132,7 +134,7 @@ public:
 	//! Returns the scale associated with this transform
 	const Vector3& getScale(void) const {return scale_;}
 	//! Returns full 4x4 matrix representation of the transform
-	const Matrix& getFullTransform (void) const;
+	const Matrix4& getFullTransform (void) const;
 	//! Returns the parent's derived orientation
 	const Quaternion& getParentOrientation() const;
 	const Vector3& getParentPosition() const;
@@ -147,9 +149,9 @@ public:
 	//! Moves the node along the cartesian axes.
 	void translate(Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
 	//! Moves the node along arbitrary axes.
-	void translate(const SquareMatrix& axes, const Vector3 &move, TransformSpace relativeTo=TS_PARENT);
+	void translate(const Matrix3& axes, const Vector3 &move, TransformSpace relativeTo=TS_PARENT);
 	//! Moves the node along arbitrary axes.
-	void translate(const SquareMatrix& axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
+	void translate(const Matrix3& axes, Real x, Real y, Real z, TransformSpace relativeTo=TS_PARENT);
 	//! Rotate the node around an arbitrary axis.
 	void rotate(const Vector3 &axis, Real angle, TransformSpace relativeTo=TS_LOCAL);
 	//! Rotate the node around an aritrary axis using a Quarternion.
@@ -178,13 +180,9 @@ public:
 
 protected:
 	void updateFromParent();
-	//! See SceneNode.
-	void setParent(SceneNode *parent);
 	//! Internal method called to update the cached transform
 	void updateCachedTransform() const;
 
-	//! Pointer to the graph in which this node belongs
-	SceneGraph* graph_;
 	//! Pointer to parent node.
 	SceneNode* parent_;
 	//! level in the tree
@@ -202,7 +200,7 @@ protected:
 	//! Stores the scaling factor applied to this node.
 	Vector3 derivedScale_;
 	//! Cached transform
-	mutable Matrix cachedTransform_;
+	mutable Matrix4 cachedTransform_;
 	//! Collection of pointers to direct children; hashmap for efficiency.
 	ChildNodeMap children_;
 	//! Scene objects attached to this node
@@ -210,28 +208,24 @@ protected:
 	//! Whether or not this node has a valid world transform.
 	bool validWorldTransform_;
 	mutable bool cachedTransformOutOfDate_;
-	//! Node name
-	std::string name_;
 };
 
-/*
-class NodeFactory : public ObjectFactory
+class SceneNodeFactory : public ObjectFactory
 {
 protected:
 	// To be overloaded by specific object factories
 	virtual Object* createInstanceImpl(const PropertyCollection* params = 0);
 
 public:
-	NodeFactory() : ObjectFactory(SceneNode::ObjectTypeID) {};
-	virtual ~NodeFactory() {};
+	SceneNodeFactory(const std::string& type) : ObjectFactory(type) {};
+	virtual ~SceneNodeFactory() {};
 
 	// To be overloaded by specific object factories
 	virtual void destroyInstance(Object* obj);
 };
-*/
 
 } // namespace TinySG
 
-ostream& operator << (ostream& os, const TinySG::SceneNode& s);
+//ostream& operator << (ostream& os, const TinySG::SceneNode& s);
 
 #endif
