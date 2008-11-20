@@ -27,6 +27,8 @@
 
 #include <tinysg/PropertyCollection.h>
 
+#include <boost/cast.hpp>
+
 namespace TinySG
 {
 
@@ -43,8 +45,7 @@ public:
 	Object() :
 		manager_(NULL),
 		factory_(NULL),
-		name_(""),
-		type_("")
+		name_("")
 	{}
 	virtual ~Object() {};
 
@@ -52,16 +53,28 @@ public:
 	virtual Object* clone() const = 0;
 
 	// Used to save object data to XML
-	void save(PropertyCollection& pc) const = 0;
+	virtual void save(PropertyCollection& pc) const = 0;
 
 	//! Returns factory which created this mesh
 	const ObjectFactory* getFactory() const {return factory_;}
 	//! Returns the manager of this object
 	const ObjectManager* getManager() const {return manager_;}
+	//! Returns factory which created this mesh
+	template<class T>
+	const T* getAndCastFactory() const
+	{
+		return boost::polymorphic_downcast<T*>(factory_);
+	}
+	//! Returns the manager of this object
+	template<class T>
+	const T* getAndCastManager() const
+	{
+		return boost::polymorphic_downcast<T*>(manager_);
+	}
 	//! Returns the name of this object
 	const std::string& getName() const {return name_;}
 	//! Returns the object type
-	const std::string& getType() const {return type_;}
+	const std::string& getType() const;
 
 	const PropertyCollection& getProperties() const {return properties_;}
 
@@ -69,7 +82,6 @@ private:
 	ObjectManager* manager_;
 	ObjectFactory* factory_;
 	std::string name_;
-	std::string type_;
 	PropertyCollection properties_;
 };
 
@@ -92,8 +104,7 @@ public:
 		obj->name_ = name;
 		obj->factory_ = this;
 		obj->manager_ = mgr;
-		obj->type_ = getType();
-		if (params != NULL) obj->properties_ = &params;
+		if (params != NULL) obj->properties_ = *params;
 		return obj;
 	}
 

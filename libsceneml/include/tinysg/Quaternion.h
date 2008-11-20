@@ -43,11 +43,18 @@ Torus Knot Software Ltd.
 #ifndef __Quaternion_H__
 #define __Quaternion_H__
 
-#include <tinysg/config.h>
+#include <tinysg/MathPrerequisites.h>
 #include <tinysg/Math.h>
-#include <tinysg/Vector3.h>
+
+#include <string>
+#include <sstream>
+
 
 namespace TinySG {
+
+// Forward declarations
+class Vector3;
+class Matrix3;
 
 /** Implementation of a Quaternion, i.e. a rotation around an axis.
 */
@@ -64,10 +71,10 @@ public:
 		z = fZ;
 	}
 	/// Construct a quaternion from a rotation matrix
-	/*inline Quaternion(const Matrix3& rot)
+	inline Quaternion(const Matrix3& rot)
 	{
 		this->FromRotationMatrix(rot);
-	}*/
+	}
 	/// Construct a quaternion from an angle/axis
 	inline Quaternion(const Real& rfAngle, const Vector3& rkAxis)
 	{
@@ -117,12 +124,12 @@ public:
 		return &w;
 	}
 
-	//void FromRotationMatrix (const Matrix3& kRot);
-	//void ToRotationMatrix (Matrix3& kRot) const;
+	void FromRotationMatrix (const Matrix3& kRot);
+	void ToRotationMatrix (Matrix3& kRot) const;
 	void FromAngleAxis (const Real& rfAngle, const Vector3& rkAxis);
 	void ToAngleAxis (Real& rfAngle, Vector3& rkAxis) const;
 	/*inline void ToAngleAxis (Degree& dAngle, Vector3& rkAxis) const {
-		Radian rAngle;
+		Real rAngle;
 		ToAngleAxis ( rAngle, rkAxis );
 		dAngle = rAngle;
 	}*/
@@ -149,8 +156,7 @@ public:
 	Quaternion operator- (const Quaternion& rkQ) const;
 	Quaternion operator* (const Quaternion& rkQ) const;
 	Quaternion operator* (Real fScalar) const;
-	_OgreExport friend Quaternion operator* (Real fScalar,
-		const Quaternion& rkQ);
+	SOEXPORT friend Quaternion operator* (Real fScalar, const Quaternion& rkQ);
 	Quaternion operator- () const;
 	inline bool operator== (const Quaternion& rhs) const
 	{
@@ -202,7 +208,7 @@ public:
 	*/
 	Real getYaw(bool reprojectAxis = true) const;
 	/// Equality with tolerance (tolerance is max angle difference)
-	bool equals(const Quaternion& rhs, const Radian& tolerance) const;
+	bool equals(const Quaternion& rhs, const Real& tolerance) const;
 
 	// spherical linear interpolation
 	static Quaternion Slerp (Real fT, const Quaternion& rkP,
@@ -234,6 +240,13 @@ public:
 	static const Quaternion IDENTITY;
 
 	Real w, x, y, z;
+
+	std::string toString() const
+	{
+		std::stringstream ss;
+		ss << w << " " << x << " " << y << " " << z;
+		return ss.str();
+	}
 
 	/** Function for writing to a stream. Outputs "Quaternion(w, x, y, z)" with w,x,y,z
 		being the member values of the quaternion.

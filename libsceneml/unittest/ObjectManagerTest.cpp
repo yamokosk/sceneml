@@ -21,7 +21,8 @@ public:
 	MyObject(double d) : TinySG::Object(), val(d) {};
 	virtual ~MyObject() {};
 
-	virtual Object* clone() const {return NULL;}
+	virtual TinySG::Object* clone() const {return NULL;}
+	virtual void save(TinySG::PropertyCollection& pc) const {return;}
 	double val;
 };
 

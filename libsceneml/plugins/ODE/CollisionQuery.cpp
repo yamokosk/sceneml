@@ -6,7 +6,7 @@
  */
 
 #include "CollisionQuery.h"
-#include <ObjectManager.h>
+#include <tinysg/ObjectManager.h>
 
 namespace sgode {
 

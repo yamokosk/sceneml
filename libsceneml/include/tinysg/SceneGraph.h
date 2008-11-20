@@ -26,38 +26,36 @@
 
 // Internal includes
 #include <tinysg/Map.h>
+#include <tinysg/Archive.h>
+#include <tinysg/ObjectManager.h>
+#include <tinysg/SceneNode.h>
 
 namespace TinySG {
 
-// Forward declarations
-class SceneNode;
-class Query;
-class QueryResult;
-
 class SceneGraph : public ObjectManager
 {
+	static const std::string NodeType;
+	static unsigned long NextGeneratedNameExt;
+
 public:
-	typedef MAP<std::string, SceneNode*> Nodes;
-	typedef MAP<std::string, Query*> Queries;
+	// Name of world node
+	static const std::string World;
 
 	SceneGraph();
 	virtual ~SceneGraph();
 
 	// Node management
-	virtual SceneNode* createNode(const PropertyCollection* params=NULL);
-	virtual SceneNode* createNode(const std::string& name, const PropertyCollection* params=NULL);
-	virtual void destroyNode(const std::string& name);
-	virtual void destroyNode(SceneNode* obj);
-	virtual void destroyAllNodes();
-	virtual SceneNode* getNode(const std::string& name) const;
+	SceneNode* createNode(const PropertyCollection* params=NULL);
+	SceneNode* createNode(const std::string& name, const PropertyCollection* params=NULL);
+	void destroyNode(const std::string& name);
+	void destroyNode(SceneNode* obj);
+	void destroyAllNodes();
+	SceneNode* getNode(const std::string& name) const;
+	const SceneNode* getRootNode() const {return rootNode_;}
 
 	// Scene management
 	void clearScene();
 	void update();
-
-	// Query management
-	virtual QueryResult* performQuery( const std::string queryName, const PropertyCollection* params=0 );
-	virtual void addQuery( Query* query );
 
 	// Save state
 	void save(TinySG::Archive& ar);
@@ -65,8 +63,7 @@ public:
 
 private:
 	SceneNode* rootNode_;
-	Nodes nodes_;
-	Queries queries_;
+	SceneNodeFactory nodeFactory_;
 };
 
 }

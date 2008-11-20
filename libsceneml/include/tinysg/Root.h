@@ -35,14 +35,14 @@
 #include <tinysg/Plugin.h>
 #include <tinysg/Map.h>
 #include <tinysg/Archive.h>
+#include <tinysg/Object.h>
+#include <tinysg/ObjectManager.h>
+#include <tinysg/SceneGraph.h>
 
 #include <tinysg/dll.h>
 
 namespace TinySG
 {
-
-class ObjectManager;
-class SceneGraph;
 
 class Root : public Singleton<Root>
 {
@@ -64,14 +64,12 @@ public:
 	SceneGraph*	getSceneGraph() const {return graph_;}
 	ObjectManager*	getEntityManager() const {return objMgr_;}
 	const SceneGraph* getSceneManager() const {return graph_;}
-	const MeshManager* getMeshManager() const {return objMgr_;}
+	const ObjectManager* getMeshManager() const {return objMgr_;}
 
 	// Register a new EntityFactory which will create new Entity instances of a particular type, as identified by the getType() method.
 	void addObjectFactory (ObjectFactory *fact);
 	// Get a EntityFactory for the given type.
 	ObjectFactory* getObjectFactory (const std::string &typeName);
-	// Removes a previously registered EntityFactory.
-	void removeObjectFactory (ObjectFactory *fact);
 
 	// Register new queries with their respective managers
 	void addSceneQuery(Query* query);
@@ -82,15 +80,7 @@ public:
 	void loadPlugin(const std::string& libName);
 	// Container for all externally loaded libraries (aka plugins)
 	std::vector<DynamicallyLoadedLibrary*> libraryHandles_;
-	// Container for all the plugin class objects.
-	std::vector<Plugins*> plugins_;
-
-	// The library that contains the driver factory (must be declared first so it's destructed last!!!)
-	std::auto_ptr<hydrodll::DynamicallyLoadedLibrary> driverLib_;
-	// Generic driver for the hardware
-	std::auto_ptr<hydrointerfaces::SegwayRmp> driver_;
-
-
+	// Internal method for registering loaded plugins
 	void registerPlugin( Plugin* );
 
 private:

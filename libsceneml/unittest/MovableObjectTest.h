@@ -24,7 +24,7 @@ public:
 	virtual ~TestObject() {};
 
 	virtual TinySG::MovableObject* clone() const {return NULL;}
-
+	virtual void save(TinySG::PropertyCollection& pc) const {return;}
 	bool moved_;
 
 protected:

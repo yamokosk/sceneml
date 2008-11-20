@@ -7,9 +7,14 @@ endif ( ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4 )
 # ---------------------------------------------------------------------------------------------------------------------------
 # Project information - name, version, and the project's cmake directory
 # ---------------------------------------------------------------------------------------------------------------------------
-project( sceneml )
-set( PROJECT_VERSION	1.0.0	CACHE STRING "Version of 'SceneML' distribution" )
-set( TARGET_NAME "sceneml" )
+PROJECT(tinysg)
+SET( PROJECT_VERSION 1.0.0 )
+
+STRING( REGEX MATCHALL "[0-9]+" PROJECT_VERSIONS ${PROJECT_VERSION} )
+LIST( GET PROJECT_VERSIONS 0 TINYSG_VERSION_MAJOR)
+LIST( GET PROJECT_VERSIONS 1 TINYSG_VERSION_MINOR)
+LIST( GET PROJECT_VERSIONS 2 TINYSG_VERSION_PATCH)
+MESSAGE( "TinSG version ${PROJECT_VERSION} (${TINYSG_VERSION_MAJOR}.${TINYSG_VERSION_MINOR}.${TINYSG_VERSION_PATCH})" )
 
 # ---------------------------------------------------------------------------------------------------------------------------
 # Project options
@@ -162,12 +167,12 @@ else (NOT DEPENDENCY_CHECK)
 	#subdirs( src )
 	add_subdirectory(unittest)
 	
-	if ( UNITTESTS_PASSED )
+	#if ( UNITTESTS_PASSED )
 		add_subdirectory(src)
-		add_subdirectory(include)
+		#add_subdirectory(include)
 		add_subdirectory(plugins)
-		add_subdirectory(benchmark)
-	endif ( UNITTESTS_PASSED )
+		#add_subdirectory(benchmark)
+	#endif ( UNITTESTS_PASSED )
 
 	#include ( ${PROJECT_SOURCE_DIR}/cmake/WriteMatlabCompile.cmake )
 endif (NOT DEPENDENCY_CHECK)

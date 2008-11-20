@@ -33,6 +33,12 @@ Archive::Collection::Collection(const std::string& id, unsigned int num) :
 	objects.reserve(num);
 }
 
+Archive::Archive() :
+	version(0)
+{
+	currentCollection = collections.begin();
+}
+
 Archive::~Archive()
 {
 	CollectionMap::iterator itr = collections.begin();
@@ -73,6 +79,27 @@ Archive::Collection* Archive::getCollection( unsigned int index ) const
 		return i->second;
 	} else {
 		//SML_EXCEPT(Exception::ERR_INVALIDPARAMS, "Child index out of bounds.");
+		return NULL;
+	}
+}
+
+Archive::Collection* Archive::getFirstCollection()
+{
+	currentCollection = collections.begin();
+	if ( currentCollection != collections.end() )
+	{
+		return currentCollection->second;
+	} else {
+		return NULL;
+	}
+}
+
+Archive::Collection* Archive::getNextCollection()
+{
+	if ( ++currentCollection != collections.end() )
+	{
+		return currentCollection->second;
+	} else {
 		return NULL;
 	}
 }

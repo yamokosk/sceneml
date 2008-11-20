@@ -6,7 +6,6 @@
  */
 
 #include <cppunit/config/SourcePrefix.h>
-#include <tinysg/Vector.h>
 #include "TriMeshTest.h"
 
 using namespace log4cxx;

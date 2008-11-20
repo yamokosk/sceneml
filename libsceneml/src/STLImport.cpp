@@ -17,6 +17,10 @@
  *************************************************************************/
 
 #include <tinysg/MeshImport.h>
+#include <tinysg/TriMesh.h>
+#include <tinysg/Exception.h>
+
+#include <fstream>
 
 namespace TinySG
 {
@@ -28,10 +32,10 @@ void importSTL(const std::string& filename, TriMesh* m, float sx, float sy, floa
 {
 	// Open the file
 	std::fstream file;
-	file.open(filename, std::ios_base::in);
+	file.open(filename.c_str(), std::ios_base::in);
 
 	if( !file.good() ){
-		file.close(); ERR_FILE_NOT_FOUND;
+		file.close();
 		SML_EXCEPT(Exception::ERR_FILE_NOT_FOUND, "File \"" + filename + "\" not found.");
 	}
 
@@ -51,7 +55,7 @@ void importBinarySTL(const std::string& filename, TriMesh* m, float sx, float sy
 {
 	// Open the file
 	std::fstream file;
-	file.open (filename, std::ios_base::in | std::ios_base::binary);
+	file.open(filename.c_str(), std::ios_base::in | std::ios_base::binary);
 
 	if (file.is_open())
 	{
@@ -79,7 +83,7 @@ void importBinarySTL(const std::string& filename, TriMesh* m, float sx, float sy
 
 				m->addVertex(sx*vx, sy*vy, sz*vz);
 			}
-			mesh->addFace(i*3+0, i*3+1, i*3+2);
+			m->addFace(i*3+0, i*3+1, i*3+2);
 
 			file.read(attributeByteCount, sizeof(attributeByteCount));
 		} // END FOR LOOP
@@ -87,13 +91,12 @@ void importBinarySTL(const std::string& filename, TriMesh* m, float sx, float sy
 	}
 
 	file.close();
-	return 0;
 }
 
-int importAsciiSTL(const std::string& filename, TriMesh* m, float sx, float sy, float sz)
+void importAsciiSTL(const std::string& filename, TriMesh* m, float sx, float sy, float sz)
 {
 	std::fstream file;
-	file.open (mesh->filename.c_str(), std::ios_base::in);
+	file.open (filename.c_str(), std::ios_base::in);
 
 	if (file.is_open())
 	{
@@ -131,8 +134,9 @@ int importAsciiSTL(const std::string& filename, TriMesh* m, float sx, float sy, 
 					m->addVertex(sx*(float)v[0], sy*(float)v[1], sz*(float)v[2]);
 				}
 
-				if (strcmp(tok, "facet") == 0) {
-					m->addFace(ip, ip+1 ip+2);
+				if (strcmp(tok, "facet") == 0)
+				{
+					m->addFace(ip, ip+1, ip+2);
 					ip += 3;
 				}
 			}
@@ -141,7 +145,6 @@ int importAsciiSTL(const std::string& filename, TriMesh* m, float sx, float sy, 
 	}
 
 	file.close();
-	return 0;
 }
 
 };

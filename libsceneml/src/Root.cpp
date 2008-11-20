@@ -35,7 +35,7 @@ namespace TinySG
 {
 
 using namespace log4cxx;
-LoggerPtr PropertyCollection::logger(Logger::getLogger("Root"));
+LoggerPtr Root::logger(Logger::getLogger("Root"));
 
 template<> Root* Singleton<Root>::ms_Singleton = 0;
 Root* Root::getSingletonPtr(void)
@@ -61,10 +61,11 @@ Root::~Root()
 	 *  2. Free space allocated to the plugins.
 	 *  3. Free space allocated to the dynamically loaded libraries.
 	 */
-	BOOST_FOREACH( PluginInstanceMap::data_type plugin, registeredPlugins_ )
+	std::pair<std::string, Plugin*> plugin;
+	BOOST_FOREACH( plugin, registeredPlugins_ )
 	{
-		plugin->unload();
-		delete plugin;
+		(plugin.second)->unload();
+		delete (plugin.second);
 	}
 
 	BOOST_FOREACH( DynamicallyLoadedLibrary* lib, libraryHandles_ )
@@ -78,19 +79,39 @@ Root::~Root()
 
 void Root::loadScene(const std::string& filename)
 {
-	Archive ar;
-
-	SceneFileReader sr;
+	Archive ar; SceneFileReader sr;
 	sr.load(filename, ar);
 
+	// Load the scene graph
 	graph_->load(ar);
+
+	// Load the plugins
+	Archive::Collection* collection = ar.getNextCollection();
+	for (unsigned int n=0; n < collection->size(); ++n)
+	{
+		PropertyCollection pc = collection->objects[n];
+		loadPlugin(pc.getValue("name"));
+	}
+
+	// Load the objects
 	objMgr_->load(ar);
 }
 
 void Root::saveScene(const std::string& filename)
 {
 	Archive ar;
+
+	// Save the scene graph
 	graph_->save(ar);
+
+	// Next record the loaded plugins
+	ar.createCollection("Plugins", (unsigned int)libraryHandles_.size());
+	BOOST_FOREACH( DynamicallyLoadedLibrary* lib, libraryHandles_ )
+	{
+		ar.serializeObject("Plugins", *lib);
+	}
+
+	// Finally save the objects
 	objMgr_->save(ar);
 
 	SceneFileWriter sw;
@@ -105,16 +126,6 @@ void Root::addObjectFactory(ObjectFactory* fact)
 ObjectFactory* Root::getObjectFactory(const std::string& typeName)
 {
 	return objMgr_->getFactory( typeName );
-}
-
-void Root::removeObjectFactory(ObjectFactory* fact)
-{
-	ObjectFactoryMap::iterator i = sceneObjectFactoryMap_.find(
-		fact->getType());
-	if (i != sceneObjectFactoryMap_.end())
-	{
-		sceneObjectFactoryMap_.erase(i);
-	}
 }
 
 void Root::addSceneQuery(Query* query)

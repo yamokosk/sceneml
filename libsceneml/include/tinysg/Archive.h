@@ -27,7 +27,6 @@
 
 //#include <tinysg/tinyxml.h>
 #include <tinysg/PropertyCollection.h>
-#include <tinysg/Version.h>
 
 #include <vector>
 
@@ -46,23 +45,26 @@ public:
 	};
 	typedef std::map<std::string, Collection*> CollectionMap;
 
-	Archive() : version( Version::current() ) {};
+	Archive();
 	virtual ~Archive();
 
 	Collection* createCollection(const std::string& cname, unsigned int num=0);
 	Collection* getCollection( const std::string& type ) const;
 	Collection* getCollection( unsigned int index ) const;
+	Collection* getFirstCollection();
+	Collection* getNextCollection();
 	unsigned int size() const {return (unsigned int)collections.size();}
 
 	template<class T>
 	void serializeObject(const std::string& cname, const T& obj);
 
-	void setVersion(const Version& v) {version = v;}
-	Version getVersion() {return version;}
+	void setVersion(const unsigned int v) {version = v;}
+	unsigned int getVersion() {return version;}
 
 private:
 	CollectionMap collections;
-	Version version;
+	CollectionMap::iterator currentCollection;
+	unsigned int version;
 };
 
 template<class T>

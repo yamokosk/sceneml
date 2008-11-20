@@ -25,6 +25,8 @@
 #ifndef MESHIMPORT_H_
 #define MESHIMPORT_H_
 
+#include <string>
+
 // Forward declaration
 class TriMesh;
 
@@ -32,7 +34,7 @@ namespace TinySG
 {
 
 void importOBJ(const std::string& filename, TriMesh* m, float sx=1.0f, float sy=1.0f, float sz=1.0f);
-void importSTL(const std::string& filename, TriMesh* m, float sx=1.0f, float sy=1.0f, float sz=1.0f)
+void importSTL(const std::string& filename, TriMesh* m, float sx=1.0f, float sy=1.0f, float sz=1.0f);
 
 }
 

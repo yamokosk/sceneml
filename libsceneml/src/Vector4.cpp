@@ -17,48 +17,13 @@
 *************************************************************************/
 
 /*
- * Code taken from the Orca-Robotics Project
- * http://orca-robotics.sf.net/
+ * Code taken from the OGRE (Object-oriented Graphics Rendering Engine) Project
+ * http://www.ogre3d.org/
  */
 
-#ifndef DYNAMICLOAD_DLL_H
-#define DYNAMICLOAD_DLL_H
-
-#include <string>
-#include <tinysg/PropertyCollection.h>
+#include <tinysg/Vector4.h>
 
 namespace TinySG
 {
-
-//!
-//! Class to encapsulate a dynamically-loaded library, so you can load
-//! code at run-time.
-//!
-//! Note that you have to keep this thing in scope for as long as you
-//! want to access code from it.
-//!
-class DynamicallyLoadedLibrary
-{
-public:
-
-    //! Loads the lib, throws DynamicLoadExceptions on error.
-    DynamicallyLoadedLibrary( const std::string &libName );
-    ~DynamicallyLoadedLibrary();
-
-    void save(PropertyCollection& pc) const;
-
-    //! Library name
-    const std::string &name() const { return libName_; }
-
-    //! Library handle
-    void *handle() { return libHandle_; }
-
-private:
-
-    void        *libHandle_;
-    std::string  libName_;
-};
-
-} // namespace
-
-#endif
+    const Vector4 Vector4::ZERO( 0, 0, 0, 0 );
+}

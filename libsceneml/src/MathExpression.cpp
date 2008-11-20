@@ -42,11 +42,6 @@ int ExpressionFactory::getAsInt(const std::string& expr)
 	return (int)parseValue( expr.c_str() );
 }
 
-ReturnMatrix ExpressionFactory::getAsVector(const std::string& expr, unsigned int length)
-{
-	return parseVector( expr.c_str() );
-}
-
 TinySG::Real ExpressionFactory::parseValue(const char* str)
 {
 	mu::Parser parser_;
@@ -59,7 +54,7 @@ TinySG::Real ExpressionFactory::parseValue(const char* str)
 	return (TinySG::Real)parser_.Eval();
 }
 
-ReturnMatrix ExpressionFactory::parseVector(const char* str)
+void ExpressionFactory::parseVector(const char* str, std::vector<Real>& data)
 {
 	mu::Parser parser_;
 	parser_.DefineConst("pi", TinySG::pi);
@@ -72,15 +67,18 @@ ReturnMatrix ExpressionFactory::parseVector(const char* str)
 	memset(buf, '\0', (length+1)*sizeof(char));
 	memcpy(buf, str, length*sizeof(char));
 
-	std::vector<TinySG::Real> values;
+	//std::vector<TinySG::Real> values;
 
 	// Step through each token, evaluate it, and store it in our return vector
 	char* tok = strtok(buf, " ,");
-	while (tok != NULL)
+	for (unsigned int n=0; n < data.size(); ++n)
 	{
+		if ( tok == NULL ) break;
+
 		try {
-			TinySG::Real val = parseValue(tok);
-			values.push_back( val );
+			//TinySG::Real val = parseValue(tok);
+			//values.push_back( val );
+			data[n] = parseValue(tok);
 		} catch (mu::Parser::exception_type &e) {
 			std::cout << e.GetMsg() << std::endl;
 		}
@@ -93,10 +91,10 @@ ReturnMatrix ExpressionFactory::parseVector(const char* str)
 	delete [] buf;
 
 	// Copy answer into a Newmat column vector
-	ColumnVector ret( values.size() );
-	for (unsigned int n=0; n<values.size(); ++n) ret(n+1) = values[n];
-	ret.Release();
-	return ret;
+	//ColumnVector ret( values.size() );
+	//for (unsigned int n=0; n<values.size(); ++n) ret(n+1) = values[n];
+	//ret.Release();
+	//return ret;
 }
 
 }

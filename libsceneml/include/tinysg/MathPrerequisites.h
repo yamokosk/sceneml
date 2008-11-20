@@ -15,26 +15,45 @@
  * more details.
  *
  *************************************************************************/
-/*
- * stringutils.h
- *
- *  Created on: Nov 13, 2008
- *      Author: yamokosk
- */
 
-#ifndef STRINGUTILS_H_
-#define STRINGUTILS_H_
+#ifndef _SML_MATH_PREREQS
+#define _SML_MATH_PREREQS
 
-#include <string>
-#include <tinysg/Vector.h>
-#include <tinysg/Quaternion.h>
+#include <tinysg/config.h>
 
-namespace TinySG {
+#ifdef _USE_DOUBLE_PRECISION_
+#include <tinysg/DoubleConstants.h>
+#else
+#include <tinysg/FloatConstants.h>
+#endif
 
-std::string toString( const ColumnVector& v);
-std::string toString( const Quaternion& v);
+#include <cmath>
+#include <limits>		// For numeric limits
+#include <algorithm>	// For min() and max
 
+namespace TinySG
+{
 
-}  // namespace TinySG
+#ifdef _USE_DOUBLE_PRECISION_
+typedef double Real;
+#else
+typedef float Real;
+#endif
 
-#endif /* STRINGUTILS_H_ */
+enum FactoryTypes {
+	IDENTITY=0,
+	ZERO,
+	UNIT_X,
+	UNIT_Y,
+	UNIT_Z,
+	ONES
+};
+
+enum EulerSequences {
+	XYZ=0,
+	ZXY
+};
+
+} // End namespace TinySG
+
+#endif

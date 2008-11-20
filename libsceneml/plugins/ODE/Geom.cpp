@@ -7,6 +7,13 @@
 
 #include "Geom.h"
 
+#include <tinysg/MathExpression.h>
+#include <tinysg/Exception.h>
+#include <tinysg/Vector3.h>
+#include <tinysg/Quaternion.h>
+#include <tinysg/SceneNode.h>
+#include <tinysg/MeshImport.h>
+
 namespace sgode {
 
 using namespace TinySG;
@@ -15,6 +22,7 @@ using namespace log4cxx;
 Geom::Geom() :
 	MovableObject(),
 	geomID_(NULL),
+	mesh_(NULL),
 	alpha_(1)
 {
 	rgb_[0] = 0.0;
@@ -25,6 +33,7 @@ Geom::Geom() :
 Geom::~Geom()
 {
 	if (geomID_ != NULL) dGeomDestroy(geomID_);
+	if (mesh_ != NULL) delete mesh_;
 }
 
 Object* Geom::clone() const
@@ -46,15 +55,15 @@ void Geom::notifyMoved(void)
 	assert(geomID_ && parentNode_);
 
 	if ( getGeomClass() != dPlaneClass ) {
-		ColumnVector pos = parentNode_->getDerivedPosition();
-		dGeomSetPosition(geomID_, (dReal)pos(1), (dReal)pos(2), (dReal)pos(3));
+		Vector3 pos = parentNode_->getDerivedPosition();
+		dGeomSetPosition(geomID_, (dReal)pos.x, (dReal)pos.y, (dReal)pos.z);
 
 		Quaternion q = parentNode_->getDerivedOrientation();
 		dQuaternion dq = {0};
-		dq[0] = (dReal)q.real();
-		dq[1] = (dReal)q.R_component_2();
-		dq[2] = (dReal)q.R_component_3();
-		dq[3] = (dReal)q.R_component_4();
+		dq[0] = (dReal)q.w;
+		dq[1] = (dReal)q.x;
+		dq[2] = (dReal)q.y;
+		dq[3] = (dReal)q.z;
 		dGeomSetQuaternion(geomID_, dq);
 	}
 }
@@ -107,33 +116,27 @@ Object* GeomFactory::createInstanceImpl(const PropertyCollection* params)
 		std::string filename = params->getValue("filename");
 		int pos = filename.find_last_of(".");
 		std::string extension = filename.substr(pos+1);
-		TinySG::Real scale = math::ExpressionFactory::getAsReal( params->getValue("scale") );
+		TinySG::Real scale = ExpressionFactory::getAsReal( params->getValue("scale") );
 
 		// Create a new TriMesh object
-		g->mesh_.reset( new TinySG::TriMesh );
+		TinySG::TriMesh* mesh = new TinySG::TriMesh();
 
-		if (!extension.compare("obj"))
-			TinySG::importOBJ(filename, g->mesh_.get());
-		else if (!extension.compare("stl")) {
-			TinySG::importSTL(filename, g->mesh_.get());
+		if (!extension.compare("obj"))		TinySG::importOBJ(filename, mesh);
+		else if (!extension.compare("stl"))	TinySG::importSTL(filename, mesh);
 		else {
 			SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Unsupported mesh file extension.");
 		}
 
 		dTriMeshDataID Data = dGeomTriMeshDataCreate();
 		dGeomTriMeshDataBuildSingle(Data,
-			(void*)mesh->vertexData, mesh->vertexStride(), mesh->numVertices(),
-			(void*)mesh->faceData, mesh->numFaces(), mesh->faceStride());
+			(void*)mesh->vertexData(), mesh->vertexStride(), mesh->numVertices(),
+			(void*)mesh->faceData(), mesh->numFaces(), mesh->faceStride());
 		geomID = dCreateTriMesh (NULL, Data, NULL, NULL, NULL);
+		g->mesh_ = mesh;
 	} else {
 		SML_EXCEPT(TinySG::Exception::ERR_INVALIDPARAMS, "Geom type " + type + " is an unknown type.");
 	}
 
-	if ( params->hasProperty("position") )
-	{
-		ColumnVector pos = ExpressionFactory::getAsVector( params->getValue("position"), 3 );
-		dGeomSetPosition(geomID, pos(1), pos(2), pos(3));
-	}
 	//if (type.compare("plane")) dGeomSetBody(g, body->id());
 	//dGeomSetCategoryBits(geomID_, 1);
 	//dGeomSetCollideBits(geomID_, 1);

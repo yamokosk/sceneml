@@ -1,5 +1,5 @@
 /*************************************************************************
- * TinySG, Copyright (C) 2007, 2008  J.D. Yamokoski
+ * SceneML, Copyright (C) 2007, 2008  J.D. Yamokoski
  * All rights reserved.
  * Email: yamokosk at gmail dot com
  *
@@ -16,33 +16,19 @@
  *
  *************************************************************************/
 /*
- * stringutils.cpp
+ * Object.cpp
  *
- *  Created on: Nov 13, 2008
+ *  Created on: Nov 19, 2008
  *      Author: yamokosk
  */
 
-#include <tinysg/stringutils.h>
-
-#include <sstream>
+#include <tinysg/Object.h>
 
 namespace TinySG {
 
-std::string toString( const ColumnVector& v)
+const std::string& Object::getType() const
 {
-	std::stringstream ss;
-	for (unsigned int n=1; n < v.nrows(); ++n)
-	{
-		ss << v(n) << " ";
-	}
-	return ss.str();
-}
-
-std::string toString( const Quaternion& v)
-{
-	std::stringstream ss;
-	ss << v.real() << " " << v.R_component_2() << " " << v.R_component_3() << " " << v.R_component_4();
-	return ss.str();
+	return getFactory()->getType();
 }
 
 }  // namespace TinySG

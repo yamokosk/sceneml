@@ -24,11 +24,13 @@
 
 #include "Plugin.h"
 
+#include <tinysg/Root.h>
+
 namespace sgode
 {
 
 Plugin::Plugin() :
-	tinysg::Plugin("sgode"),
+	TinySG::Plugin("sgode"),
 	geomFactory_(),
 	spaceFactory_(),
 	pairFactory_(),

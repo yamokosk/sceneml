@@ -25,6 +25,8 @@
 #ifndef PROPERTYPAIR_H
 #define PROPERTYPAIR_H
 
+#include <string>
+
 namespace TinySG {
 
 struct PropertyPair
@@ -32,6 +34,8 @@ struct PropertyPair
 	PropertyPair() : propertyName_("NO_DATA"), value_("NO_DATA"), required_(false) {}
 	PropertyPair(const char* prop, const char* value="NO_DATA", bool isRequired="false") :
 		propertyName_(prop), value_(value), required_(isRequired) {}
+	PropertyPair(const std::string& prop, const std::string& value="NO_DATA", bool isRequired="false") :
+			propertyName_(prop), value_(value), required_(isRequired) {}
 	virtual ~PropertyPair() {}
 
 	// Get the property name
@@ -51,12 +55,16 @@ struct RequiredProperty : public PropertyPair
 {
 	RequiredProperty(const char* prop, const char* value="NO_DATA") :
 		PropertyPair(prop, value, true) {}
+	RequiredProperty(const std::string& prop, const std::string& value="NO_DATA") :
+			PropertyPair(prop, value, true) {}
 };
 
 struct OptionalProperty : public PropertyPair
 {
 	OptionalProperty(const char* prop, const char* value="NO_DATA") :
 		PropertyPair(prop, value, false) {}
+	OptionalProperty(const std::string& prop, const std::string& value="NO_DATA") :
+			PropertyPair(prop, value, false) {}
 };
 
 }

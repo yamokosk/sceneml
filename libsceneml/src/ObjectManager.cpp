@@ -94,11 +94,18 @@ void ObjectManager::destroyAllObjects( const std::string& type )
 	ObjectCollection* collection = getCollection( type );
 
 	// Iterate over all objects in the collection, destroying them one by one
-	ObjectsIterator iter = collection->objects.begin();
-	for (; iter != collection->objects.end(); ++iter)
+	std::pair<std::string, Object*> pair;
+	BOOST_FOREACH( pair, collection->objects )
 	{
-		destroyObject( iter->second );
+		collection->factory->destroyInstance( pair.second );
 	}
+	collection->objects.clear();
+}
+
+unsigned int ObjectManager::getNumberObjects(const std::string& type) const
+{
+	ObjectCollection* oc = getCollection(type);
+	return (unsigned int)(oc->objects.size());
 }
 
 Object* ObjectManager::getObject(const std::string& name, const std::string& type) const
@@ -154,7 +161,8 @@ void ObjectManager::destroyCollection( const std::string& type )
 	destroyAllObjects( iter->second->objectType );
 
 	// Delete the factory.. we control these too.
-	delete iter->second->factory;
+	// NB: No we don't. These factory pointers are now controlled by the plugins that provide them.
+	//delete iter->second->factory;
 
 	// Finally erase this collection
 	objectCollections_.erase( iter );
@@ -167,12 +175,13 @@ void ObjectManager::destroyCollection( ObjectCollection* collection )
 
 void ObjectManager::destroyAllCollections()
 {
-	// Iterate over all objects in the collection, destroying them one by one
-	CollectionsIterator iter = objectCollections_.begin();
-	for (; iter != objectCollections_.end(); ++iter)
+	std::pair<std::string, ObjectCollection*> pair;
+	BOOST_FOREACH( pair, objectCollections_ )
 	{
-		destroyCollection( iter->second );
+		destroyAllObjects( pair.first );
+		delete pair.second;
 	}
+	objectCollections_.clear();
 }
 
 ObjectManager::ObjectCollection* ObjectManager::getCollection( const std::string& type ) const
@@ -218,31 +227,49 @@ void ObjectManager::addQuery( Query* query )
 
 void ObjectManager::save(TinySG::Archive& ar)
 {
-	BOOST_FOREACH( ObjectCollection* oc, objectCollections_ )
-	{
-		ar.createCollection(oc->objectType, oc->objects.size());
+	// Predeclare the loop variable
+	std::pair<std::string, ObjectCollection*> oc;
 
-		BOOST_FOREACH( Object* obj, oc->objects )
+	BOOST_FOREACH( oc, objectCollections_ )
+	{
+		ar.createCollection((oc.second)->objectType, (oc.second)->objects.size());
+
+		// Predeclare the loop variable
+		std::pair<std::string, Object*> obj;
+
+		BOOST_FOREACH( obj, (oc.second)->objects )
 		{
-			ar.serializeObject(oc->objectType, obj);
+			ar.serializeObject((oc.second)->objectType, *(obj.second));
 		}
 	}
 }
 
-void ObjectManager::load(const TinySG::Archive& ar)
+void ObjectManager::load(TinySG::Archive& ar)
 {
-	for (unsigned int nc=0; nc < ar.size(); ++nc)
+	/*for (unsigned int nc=0; nc < ar.size(); ++nc)
 	{
 		Archive::Collection* c = ar.getCollection( nc );
 
-		if ( c->collectionType.compare("SceneNodes") != 0 )
+		if ( ( c->collectionType.compare("SceneNodes") != 0 ) && ( c->collectionType.compare("Plugins") != 0 ) )
 		{
-			for (unsigned int n=0; n < c.size(); ++n)
+			for (unsigned int n=0; n < c->size(); ++n)
 			{
 				PropertyCollection pc = c->objects[n];
 				createObject(pc.getValue("name"), pc.getValue("type"), &pc);
 			}
 		}
+	}*/
+	Archive::Collection* c = ar.getNextCollection();
+
+	while ( c != NULL )
+	{
+		for (unsigned int n=0; n < c->size(); ++n)
+		{
+			PropertyCollection pc = c->objects[n];
+			createObject(pc.getValue("name"), pc.getValue("type"), &pc);
+		}
+
+		c = ar.getNextCollection();
 	}
 }
 
