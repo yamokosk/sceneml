@@ -16,33 +16,41 @@
  *
  *************************************************************************/
 /*
- * Services.h
+ * MovableObject.cpp
  *
- *  Created on: Nov 21, 2008
+ *  Created on: Jul 23, 2008
  *      Author: yamokosk
  */
 
-#ifndef SERVICES_H_
-#define SERVICES_H_
+#include <tinysg/MovableObject.h>
+#include <tinysg/SceneNode.h>
 
-typedef struct LogParams
+namespace TinySG
 {
-	const char* filename;
-	unsigned int line;
-	const char* message;
-} LogParams;
 
-typedef struct ReportErrorParams
+MovableObject::MovableObject() :
+	Object(),
+	visible_(true),
+	parentNode_(NULL)
 {
-	const char* filename;
-	unsigned int line;
-	const char* message;
-} ReportErrorParams;
+}
 
-typedef struct ConvertExpressionParams
+MovableObject::~MovableObject()
 {
-	const char* expr;
-	Real* value;
-} ConvertExpressionParams;
+	if ( isAttached() )
+		parentNode_->detachObject(this);
+}
 
-#endif /* TINYSGSERVICES_H_ */
+void MovableObject::notifyAttached(SceneNode* parent)
+{
+	assert(!parentNode_ || !parent);
+	bool different = (parent != parentNode_);
+	parentNode_ = parent;
+}
+
+bool MovableObject::isAttached(void) const
+{
+	return (parentNode_ != NULL);
+}
+
+} // Namespace TinySG
