@@ -25,7 +25,6 @@
 #define DYNAMICLOAD_DLL_H
 
 #include <string>
-#include <tinysg/PropertyCollection.h>
 
 namespace TinySG
 {

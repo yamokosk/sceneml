@@ -38,7 +38,7 @@ typedef enum PF_ProgrammingLanguage
 	PF_ProgrammingLanguage_CPP
 } PF_ProgrammingLanguage;
 
-struct PF_PlatformServices_;
+struct PF_PlatformServices;
 
 /*
  * Abstract struct that is passed to created plugin objects
@@ -46,7 +46,7 @@ struct PF_PlatformServices_;
 typedef struct PF_ObjectParams
 {
 	const char* objectType;
-	const struct PF_PlatformServices_* platformServices;
+	const struct PF_PlatformServices* platformServices;
 } PF_ObjectParams;
 
 /*

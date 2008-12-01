@@ -22,10 +22,14 @@
 #include <vector>
 #include <map>
 #include <boost/shared_ptr.hpp>
-#include <api/PluginFramework.h>
+
+#include "Plugin.h"
+
+namespace TinySG
+{
 
 class DynamicLibrary;
-struct IObjectAdapter;
+class IObjectAdapter;
 
 class PluginManager
 {
@@ -41,11 +45,16 @@ public:
 	int loadAll(const std::string & pluginDirectory, PF_InvokeServiceFunc func = NULL);
 	int loadByPath(const std::string & path);
 
-	void * createObject(const std::string & objectType, IObjectAdapter & adapter);
+	void* createObject(const std::string & objectType, IObjectAdapter & adapter);
+
+	template<class T>
+	T* createObjectAndCast(const std::string & objectType)
+	{
+		return dynamic_cast<T*>( createObject(objectType) );
+	}
 
 	int shutdown();
-	static int registerObject(const apr_byte_t * nodeType,
-								const PF_RegisterParams * params);
+	static int registerObject(const char* nodeType, const PF_RegisterParams * params);
 	const RegistrationMap & getRegistrationMap();
 	PF_PlatformServices & getPlatformServices();
 
@@ -67,6 +76,8 @@ private:
 	RegistrationMap     exactMatchMap_;   // register exact-match object types
 	RegistrationVec     wildCardVec_;     // wild card ('*') object types
 };
+
+} // End namespace TinySG
 
 
 #endif

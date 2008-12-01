@@ -24,7 +24,7 @@
 
 #include <sstream>
 #include <iostream>
-#include <tinysg/DynamicLibrary.h>
+#include "DynamicLibrary.h"
 
 using namespace std;
 
