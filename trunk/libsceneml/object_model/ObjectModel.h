@@ -28,6 +28,20 @@
 #include <string>
 #include <map>
 
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/version.hpp>
+
+
+
 typedef float Real;
 
 /*
@@ -76,11 +90,19 @@ struct IReadBuffer {};
  */
 struct ISceneObject
 {
-	virtual void init(IObjectInfo& objectInfo) = 0;
+	friend class boost::serialization::access;
+
+	//virtual void init(const PropertyCollection& objectInfo) = 0;
 	//virtual void execute(IReadBufferIterator & args, IWriteBuffer & out) = 0;
-	virtual void getParameter(const Byte * name, IWriteBuffer & value) = 0;
-	virtual void setParameter(const Byte * name, IReadBuffer & value) = 0;
-	virtual void saveState(IWriteBuffer & state) = 0;
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const = 0;
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version) = 0;
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
+
+	//virtual void getParameter(const char* name, IWriteBuffer & value) = 0;
+	//virtual void setParameter(const char* name, IReadBuffer & value) = 0;
+	//virtual void saveState(IWriteBuffer & state) = 0;
 
 
 	virtual void getInfo( IObjectInfo* info ) = 0;
