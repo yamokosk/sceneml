@@ -163,14 +163,16 @@ else (NOT DEPENDENCY_CHECK)
 		set(REQUIRED_LIBS ode xerces-c muparser newmat)
 	endif (WIN32)
 
+	add_subdirectory( utils )
+	add_subdirectory( plugin_framework )
 	# We have all of our dependencies... so build it!
 	#subdirs( src )
-	add_subdirectory(unittest)
+	#add_subdirectory(unittest)
 	
 	#if ( UNITTESTS_PASSED )
-		add_subdirectory(src)
+		#add_subdirectory(src)
 		#add_subdirectory(include)
-		add_subdirectory(plugins)
+		#add_subdirectory(plugins)
 		#add_subdirectory(benchmark)
 	#endif ( UNITTESTS_PASSED )
 
